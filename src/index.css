@@ -1,0 +1,179 @@
+:root {
+  --primary-color: #182fff;
+  --primary-color-light: #e7fbef;
+  --secondary-color:#F4F4FB;
+  --danger-color:#FFE8E8;
+  --warnig-color:#FFE455;
+  --gray-color:#EFEFEF;
+  --body-color: #fafafa;
+  --black-color: #212529;
+  --black-color-v2:#565656;
+  --font-size: 16px;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "HK Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: var(--font-size);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--black-color);
+  text-align: left;
+  background-color: #fff;
+}
+
+input,
+.btn {
+  height: 2.5rem !important;
+}
+.m-top{
+  margin-top: 120px;
+}
+.fs-12 {
+  font-size: 0.75rem;
+}
+
+.fs-14 {
+  font-size: 0.875rem;
+}
+
+.fs-20 {
+  font-size: 1.25rem;
+}
+
+.fs-24 {
+  font-size: 1.5rem;
+}
+
+.fs-48 {
+  font-size: 3rem;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.text-white{
+  color: #fff !important;
+}
+.text-black-s{
+  color: var(--black-color-v2);
+}
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-primary-light {
+  background-color: var(--primary-color-light);
+}
+.btn-lg{
+  width: 80%;
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+  color: var(--black-color) !important;
+  padding: 0 8px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color:  #fff !important;
+  padding: 0 8px;
+}
+
+.btn-primary-light {
+  background-color: var(--primary-color-light) !important;
+  border-color: var(--primary-color) !important;
+  color: var(--black-color) !important;
+  padding: 0 8px;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-color-light);
+  border-color: var(--primary-color-light);
+  color: var(--black-color);
+}
+
+.btn-danger{
+  background-color: var(--danger-color) !important;
+  border-color: red;
+  color: var(--black-color);
+}
+
+.btn-danger-2{
+  background-color: red !important;
+  border-color: red;
+  color: #fff;
+}
+
+.btn-warning{
+  background-color: var(--warnig-color) !important;
+  border-color: var(--warnig-color) !important;
+  color: var(--black-color);
+}
+
+.btn-gray{
+  background-color: var(--gray-color);
+  border-color: var(--gray-color);
+  color: var(--black-color);
+}
+
+.btn-sm{
+  padding: .2rem .35rem !important; 
+  font-size: .75rem;
+}
+
+.border-raduis-1 {
+  border-radius: 12px;
+}
+
+.card {
+  border-color: #fff;
+}
+
+.degrade-content {
+  background: linear-gradient(
+    359.13deg,
+    rgba(13, 211, 93, 0.96) -0.71%,
+    rgba(30, 255, 160, 0) 56.28%
+  );
+}
+
+
+.eye-position{
+  bottom: 35%;
+  right: 6%;
+}
+
+
+.degrade-content > span {
+  color: #fff;
+  display: inline-block;
+  padding: 8px 16px;
+}
+.black-degrade{
+  background: linear-gradient(88.42deg, #1a142d 35.07%, rgba(26, 20, 45, 0) 99.39%);
+}
+
+
+
+.menu-height{
+  min-height: 90vh;
+}
+
+footer {
+  background-color: var(--black-color);
+  color: #fff;
+}
