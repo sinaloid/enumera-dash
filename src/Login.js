@@ -11,7 +11,7 @@ import { AppContext } from "./services/context";
 import InputField from "./Components/InputField";
 
 const initValue = {
-  login: "client@gmail.com",
+  login: "eleve@gmail.com",
   password: "1234567890",
 };
 const Login = () => {

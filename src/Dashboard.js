@@ -187,7 +187,7 @@ const Dashboard = () => {
                       data-bs-toggle="collapse"
                       data-bs-target="#sidebarMenu.show"
                     >
-                      Eleves
+                      Elèves
                     </span>
                   </NavLink>
                 </li>
