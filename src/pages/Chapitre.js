@@ -10,7 +10,6 @@ import request from "../services/request";
 import endPoint from "../services/endPoint";
 import { AppContext } from "../services/context";
 import Notify from "../Components/Notify";
-import { label } from "three/examples/jsm/nodes/Nodes.js";
 
 const initData = {
   label: "",
