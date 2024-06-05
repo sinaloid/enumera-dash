@@ -10,18 +10,22 @@ import request from "../services/request";
 import endPoint from "../services/endPoint";
 import { AppContext } from "../services/context";
 import Notify from "../Components/Notify";
+import { label } from "three/examples/jsm/nodes/Nodes.js";
 
 const initData = {
   label: "",
+  abreviation: "",
+  chapitre: "",
   description: "",
 };
-const Classe = () => {
+const Lecon = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
   const [editId, setEditId] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [viewData, setViewData] = useState({})
+  const [viewData, setViewData] = useState({});
+  const [chapitres, setChapitres] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const header = {
     headers: {
@@ -32,6 +36,7 @@ const Classe = () => {
 
   useEffect(() => {
     getAll();
+    getChapitre();
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -60,15 +65,41 @@ const Classe = () => {
       if (editId === "") {
         handleSubmit(values);
       } else {
-        values._method = "put"
+        values._method = "put";
         handleEditSubmit(values);
       }
     },
   });
 
+  const getChapitre = () => {
+    request
+      .get(endPoint.chapitres, header)
+      .then((res) => {
+        const tab = res.data.data.map((data) => {
+          return {
+            slug: data.slug,
+            label:
+              data.label +
+              " : " +
+              data.matiere_de_la_classe.matiere.abreviation +
+              "/" +
+              data.matiere_de_la_classe.classe.label +
+              "/" +
+              data.periode.abreviation,
+          };
+        });
+        setChapitres(tab);
+
+        console.log(res.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   const getAll = () => {
     request
-      .get(endPoint.classes, header)
+      .get(endPoint.lecons, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -80,7 +111,7 @@ const Classe = () => {
   const handleSubmit = (data) => {
     //setShowModal(true)
     request
-      .post(endPoint.classes, data, header)
+      .post(endPoint.lecons, data, header)
       .then((res) => {
         console.log("Enregistrer avec succès");
         setRefresh(refresh + 1);
@@ -94,7 +125,7 @@ const Classe = () => {
   const handleEditSubmit = (data) => {
     //setShowModal(true)
     request
-      .post(endPoint.classes + "/" + editId, data, header)
+      .post(endPoint.lecons + "/" + editId, data, header)
       .then((res) => {
         console.log("Enregistrer avec succès");
         setEditId("");
@@ -109,7 +140,7 @@ const Classe = () => {
 
   const onDelete = () => {
     request
-      .delete(endPoint.classes + "/" + viewData.slug, header)
+      .delete(endPoint.lecons + "/" + viewData.slug, header)
       .then((res) => {
         console.log(res.data);
         setRefresh(refresh + 1);
@@ -124,19 +155,27 @@ const Classe = () => {
     setEditId("");
     formik.resetForm();
   };
+  const setEditeData = (e, data) => {
+    e.preventDefault();
+    //console.log(data);
+    setEditId(data.slug);
+    formik.setFieldValue("chapitre", data.chapitre.slug);
+    formik.setFieldValue("label", data.label);
+    formik.setFieldValue("abreviation", data.abreviation);
+    formik.setFieldValue("description", data.description);
+  };
+
   return (
     <>
-      <PageHeader
-        title="Liste des classes"
-        modal="form"
-        addModal={addModal}
-      />
+      <PageHeader title="Liste des leçons" modal="form" addModal={addModal} />
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
             #
           </th>
-          <th scope="col">Classe</th>
+          <th scope="col">Leçon</th>
+          <th scope="col">Abreviation</th>
+          <th scope="col">Chapitre</th>
           <th scope="col">Description</th>
           <th scope="col" className="text-center">
             Actions
@@ -149,12 +188,24 @@ const Classe = () => {
                 <td>
                   <input type="checkbox" value="selected" />
                 </td>
-                
+
                 <td className="fw-bold1">{data.label}</td>
+                <td className="fw-bold1">{data.abreviation}</td>
+                <td className="fw-bold1">
+                  {
+                    data.chapitre?.label +
+                    " : " +
+                    data.chapitre?.matiere_de_la_classe.matiere.abreviation +
+                    "/" +
+                    data.chapitre?.matiere_de_la_classe.classe.label +
+                    "/" +
+                    data.chapitre?.periode.abreviation
+                  }
+                </td>
                 <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
-                  <div className="d-inline-block mx-1">
+                    <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
                         data-bs-toggle="modal"
@@ -172,9 +223,7 @@ const Classe = () => {
                         data-bs-toggle="modal"
                         data-bs-target="#form"
                         onClick={(e) => {
-                          formik.setFieldValue("label", data.label);
-                          formik.setFieldValue("description", data.description);
-                          setEditId(data.slug);
+                          setEditeData(e, data);
                         }}
                       >
                         <span> Modifier</span>
@@ -205,8 +254,8 @@ const Classe = () => {
             <div className="modal-header border-0">
               <h4 className="modal-title text-meduim text-bold">
                 {editId !== ""
-                  ? "Modification d’une classe"
-                  : "Ajout d’une classe"}
+                  ? "Modification d'une leçon"
+                  : "Ajout d’une leçon"}
               </h4>
               <button
                 type="button"
@@ -221,14 +270,30 @@ const Classe = () => {
                   type={"text"}
                   name="label"
                   formik={formik}
-                  placeholder="Nom de la classe"
-                  label={"Classe"}
+                  placeholder="Nom de la leçon"
+                  label={"Leçon"}
+                />
+                <InputField
+                  type={"text"}
+                  name="abreviation"
+                  formik={formik}
+                  placeholder="Abreviation du chapitre"
+                  label={"Abreviation"}
+                />
+
+                <InputField
+                  type={"select"}
+                  name="chapitre"
+                  formik={formik}
+                  placeholder="Sélectionnez un chapitre"
+                  label={"Chapitre"}
+                  options={chapitres}
                 />
                 <InputField
                   type={"textaera"}
                   name="description"
                   formik={formik}
-                  placeholder="Description de la classe"
+                  placeholder="Description du chapitre"
                   label={"Description"}
                 />
 
@@ -269,15 +334,39 @@ const Classe = () => {
 
             <div className="modal-body">
               <div>
-                <span className="fw-bold d-inline-block me-2">Classe : </span>
+                <span className="fw-bold d-inline-block me-2">Chapitre : </span>
                 <span className="d-inline-block">{viewData.label}</span>
               </div>
               <div>
-                <span className="fw-bold d-inline-block me-2">Description : </span>
+                <span className="fw-bold d-inline-block me-2">
+                  Abreviation :{" "}
+                </span>
+                <span className="d-inline-block">{viewData.abreviation}</span>
+              </div>
+              <div>
+                <span className="fw-bold d-inline-block me-2">
+                  Chapitre :{" "}
+                </span>
+                <span className="d-inline-block">
+                  {viewData.chapitre?.label +
+                    " : " +
+                    viewData.chapitre?.matiere_de_la_classe?.matiere?.abreviation +
+                    "/" +
+                    viewData.chapitre?.matiere_de_la_classe?.classe?.label +
+                    "/" +
+                    viewData.chapitre?.periode?.abreviation}
+                </span>
+              </div>
+              <div>
+                <span className="fw-bold d-inline-block me-2">
+                  Description :{" "}
+                </span>
                 <span className="d-inline-block">{viewData.description}</span>
               </div>
               <div className="mt-4 d-flex justify-content-end">
-                <button className="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
+                <button className="btn btn-primary" data-bs-dismiss="modal">
+                  Fermer
+                </button>
               </div>
             </div>
           </div>
@@ -287,9 +376,7 @@ const Classe = () => {
         <div className="modal-dialog modal-dialog-centered modal-md">
           <div className="modal-content">
             <div className="modal-header border-0">
-              <h4 className="modal-title text-meduim text-bold">
-                Suppression
-              </h4>
+              <h4 className="modal-title text-meduim text-bold">Suppression</h4>
               <button
                 type="button"
                 className="btn-close"
@@ -298,12 +385,21 @@ const Classe = () => {
             </div>
 
             <div className="modal-body">
-              <div>
-                Voulez-vous supprimer définitivement les données ?
-              </div>
+              <div>Voulez-vous supprimer définitivement les données ?</div>
               <div className="mt-4 d-flex justify-content-end">
-                <button className="btn btn-primary me-2" data-bs-dismiss="modal">Non</button>
-                <button className="btn btn-danger" data-bs-dismiss="modal" onClick={onDelete}>Oui</button>
+                <button
+                  className="btn btn-primary me-2"
+                  data-bs-dismiss="modal"
+                >
+                  Non
+                </button>
+                <button
+                  className="btn btn-danger"
+                  data-bs-dismiss="modal"
+                  onClick={onDelete}
+                >
+                  Oui
+                </button>
               </div>
             </div>
           </div>
@@ -314,4 +410,4 @@ const Classe = () => {
   );
 };
 
-export default Classe;
+export default Lecon;

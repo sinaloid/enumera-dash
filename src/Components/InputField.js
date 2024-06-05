@@ -157,7 +157,7 @@ const InputField = ({ type, formik, label, placeholder, name, children, options 
           {
             options.map((data,idx) => {
 
-              return <option key={idx} value={data.id}>{data.label}</option>
+              return <option key={idx} value={data.slug}>{data.label}</option>
             })
           }
         </select>
@@ -171,7 +171,7 @@ const InputField = ({ type, formik, label, placeholder, name, children, options 
     );
   }
 
-  if (type === "textarea") {
+  if (type === "textaera") {
     return (
       <div className="mb-3">
         {label && (

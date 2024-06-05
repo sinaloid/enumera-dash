@@ -11,8 +11,8 @@ import { AppContext } from "./services/context";
 import InputField from "./Components/InputField";
 
 const initValue = {
-  login: "eleve@gmail.com",
-  password: "1234567890",
+  user: "ounoid@gmail.com",
+  password: "12345678",
 };
 const Login = () => {
   const authCtx = useContext(AppContext);
@@ -22,7 +22,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    //isAuth();
+    isAuth();
   }, [user.isAuth]);
 
   const validateData = Yup.object({
@@ -36,7 +36,7 @@ const Login = () => {
 
   const formik = useFormik({
     initialValues: initValue,
-    validationSchema: validateData,
+    //validationSchema: validateData,
     onSubmit: (values) => {
       //console.log(values);
       handleSubmit(values);
@@ -44,16 +44,19 @@ const Login = () => {
   });
 
   const handleSubmit = (data) => {
-    isAuth()
+    
     request
       .post(endPoint.login, data)
       .then((res) => {
         console.log(res.data);
         onUserChange({
           isAuth: true,
-          roles: res.data.role,
-          name: res.data.user.userName,
-          token: res.data.accessToken,
+          isActive: res.data.user.isActive,
+          isBlocked: res.data.user.isBlocked,
+          profile: res.data.user.profile,
+          slug: res.data.user.slug,
+          name: res.data.user.nom+" "+res.data.user.prenom,
+          token: res.data.access_token,
           token_refresh: null,
         });
       })
@@ -69,7 +72,6 @@ const Login = () => {
 
       return navigate("/dashboard/");
     }
-    return navigate("/dashboard/")
   };
 
   return (
@@ -78,17 +80,17 @@ const Login = () => {
         <div className="row">
           <div className="col-12 col-lg-5 mx-auto pt-5">
             <div className="text-center">
-              <img width="400px" src={login} alt="" />
+              <img width="50%" src={login} alt="" />
             </div>
             <form onSubmit={formik.handleSubmit} className="mt-3">
-              <h1 className="fs-48 fw-bold m-0 text-center m-0">Connexion</h1>
+              <h1 className="fs-48 fw-bold text-primary m-0 text-center m-0">Connexion</h1>
               <div className="mb-4 text-center">
                 Heureux de vous revoir
               </div>
 
               <InputField
                 type="email"
-                name="login"
+                name="user"
                 formik={formik}
                 placeholder="Entrer votre email"
               />
@@ -139,7 +141,7 @@ const Login = () => {
               </div>
               <button
                 type="submit"
-                className="w-100 btn btn-lg btn-primary p-0"
+                className="w-100 btn btn-lg btn-primary text-uppercase p-0"
               >
                 Se connecter
               </button>

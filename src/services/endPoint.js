@@ -1,9 +1,15 @@
 
 const endPoint = {
-    login:"security/login",
-    categories:"categories",
-    produits:"produits",
-    promotions:"promotions",
+    login:"login",
+
+    classes:"classes",
+    matieres:"matieres",
+    periodes:"periodes",
+    chapitres:"chapitres",
+    matiereClasse:"matiere-de-la-classe",
+
+    lecons:"lecons",
+    cours:"cours",
     livreurs:"livreurs",
     fournisseurs:"fournisseurs",
     clients:"clients",
