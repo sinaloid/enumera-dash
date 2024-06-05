@@ -19,7 +19,7 @@ import Parent from "./pages/Parent";
 import MatiereClasse from "./pages/MatiereClasse";
 import Chapitre from "./pages/Chapitre";
 import Lecon from "./pages/Lecon";
-import Cours from "./pages/Cours";
+import Cours from "./pages/Cour";
 
 const Dashboard = () => {
   const authCtx = useContext(AppContext);

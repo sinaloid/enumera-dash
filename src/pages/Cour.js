@@ -19,7 +19,7 @@ const initData = {
   lecon: "",
   description: "",
 };
-const Cours = () => {
+const Cour = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
@@ -429,4 +429,4 @@ const Cours = () => {
   );
 };
 
-export default Cours;
+export default Cour;
