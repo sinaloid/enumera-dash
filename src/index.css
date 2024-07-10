@@ -28,7 +28,8 @@ body {
   line-height: 1.5;
   color: var(--black-color);
   text-align: left;
-  background-color: #fff;
+  background-color: #fbfaf8;
+
 }
 
 input,

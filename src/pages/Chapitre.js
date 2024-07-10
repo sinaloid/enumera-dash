@@ -10,6 +10,7 @@ import request from "../services/request";
 import endPoint from "../services/endPoint";
 import { AppContext } from "../services/context";
 import Notify from "../Components/Notify";
+import { toast } from "react-toastify";
 
 const initData = {
   label: "",
@@ -26,7 +27,8 @@ const Chapitre = () => {
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
   const [periodes, setPeriodes] = useState([]);
-  const [matiereClasses, setMatiereClasses] = useState([]);
+  const [matieres, setMatieres] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const header = {
     headers: {
@@ -38,7 +40,7 @@ const Chapitre = () => {
   useEffect(() => {
     getAll();
     getPeriode();
-    getMatiereClasse();
+    getClasse();
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -64,6 +66,7 @@ const Chapitre = () => {
     initialValues: initData,
     //validationSchema: validateData,
     onSubmit: (values) => {
+    console.log(values)
       if (editId === "") {
         handleSubmit(values);
       } else {
@@ -84,17 +87,32 @@ const Chapitre = () => {
         console.log(error);
       });
   };
-  const getMatiereClasse = () => {
+  const getClasse = () => {
     request
-      .get(endPoint.matiereClasse, header)
+      .get(endPoint.classes, header)
       .then((res) => {
-        const tab = res.data.data.map((data) => {
-          return {
-            slug: data.slug,
-            label: <>{data.matiere.abreviation + "/" + data.classe.label}</>,
-          };
-        });
-        setMatiereClasses(tab);
+        
+        setClasses(res.data.data);
+        console.log(res.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const onClasseChange = (slug) => {
+    getMatiere(slug)
+  }
+
+  const getMatiere = (slug) => {
+    request
+      .get(endPoint.classes+"/"+slug+"/matieres", header)
+      .then((res) => {
+        console.log(res.data.data);
+        const matierelList= res.data.data.matiere_de_la_classe.map((data) => {
+          return data.matiere
+        })
+        setMatieres(matierelList);
         console.log(res.data.data);
       })
       .catch((error) => {
@@ -114,44 +132,71 @@ const Chapitre = () => {
   };
   const handleSubmit = (data) => {
     //setShowModal(true)
-    request
-      .post(endPoint.chapitres, data, header)
-      .then((res) => {
-        console.log("Enregistrer avec succès");
-        setRefresh(refresh + 1);
-        console.log(res.data);
-      })
-      .catch((error) => {
-        console.log("Echec !");
-        console.log(error);
-      });
+    toast.promise(request.post(endPoint.chapitres, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setRefresh(refresh + 1);
+          return res.data.message;
+        },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
+        },
+      },
+    });
   };
   const handleEditSubmit = (data) => {
-    //setShowModal(true)
-    request
-      .post(endPoint.chapitres + "/" + editId, data, header)
-      .then((res) => {
-        console.log("Enregistrer avec succès");
-        setEditId("");
-        setRefresh(refresh + 1);
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log("Echec !");
-        console.log(error);
-      });
+    toast.promise(request.post(endPoint.chapitres + "/" + editId, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setEditId("");
+          setRefresh(refresh + 1);
+          return res.data.message;
+        },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
+        },
+      },
+    });
   };
 
   const onDelete = () => {
-    request
-      .delete(endPoint.chapitres + "/" + viewData.slug, header)
-      .then((res) => {
-        console.log(res.data);
-        setRefresh(refresh + 1);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    toast.promise(
+      request.delete(endPoint.chapitres + "/" + viewData.slug, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            const res = data;
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
+        },
+      }
+    );
   };
 
   const addModal = (e) => {
@@ -163,7 +208,8 @@ const Chapitre = () => {
     e.preventDefault();
     //console.log(data);
     setEditId(data.slug);
-    formik.setFieldValue("matiereClasse", data.matiere_de_la_classe.slug);
+    formik.setFieldValue("matiere", data.matiere_de_la_classe.matiere.slug);
+    formik.setFieldValue("classe", data.matiere_de_la_classe.classe.slug);
     formik.setFieldValue("periode", data.periode.slug);
     formik.setFieldValue("label", data.label);
     formik.setFieldValue("abreviation", data.abreviation);
@@ -294,11 +340,20 @@ const Chapitre = () => {
                 />
                 <InputField
                   type={"select"}
-                  name="matiereClasse"
+                  name="classe"
                   formik={formik}
-                  placeholder="Sélectionnez une matière et la classe"
-                  label={"Matière de la classe"}
-                  options={matiereClasses}
+                  placeholder="Sélectionnez une classe"
+                  label={"Classe"}
+                  options={classes}
+                  callback={onClasseChange}
+                />
+                <InputField
+                  type={"select"}
+                  name="matiere"
+                  formik={formik}
+                  placeholder="Sélectionnez une matière"
+                  label={"Matière"}
+                  options={matieres}
                 />
                 <InputField
                   type={"textaera"}

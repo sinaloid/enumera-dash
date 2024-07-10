@@ -1,31 +1,40 @@
 import { useFormik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
-import PageHeader from "../Components/PageHeader";
-import Table from "../Components/Table";
-import TableContent from "../Components/TableContent";
-import TableHeader from "../Components/TableHeader";
+import PageHeader from "../../Components/PageHeader";
+import Table from "../../Components/Table";
+import TableContent from "../../Components/TableContent";
+import TableHeader from "../../Components/TableHeader";
 import * as Yup from "yup";
-import InputField from "../Components/InputField";
-import request from "../services/request";
-import endPoint from "../services/endPoint";
-import { AppContext } from "../services/context";
-import Notify from "../Components/Notify";
-import { toast } from "react-toastify";
+import InputField from "../../Components/InputField";
+import request from "../../services/request";
+import endPoint from "../../services/endPoint";
+import { AppContext } from "../../services/context";
+import Notify from "../../Components/Notify";
+import { useNavigate } from "react-router-dom";
 
 const initData = {
-  classe: "",
-  matiere: "",
+  label: "",
+  abreviation: "",
+  type: "",
+  lecon: "",
+  description: "",
 };
-const MatiereClasse = () => {
+const CoursForm = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
   const [editId, setEditId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
-  const [classes, setClasses] = useState([]);
-  const [matieres, setMatieres] = useState([]);
+  const [lecons, setLecons] = useState([]);
   const [refresh, setRefresh] = useState(0);
+  const navigate = useNavigate()
+  const typeCours = [
+    { slug: "pdf", label: "Cours PDF" },
+    { slug: "audio", label: "Cours AUDIO" },
+    { slug: "video", label: "Cours VIDEO" },
+    { slug: "saisie", label: "Cours SAISIE" },
+  ];
   const header = {
     headers: {
       Authorization: `Bearer ${user.token}`,
@@ -35,8 +44,7 @@ const MatiereClasse = () => {
 
   useEffect(() => {
     getAll();
-    getClasse();
-    getMatiere();
+    getLecon();
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -71,31 +79,37 @@ const MatiereClasse = () => {
     },
   });
 
-  const getClasse = () => {
+  const getLecon = () => {
     request
-      .get(endPoint.classes, header)
+      .get(endPoint.lecons, header)
       .then((res) => {
-        setClasses(res.data.data);
+        const tab = res.data.data.map((data) => {
+          return {
+            slug: data.slug,
+            label:
+              data.label +
+              " : " +
+              data.chapitre.label +
+              " /" +
+              data.chapitre.matiere_de_la_classe.matiere.abreviation +
+              "/" +
+              data.chapitre.matiere_de_la_classe.classe.label +
+              "/" +
+              data.chapitre.periode.abreviation,
+          };
+        });
+        setLecons(tab);
+
         console.log(res.data.data);
       })
       .catch((error) => {
         console.log(error);
       });
   };
-  const getMatiere = () => {
-    request
-      .get(endPoint.matieres, header)
-      .then((res) => {
-        setMatieres(res.data.data);
-        console.log(res.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+
   const getAll = () => {
     request
-      .get(endPoint.matiereClasse, header)
+      .get(endPoint.cours, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -106,101 +120,75 @@ const MatiereClasse = () => {
   };
   const handleSubmit = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.matiereClasse, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
-        },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
-        },
-      },
-    });
+    request
+      .post(endPoint.cours, data, header)
+      .then((res) => {
+        console.log("Enregistrer avec succès");
+        setRefresh(refresh + 1);
+        console.log(res.data);
+      })
+      .catch((error) => {
+        console.log("Echec !");
+        console.log(error);
+      });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(request.post(endPoint.matiereClasse + "/" + editId, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setEditId("");
-          setRefresh(refresh + 1);
-          return res.data.message;
-        },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
-        },
-      },
-    });
+    //setShowModal(true)
+    request
+      .post(endPoint.cours + "/" + editId, data, header)
+      .then((res) => {
+        console.log("Enregistrer avec succès");
+        setEditId("");
+        setRefresh(refresh + 1);
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log("Echec !");
+        console.log(error);
+      });
   };
 
   const onDelete = () => {
-    toast.promise(
-      request.delete(endPoint.matiereClasse + "/" + viewData.slug, header),
-      {
-        pending: "Veuillez patienté...",
-        success: {
-          render({ data }) {
-            const res = data;
-            setRefresh(refresh + 1);
-            return res.data.message;
-          },
-        },
-        error: {
-          render({ data }) {
-            console.log(data);
-            return data.response.data.errors
-              ? data.response.data.errors
-              : data.response.data.error;
-          },
-        },
-      }
-    );
+    request
+      .delete(endPoint.cours + "/" + viewData.slug, header)
+      .then((res) => {
+        console.log(res.data);
+        setRefresh(refresh + 1);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
-  const addModal = (e) => {
+  const coursForm = (e) => {
     e.preventDefault();
-    setEditId("");
-    formik.resetForm();
+    navigate('cours-form')
+    /*setEditId("");
+    formik.resetForm();*/
   };
   const setEditeData = (e, data) => {
     e.preventDefault();
     //console.log(data);
     setEditId(data.slug);
-    formik.setFieldValue("classe", data.classe.slug);
-    formik.setFieldValue("matiere", data.matiere.slug);
+    formik.setFieldValue("lecon", data.lecon.slug);
+    formik.setFieldValue("label", data.label);
+    formik.setFieldValue("abreviation", data.abreviation);
+    formik.setFieldValue("description", data.description);
   };
 
   return (
     <>
-      <PageHeader
-        title="Liste des matières d'une classe"
-        modal="form"
-        addModal={addModal}
-      />
+      <PageHeader title="Liste des cours" addModal={coursForm} />
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
             #
           </th>
-          <th scope="col">Classe</th>
-          <th scope="col">Matière</th>
+          <th scope="col">Cours</th>
           <th scope="col">Abreviation</th>
+          <th scope="col">Type</th>
+          <th scope="col">Leçon</th>
+          <th scope="col">Description</th>
           <th scope="col" className="text-center">
             Actions
           </th>
@@ -213,9 +201,19 @@ const MatiereClasse = () => {
                   <input type="checkbox" value="selected" />
                 </td>
 
-                <td className="fw-bold1">{data.classe.label}</td>
-                <td className="fw-bold1">{data.matiere.label}</td>
-                <td className="fw-bold1">{data.matiere.abreviation}</td>
+                <td className="fw-bold1">{data.label}</td>
+                <td className="fw-bold1">{data.abreviation}</td>
+                <td className="fw-bold1">{data.type}</td>
+                <td className="fw-bold1">
+                  {data.lecon?.label + " : "+data.lecon?.chapitre?.label +
+                    " / " +
+                    data.lecon?.chapitre?.matiere_de_la_classe.matiere.abreviation +
+                    "/" +
+                    data.lecon?.chapitre?.matiere_de_la_classe.classe.label +
+                    "/" +
+                    data.lecon?.chapitre?.periode.abreviation}
+                </td>
+                <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
                     <div className="d-inline-block mx-1">
@@ -266,9 +264,7 @@ const MatiereClasse = () => {
           <div className="modal-content">
             <div className="modal-header border-0">
               <h4 className="modal-title text-meduim text-bold">
-                {editId !== ""
-                  ? "Modification d’une matière d'une classe"
-                  : "Ajout d’une matière d'une classe"}
+                {editId !== "" ? "Modification du cours" : "Ajout d’un cours"}
               </h4>
               <button
                 type="button"
@@ -280,20 +276,73 @@ const MatiereClasse = () => {
             <div className="modal-body">
               <form onSubmit={formik.handleSubmit}>
                 <InputField
-                  type={"select"}
-                  name="classe"
+                  type={"text"}
+                  name="label"
                   formik={formik}
-                  placeholder="Sélectionnez une classe"
-                  label={"Classe"}
-                  options={classes}
+                  placeholder="Nom du cours"
+                  label={"Cours"}
+                />
+                <InputField
+                  type={"text"}
+                  name="abreviation"
+                  formik={formik}
+                  placeholder="Abreviation du cours"
+                  label={"Abreviation"}
                 />
                 <InputField
                   type={"select"}
-                  name="matiere"
+                  name="chapitre"
+                  formik={formik}
+                  placeholder="Sélectionnez une classe"
+                  label={"Classe"}
+                  options={[]}
+                />
+                <InputField
+                  type={"select"}
+                  name="chapitre"
+                  label={"Matière"}
                   formik={formik}
                   placeholder="Sélectionnez une matière"
-                  label={"Matière"}
-                  options={matieres}
+                  options={[]}
+                />
+                <InputField
+                  type={"select"}
+                  name="chapitre"
+                  formik={formik}
+                  placeholder="Sélectionnez un chapitre"
+                  label={"Chapitre"}
+                  options={[]}
+                />
+                <InputField
+                  type={"select"}
+                  name="lecon"
+                  formik={formik}
+                  placeholder="Sélectionnez un leçon"
+                  label={"Leçon"}
+                  options={lecons}
+                />
+                <InputField
+                  type={"select"}
+                  name="type"
+                  formik={formik}
+                  placeholder="Sélectionnez un type de cours"
+                  label={"Type de cours"}
+                  options={typeCours}
+                />
+                <InputField
+                  type={"file"}
+                  name="type"
+                  formik={formik}
+                  placeholder="Sélectionnez un type de cours"
+                  label={"Fichiers du cours"}
+                  options={typeCours}
+                />
+                <InputField
+                  type={"textaera"}
+                  name="description"
+                  formik={formik}
+                  placeholder="Description du cours"
+                  label={"Description"}
                 />
 
                 <div className="d-flex justify-content-start border-0">
@@ -333,18 +382,38 @@ const MatiereClasse = () => {
 
             <div className="modal-body">
               <div>
-                <span className="fw-bold d-inline-block me-2">Classe : </span>
-                <span className="d-inline-block">{viewData.classe?.label}</span>
-              </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">Matière : </span>
-                <span className="d-inline-block">{viewData.matiere?.label}</span>
+                <span className="fw-bold d-inline-block me-2">Cours : </span>
+                <span className="d-inline-block">{viewData.label}</span>
               </div>
               <div>
                 <span className="fw-bold d-inline-block me-2">
                   Abreviation :{" "}
                 </span>
-                <span className="d-inline-block">{viewData.matiere?.abreviation}</span>
+                <span className="d-inline-block">{viewData.abreviation}</span>
+              </div>
+              <div>
+                <span className="fw-bold d-inline-block me-2">
+                  type :{" "}
+                </span>
+                <span className="d-inline-block">{viewData.type}</span>
+              </div>
+              <div>
+                <span className="fw-bold d-inline-block me-2">Leçon : </span>
+                <span className="d-inline-block">
+                  {viewData.lecon?.label + " : "+viewData.lecon?.chapitre?.label +
+                    " / " +
+                    viewData.lecon?.chapitre?.matiere_de_la_classe.matiere.abreviation +
+                    "/" +
+                    viewData.lecon?.chapitre?.matiere_de_la_classe.classe.label +
+                    "/" +
+                    viewData.lecon?.chapitre?.periode.abreviation}
+                </span>
+              </div>
+              <div>
+                <span className="fw-bold d-inline-block me-2">
+                  Description :{" "}
+                </span>
+                <span className="d-inline-block">{viewData.description}</span>
               </div>
               <div className="mt-4 d-flex justify-content-end">
                 <button className="btn btn-primary" data-bs-dismiss="modal">
@@ -393,4 +462,4 @@ const MatiereClasse = () => {
   );
 };
 
-export default MatiereClasse;
+export default CoursForm;

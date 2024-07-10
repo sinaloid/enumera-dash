@@ -1,4 +1,4 @@
-const InputField = ({ type, formik, label, placeholder, name, children, options = []}) => {
+const InputField = ({ type, formik, label, placeholder, name, children, options = [], callback = () => {}}) => {
   if (type === "text") {
     return (
       <div className="mb-3">
@@ -149,7 +149,10 @@ const InputField = ({ type, formik, label, placeholder, name, children, options 
           type="text"
           id={name}
           name={name}
-          onChange={formik.handleChange}
+          onChange={e => {
+            formik.handleChange(e)
+            callback(e.target.value)
+          }}
           onBlur={formik.handleBlur}
           value={formik.values[name]}
         >

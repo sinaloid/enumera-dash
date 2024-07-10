@@ -1,6 +1,8 @@
 
 const endPoint = {
     login:"login",
+    getOtp:"get-otp",
+    editPassword:"edit-password",
 
     classes:"classes",
     matieres:"matieres",

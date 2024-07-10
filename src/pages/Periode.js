@@ -10,6 +10,7 @@ import request from "../services/request";
 import endPoint from "../services/endPoint";
 import { AppContext } from "../services/context";
 import Notify from "../Components/Notify";
+import { toast } from "react-toastify";
 
 const initData = {
   label: "",
@@ -80,44 +81,71 @@ const Periode = () => {
   };
   const handleSubmit = (data) => {
     //setShowModal(true)
-    request
-      .post(endPoint.periodes, data, header)
-      .then((res) => {
-        console.log("Enregistrer avec succès");
-        setRefresh(refresh + 1);
-        console.log(res.data);
-      })
-      .catch((error) => {
-        console.log("Echec !");
-        console.log(error);
-      });
+    toast.promise(request.post(endPoint.periodes, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setRefresh(refresh + 1);
+          return res.data.message;
+        },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
+        },
+      },
+    });
   };
   const handleEditSubmit = (data) => {
-    //setShowModal(true)
-    request
-      .post(endPoint.periodes + "/" + editId, data, header)
-      .then((res) => {
-        console.log("Enregistrer avec succès");
-        setEditId("");
-        setRefresh(refresh + 1);
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log("Echec !");
-        console.log(error);
-      });
+    toast.promise(request.post(endPoint.periodes + "/" + editId, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setEditId("");
+          setRefresh(refresh + 1);
+          return res.data.message;
+        },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
+        },
+      },
+    });
   };
 
   const onDelete = () => {
-    request
-      .delete(endPoint.periodes + "/" + viewData.slug, header)
-      .then((res) => {
-        console.log(res.data);
-        setRefresh(refresh + 1);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    toast.promise(
+      request.delete(endPoint.periodes + "/" + viewData.slug, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            const res = data;
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
+        },
+      }
+    );
   };
 
   const addModal = (e) => {

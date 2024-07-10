@@ -10,6 +10,7 @@ import request from "../services/request";
 import endPoint from "../services/endPoint";
 import { AppContext } from "../services/context";
 import Notify from "../Components/Notify";
+import { toast } from "react-toastify";
 
 const initData = {
   label: "",
@@ -21,7 +22,7 @@ const Classe = () => {
   const [datas, setDatas] = useState([]);
   const [editId, setEditId] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [viewData, setViewData] = useState({})
+  const [viewData, setViewData] = useState({});
   const [refresh, setRefresh] = useState(0);
   const header = {
     headers: {
@@ -60,7 +61,7 @@ const Classe = () => {
       if (editId === "") {
         handleSubmit(values);
       } else {
-        values._method = "put"
+        values._method = "put";
         handleEditSubmit(values);
       }
     },
@@ -79,35 +80,72 @@ const Classe = () => {
   };
   const handleSubmit = (data) => {
     //setShowModal(true)
-    request
-      .post(endPoint.classes, data, header)
-      .then((res) => {
-        console.log("Enregistrer avec succès");
-        setRefresh(refresh + 1);
-        console.log(res.data);
-      })
-      .catch((error) => {
-        console.log("Echec !");
-        console.log(error);
-      });
+    toast.promise(request.post(endPoint.classes, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setRefresh(refresh + 1);
+          return res.data.message;
+        },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
+        },
+      },
+    });
   };
   const handleEditSubmit = (data) => {
-    //setShowModal(true)
-    request
-      .post(endPoint.classes + "/" + editId, data, header)
-      .then((res) => {
-        console.log("Enregistrer avec succès");
-        setEditId("");
-        setRefresh(refresh + 1);
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log("Echec !");
-        console.log(error);
-      });
+    toast.promise(request.post(endPoint.classes + "/" + editId, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setEditId("");
+          setRefresh(refresh + 1);
+          return res.data.message;
+        },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
+        },
+      },
+    });
   };
 
   const onDelete = () => {
+    toast.promise(
+      request.delete(endPoint.classes + "/" + viewData.slug, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            const res = data;
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
+        },
+      }
+    );
+
     request
       .delete(endPoint.classes + "/" + viewData.slug, header)
       .then((res) => {
@@ -126,11 +164,7 @@ const Classe = () => {
   };
   return (
     <>
-      <PageHeader
-        title="Liste des classes"
-        modal="form"
-        addModal={addModal}
-      />
+      <PageHeader title="Liste des classes" modal="form" addModal={addModal} />
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
@@ -149,12 +183,12 @@ const Classe = () => {
                 <td>
                   <input type="checkbox" value="selected" />
                 </td>
-                
+
                 <td className="fw-bold1">{data.label}</td>
                 <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
-                  <div className="d-inline-block mx-1">
+                    <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
                         data-bs-toggle="modal"
@@ -273,11 +307,15 @@ const Classe = () => {
                 <span className="d-inline-block">{viewData.label}</span>
               </div>
               <div>
-                <span className="fw-bold d-inline-block me-2">Description : </span>
+                <span className="fw-bold d-inline-block me-2">
+                  Description :{" "}
+                </span>
                 <span className="d-inline-block">{viewData.description}</span>
               </div>
               <div className="mt-4 d-flex justify-content-end">
-                <button className="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
+                <button className="btn btn-primary" data-bs-dismiss="modal">
+                  Fermer
+                </button>
               </div>
             </div>
           </div>
@@ -287,9 +325,7 @@ const Classe = () => {
         <div className="modal-dialog modal-dialog-centered modal-md">
           <div className="modal-content">
             <div className="modal-header border-0">
-              <h4 className="modal-title text-meduim text-bold">
-                Suppression
-              </h4>
+              <h4 className="modal-title text-meduim text-bold">Suppression</h4>
               <button
                 type="button"
                 className="btn-close"
@@ -298,12 +334,21 @@ const Classe = () => {
             </div>
 
             <div className="modal-body">
-              <div>
-                Voulez-vous supprimer définitivement les données ?
-              </div>
+              <div>Voulez-vous supprimer définitivement les données ?</div>
               <div className="mt-4 d-flex justify-content-end">
-                <button className="btn btn-primary me-2" data-bs-dismiss="modal">Non</button>
-                <button className="btn btn-danger" data-bs-dismiss="modal" onClick={onDelete}>Oui</button>
+                <button
+                  className="btn btn-primary me-2"
+                  data-bs-dismiss="modal"
+                >
+                  Non
+                </button>
+                <button
+                  className="btn btn-danger"
+                  data-bs-dismiss="modal"
+                  onClick={onDelete}
+                >
+                  Oui
+                </button>
               </div>
             </div>
           </div>

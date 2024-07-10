@@ -19,7 +19,7 @@ import Parent from "./pages/Parent";
 import MatiereClasse from "./pages/MatiereClasse";
 import Chapitre from "./pages/Chapitre";
 import Lecon from "./pages/Lecon";
-import Cours from "./pages/Cour";
+import Cours from "./pages/Cours";
 
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
@@ -365,60 +365,8 @@ const Dashboard = () => {
           </nav>
 
           <main className="col-md-11 ms-sm-auto col-lg-10 px-md-4 h-90 text-small bg-primary-light1">
-            <div className="sticky-top pt-4">
-              <div className="d-flex align-items-center bg-white  rounded-3 border shadow-sm px-1 py-2">
-                {viewSearch && (
-                  <>
-                    <div className="input-group">
-                      <span className="input-group-text" id="basic-addon1">
-                        @
-                      </span>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Username"
-                        aria-label="Username"
-                        aria-describedby="basic-addon1"
-                      />
-                    </div>
-                  </>
-                )}
-                {!viewSearch && (
-                  <>
-                    <div className=" ms-2 me-auto" value={"viewSearch"}>
-                      <span className="icon-26 text-muted" value={"viewSearch"}>
-                        <i className="bi bi-search"></i>
-                      </span>
-                      <span
-                        className="d-inline-block ms-3 text-muted"
-                        data-value={"viewSearch"}
-                      >
-                        Rechercher ...
-                      </span>
-                    </div>
-
-                    <div className="ms-4">
-                      <span className="icon-size">
-                        <i className="bi bi-chat"></i>
-                      </span>
-                    </div>
-                    <div className="mx-3">
-                      <span className="icon-size">
-                        <i className="bi bi-bell"></i>
-                      </span>
-                    </div>
-                    <div className="mx-">
-                      <img
-                        className="rounded-circle"
-                        width={"38px"}
-                        height={"38px"}
-                        src="https://source.unsplash.com/random/800×800/?profile"
-                        alt=""
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
+            <div className="sticky-top my-4">
+              <span className="fw-bold">Retour</span>
             </div>
             <Routes>
               <Route path="/" element={<> Accueil</>} />
@@ -426,8 +374,8 @@ const Dashboard = () => {
               <Route path="/matieres" element={<Matiere />} />
               <Route path="/matieres-d-une-classe" element={<MatiereClasse />} />
               <Route path="/chapitres" element={<Chapitre />} />
-              <Route path="/lecons" element={<Lecon />} />
-              <Route path="/cours" element={<Cours />} />
+              <Route path="/lecons/*" element={<Lecon />} />
+              <Route path="/cours/*" element={<Cours />} />
               <Route path="/periodes" element={<Periode />} />
               <Route path="/eleves" element={<Eleve />} />
               <Route path="/enseignants" element={<Enseignant />} />
