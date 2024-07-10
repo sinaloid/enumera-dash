@@ -122,55 +122,6 @@ const LeconDetail = () => {
     });
   };
 
-  const onDelete = () => {
-    toast.promise(request.delete(endPoint.lecons + "/" + lecon.slug, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
-        },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
-        },
-      },
-    });
-  };
-
-  const addModal = (e) => {
-    e.preventDefault();
-    setEditId("");
-    formik.resetForm();
-  };
-  const setEditeData = (e, data) => {
-    e.preventDefault();
-    console.log(data);
-    setEditId(data.slug);
-    formik.setFieldValue(
-      "classe",
-      data.chapitre.matiere_de_la_classe.classe.slug
-    );
-    onClasseChange(data.chapitre.matiere_de_la_classe.classe.slug);
-    formik.setFieldValue(
-      "matiere",
-      data.chapitre.matiere_de_la_classe.matiere.slug
-    );
-    onMatiereChange(
-      data.chapitre.matiere_de_la_classe.matiere.slug,
-      data.chapitre.matiere_de_la_classe.classe.slug
-    );
-    formik.setFieldValue("chapitre", data.chapitre.slug);
-    formik.setFieldValue("label", data.label);
-    formik.setFieldValue("abreviation", data.abreviation);
-    formik.setFieldValue("description", data.description);
-  };
-
   return (
     <>
       <div className="card p-4 border">
