@@ -12,6 +12,7 @@ const endPoint = {
 
     lecons:"lecons",
     cours:"cours",
+    files:"files",
     livreurs:"livreurs",
     fournisseurs:"fournisseurs",
     clients:"clients",

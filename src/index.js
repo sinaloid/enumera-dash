@@ -10,6 +10,8 @@ import { BrowserRouter } from "react-router-dom";
 import { AppContextProvider } from "./services/context";
 import { Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/core/style.css";
 import "./index.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

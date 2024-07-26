@@ -8,7 +8,7 @@ import { locales } from "@blocknote/core";
 import { useEffect } from "react";
 import { URL } from "../services/request";
 
-const TextEditor = ({ title, setValue, replaceData, file, editable=true }) => {
+const TextEditorView = ({ title, setValue, replaceData, file }) => {
   const editor = useCreateBlockNote({
     dictionary: locales.fr,
   });
@@ -63,7 +63,7 @@ const TextEditor = ({ title, setValue, replaceData, file, editable=true }) => {
         <div className="wrapper">
           <div className="text-primary fw-bold">{title} :</div>
           <div className="item my-3">
-            <BlockNoteView editor={editor} onChange={onChange} editable={editable} />
+            <BlockNoteView editor={editor} onChange={onChange} editable={false} />
           </div>
           {/**
            * <div>Output (HTML):</div>
@@ -79,4 +79,4 @@ const TextEditor = ({ title, setValue, replaceData, file, editable=true }) => {
   );
 };
 
-export default TextEditor;
+export default TextEditorView;

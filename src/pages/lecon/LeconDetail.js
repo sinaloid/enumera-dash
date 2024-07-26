@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { useFormik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
 import * as Yup from "yup";
@@ -8,11 +9,15 @@ import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import TextEditor from "../../Components/TextEditor";
 import InputField from "../../Components/InputField";
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
+import TextEditorView from "../../Components/TextEditorView";
 
 const initData = {
   label: "",
   abreviation: "",
-  chapitre: "",
+  type: "pdf",
+  lecon: "",
   description: "",
 };
 const LeconDetail = () => {
@@ -21,6 +26,9 @@ const LeconDetail = () => {
   const [lecon, setLecon] = useState({});
   const [editId, setEditId] = useState("");
   const { slug } = useParams();
+  const [files, setFiles] = useState([]);
+  const [cours, setCours] = useState("");
+  const [file, setFile] = useState("");
 
   const [refresh, setRefresh] = useState(0);
   const header = {
@@ -32,6 +40,7 @@ const LeconDetail = () => {
 
   useEffect(() => {
     get();
+    getFile();
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -57,12 +66,25 @@ const LeconDetail = () => {
     initialValues: initData,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      if (editId === "") {
-        handleSubmit(values);
-      } else {
+      values.label = lecon.label;
+      values.abreviation = lecon.abreviation;
+      values.lecon = lecon.slug;
+      values.description = cours;
+      if (values.slug) {
         values._method = "put";
         handleEditSubmit(values);
+      } else {
+        handleSubmit(values);
       }
+    },
+  });
+
+  const formikFile = useFormik({
+    initialValues: { type: "", files: "" },
+    //validationSchema: validateData,
+    onSubmit: (values) => {
+      values.lecon = slug;
+      sendFile(values);
     },
   });
 
@@ -77,9 +99,21 @@ const LeconDetail = () => {
         console.log(error);
       });
   };
+
+  const getFile = () => {
+    request
+      .get(endPoint.files+"/lecon/"+slug, header)
+      .then((res) => {
+        setFiles(res.data.data);
+        console.log(res.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   const handleSubmit = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.lecons, data, header), {
+    toast.promise(request.post(endPoint.cours, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -100,13 +134,39 @@ const LeconDetail = () => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(request.post(endPoint.lecons + "/" + editId, data, header), {
+    toast.promise(
+      request.post(endPoint.cours + "/" + data.slug, data, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            setEditId("");
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
+        },
+      }
+    );
+  };
+
+  const sendFile = (data) => {
+    //setShowModal(true)
+    toast.promise(request.post(endPoint.files, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
           console.log(data);
           const res = data;
-          setEditId("");
           setRefresh(refresh + 1);
           return res.data.message;
         },
@@ -135,10 +195,14 @@ const LeconDetail = () => {
         </div>
         <div>
           <span className="fw-bold d-inline-block me-2">Chapitre : </span>
+          <span className="d-inline-block">{lecon.chapitre?.label}</span>
+        </div>
+        <div>
+          <span className="fw-bold d-inline-block me-2">
+            Matière/Classe/Periode :{" "}
+          </span>
           <span className="d-inline-block">
-            {lecon.chapitre?.label +
-              " : " +
-              lecon.chapitre?.matiere_de_la_classe?.matiere?.abreviation +
+            {lecon.chapitre?.matiere_de_la_classe?.matiere?.abreviation +
               "/" +
               lecon.chapitre?.matiere_de_la_classe?.classe?.label +
               "/" +
@@ -153,28 +217,184 @@ const LeconDetail = () => {
       <div className="row">
         <div className="col-12 col-md-8">
           <div className="card p-4 my-2 border">
-            <TextEditor />
+            {lecon.cours ? (
+              <>
+                <ViewCours
+                  data={lecon.cours}
+                  formik={formik}
+                  setCours={setCours}
+                  file={file}
+                />
+              </>
+            ) : (
+              <>
+                <TextEditor
+                  title={"Editeur de cours"}
+                  setValue={setCours}
+                  file={file}
+                />
+                <div className="d-flex justify-content-center mt-3">
+                  <button
+                    className="btn btn-primary w-75"
+                    onClick={formik.handleSubmit}
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
         <div className="col-12 col-md-4">
           <div className="card p-4 my-2 border">
-            <div className="fs-4 text-primary">Liste des resources</div>
-            <div className="d-flex flex-wrap my-2">
-              <span className="badge text-bg-primary me-2 mb-1">Vidéos</span>
-              <span className="badge text-bg-primary me-2 mb-1">Audios</span>
-              <span className="badge text-bg-primary me-2 mb-1">Images</span>
-              <span className="badge text-bg-primary me-2 mb-1">Fichiers</span>
+            <div className="fs-4 text-primary text-center mb-4">
+              Liste des resources
             </div>
-            <div>
-              <InputField
-                type="file"
-                formik={formik}
-                label={"Fichier"}
-              />
+
+            <InputField
+              type="select"
+              name={"type"}
+              formik={formikFile}
+              label={"Type de fichier"}
+              placeholder={"Sélectionnez le type de fichier"}
+              options={[
+                { slug: "video", label: "Vidéos" },
+                { slug: "audio", label: "Audios" },
+                { slug: "image", label: "Images" },
+                { slug: "file", label: "Fichiers" },
+              ]}
+            />
+            <InputField
+              type="files"
+              name={"files"}
+              formik={formikFile}
+              label={"Fichier"}
+            />
+            <div className="d-flex justify-content-center">
+              <button
+                onClick={formikFile.handleSubmit}
+                className="btn btn-primary w-75"
+              >
+                Enregistrer
+              </button>
+            </div>
+            <div className="mt-5 border-top pt-1">
+              <span className="fw-bold">Liste des fichiers</span>
+              {files.map((data, idx) => {
+                return (
+                  <div
+                    className="btn-secondary border border-primary rounded-2 pe-0 my-3"
+                    key={data.slug}
+                  >
+                    <div className="d-flex justify-content-between rounded-5">
+                      {data.original_name}
+                      <br />
+                      <div>
+                        <span
+                          className="bg-primary text-white px-2 rounded-2 fw-bold py-1 mx-1"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setFile(data);
+                          }}
+                        >
+                          <i class="bi bi-plus-circle-fill"></i>
+                        </span>
+                        <span className="bg-danger text-white px-2 rounded-2 fw-bold py-1">
+                          <i class="bi bi-trash-fill"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
+    </>
+  );
+};
+
+const ViewCours = ({ data, formik, setCours, file }) => {
+  const [view, setView] = useState("view");
+  useEffect(() => {
+    formik.setFieldValue("slug", data.slug);
+    formik.setFieldValue("label", data.label);
+    formik.setFieldValue("abreviation", data.abreviation);
+    formik.setFieldValue("description", data.description);
+    mediaConfig()
+  }, [data]);
+  const changeView = (e, name) => {
+    e.preventDefault();
+    setView(name);
+  };
+
+  const mediaConfig = () => {
+    const videos = document.querySelectorAll('video');
+    videos.forEach(video => {
+      video.controls = true;
+      video.setAttribute("class", "w-100")
+
+    });
+
+    const audios = document.querySelectorAll('audio');
+    audios.forEach(audio => {
+      audio.controls = true;
+      audio.setAttribute("class", "w-100")
+    });
+
+    const images = document.querySelectorAll('image');
+    images.forEach(image => {
+      image.setAttribute("class", "w-100")
+
+    });
+    
+    console.log(videos)
+  }
+  return (
+    <>
+      <div className="d-flex justify-content-end mb-3">
+        <button
+          className="btn btn-outline-primary me-1"
+          onClick={(e) => changeView(e, "view")}
+        >
+          Voir
+        </button>
+        <button
+          className="btn btn-outline-warning me-1"
+          onClick={(e) => changeView(e, "edit")}
+        >
+          Modifier
+        </button>
+        <button className="btn btn-outline-danger">Supprimer</button>
+      </div>
+      {view === "view" && (
+        <>
+          <div
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(data?.description),
+            }}
+          />
+        </>
+      )}
+      {view === "edit" && (
+        <>
+          <TextEditor
+            title={"Modification du cours"}
+            replaceData={data?.description}
+            setValue={setCours}
+            file={file}
+          />
+          <div className="d-flex justify-content-center mt-3">
+            <button
+              className="btn btn-primary w-75"
+              onClick={formik.handleSubmit}
+            >
+              Enregistrer
+            </button>
+          </div>
+        </>
+      )}
     </>
   );
 };

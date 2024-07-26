@@ -52,7 +52,7 @@ const Login = () => {
           console.log(data);
           const res = data;
           onUserChange({
-            isAuth: true,
+            isAuth: true, 
             is_active: res.data.user.is_active,
             is_blocked: res.data.user.is_blocked,
             profile: res.data.user.profile,

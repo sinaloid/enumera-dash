@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-//export const URL = "http://127.0.0.1:8000/"
-export const URL = "https://api.enumera.tech/"
+//export const URL = "http://127.0.0.1:8000"
+export const URL = "https://api.enumera.tech"
 
 const request = axios.create({
-    baseURL: URL+"api/",
+    baseURL: URL+"/api/",
     withCredentials: false,
     headers: {
         'Accept':'application/json',

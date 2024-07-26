@@ -135,7 +135,35 @@ const InputField = ({ type, formik, label, placeholder, name, children, options 
       </div>
     );
   }
-
+  
+  if (type === "files") {
+    return (
+      <div className="mb-3">
+        {
+            label && <label className="form-label" htmlFor={name}>
+            {label}
+          </label>
+        }
+        <input
+          className="form-control"
+          type="file"
+          id={name}
+          name={name}
+          placeholder={placeholder}
+          onChange={e => formik.setFieldValue(name, e.target.files)}
+          onBlur={formik.handleBlur}
+          //value={formik.values[name]}
+          multiple
+        />
+        {
+            children
+        }
+        {formik.touched[name] && formik.errors[name] ? (
+          <div className="text-danger">{formik.errors[name]}</div>
+        ) : null}
+      </div>
+    );
+  }
   if (type === "select") {
     return (
       <div className="mb-3">
