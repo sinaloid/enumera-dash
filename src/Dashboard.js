@@ -226,7 +226,8 @@ const Dashboard = () => {
                     </span>
                   </NavLink>
                 </li>
-                <li className="nav-item my-1 px-2">
+                {/**
+                 * <li className="nav-item my-1 px-2">
                   <NavLink
                     to="/dashboard/cours"
                     className={({ isActive }) =>
@@ -247,6 +248,7 @@ const Dashboard = () => {
                     </span>
                   </NavLink>
                 </li>
+                 */}
                 <li className="nav-item my-1 px-2">
                   <NavLink
                     to="/dashboard/eleves"

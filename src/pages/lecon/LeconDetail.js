@@ -286,12 +286,13 @@ const LeconDetail = () => {
                     className="btn-secondary border border-primary rounded-2 pe-0 my-3"
                     key={data.slug}
                   >
+                    <span className="text-primary fw-bold py-1 rounded">{data.type}</span>
                     <div className="d-flex justify-content-between rounded-5">
                       {data.original_name}
                       <br />
                       <div>
                         <span
-                          className="bg-primary text-white px-2 rounded-2 fw-bold py-1 mx-1"
+                          className="bg-primary text-white px-2 rounded-2 fw-bold py-1 d-inline-block ms-1 mb-2"
                           onClick={(e) => {
                             e.preventDefault();
                             setFile(data);
@@ -299,7 +300,7 @@ const LeconDetail = () => {
                         >
                           <i class="bi bi-plus-circle-fill"></i>
                         </span>
-                        <span className="bg-danger text-white px-2 rounded-2 fw-bold py-1">
+                        <span className="bg-danger text-white px-2 rounded-2 fw-bold py-1 d-inline-block ms-1 mb-2">
                           <i class="bi bi-trash-fill"></i>
                         </span>
                       </div>
