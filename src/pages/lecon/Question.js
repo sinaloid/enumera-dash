@@ -1,36 +1,38 @@
+/* eslint-disable no-undef */
 import { useFormik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
-import PageHeader from "../Components/PageHeader";
-import Table from "../Components/Table";
-import TableContent from "../Components/TableContent";
-import TableHeader from "../Components/TableHeader";
 import * as Yup from "yup";
-import InputField from "../Components/InputField";
-import request from "../services/request";
-import endPoint from "../services/endPoint";
-import { AppContext } from "../services/context";
-import Notify from "../Components/Notify";
+import request from "../../services/request";
+import endPoint from "../../services/endPoint";
+import { AppContext } from "../../services/context";
 import { toast } from "react-toastify";
+import { useNavigate, useParams } from "react-router-dom";
+import TextEditor from "../../Components/TextEditor";
+import InputField from "../../Components/InputField";
+import DOMPurify from "dompurify";
+import PageHeader from "../../Components/PageHeader";
+import Table from "../../Components/Table";
+import TableHeader from "../../Components/TableHeader";
+import TableContent from "../../Components/TableContent";
+import { label } from "three/examples/jsm/nodes/Nodes.js";
 
 const initData = {
   label: "",
-  periode: "",
-  matiereClasse: "",
   abreviation: "",
+  type: "pdf",
+  lecon: "",
   description: "",
 };
-const Chapitre = () => {
+const Question = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
-  const [datas, setDatas] = useState([]);
+  const [lecon, setLecon] = useState({});
+  const [evaluation, setEvaluation] = useState({});
   const [editId, setEditId] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [viewData, setViewData] = useState({});
-  const [periodes, setPeriodes] = useState([]);
-  const [matieres, setMatieres] = useState([]);
-  const [classeSelected, setClasseSelected] = useState("");
-  const [matiereSelected, setMatiereSelected] = useState("");
-  const [classes, setClasses] = useState([]);
+  const { slug, evaluationSlug } = useParams();
+  const [files, setFiles] = useState([]);
+  const [cours, setCours] = useState("");
+
   const [refresh, setRefresh] = useState(0);
   const header = {
     headers: {
@@ -40,9 +42,114 @@ const Chapitre = () => {
   };
 
   useEffect(() => {
-    getAll("","");
-    getPeriode();
-    getClasse();
+    get();
+    getEvaluation();
+  }, [refresh]);
+
+  const get = () => {
+    request
+      .get(endPoint.lecons + "/" + slug, header)
+      .then((res) => {
+        setLecon(res.data.data);
+        console.log(res.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const getEvaluation = () => {
+    request
+      .get(endPoint.evaluations_lecons + "/" + evaluationSlug, header)
+      .then((res) => {
+        setEvaluation(res.data.data);
+        //console.log(res.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const getFile = () => {
+    request
+      .get(endPoint.files + "/lecon/" + slug, header)
+      .then((res) => {
+        setFiles(res.data.data);
+        console.log(res.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  return (
+    <>
+      <div className="card p-4 border">
+        <div className="text-primary">
+          <span className=" d-inline-block me-2 fs-1">Evaluation : </span>
+          <span className=" d-inline-block fs-1">{evaluation.label}</span>
+        </div>
+        <div>
+          <span className="fw-bold d-inline-block me-2">leçon : </span>
+          <span className="d-inline-block">{lecon.label}</span>
+        </div>
+        <div>
+          <span className="fw-bold d-inline-block me-2">Chapitre : </span>
+          <span className="d-inline-block">{lecon.chapitre?.label}</span>
+        </div>
+        <div>
+          <span className="fw-bold d-inline-block me-2">
+            Matière/Classe/Periode :{" "}
+          </span>
+          <span className="d-inline-block">
+            {lecon.chapitre?.matiere_de_la_classe?.matiere?.abreviation +
+              "/" +
+              lecon.chapitre?.matiere_de_la_classe?.classe?.label +
+              "/" +
+              lecon.chapitre?.periode?.abreviation}
+          </span>
+        </div>
+        <div>
+          <span className="fw-bold d-inline-block me-2">Description : </span>
+          <span className="d-inline-block">{lecon.description}</span>
+        </div>
+      </div>
+      <QuestionListe evaluation={evaluationSlug} />
+    </>
+  );
+};
+
+const initQuest = {
+  question: "",
+  choix: "",
+  reponses: "",
+  point: "",
+  evaluation_lecon: "",
+  type: "",
+};
+const QuestionListe = ({ evaluation }) => {
+  const authCtx = useContext(AppContext);
+  const { user } = authCtx;
+  const [datas, setDatas] = useState([]);
+  const [editId, setEditId] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [viewData, setViewData] = useState({});
+  const [chapitres, setChapitres] = useState([]);
+  const [matieres, setMatieres] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [classeMatiere, setClasseMatiere] = useState([]);
+  const [refresh, setRefresh] = useState(0);
+  const navigate = useNavigate();
+
+  const header = {
+    headers: {
+      Authorization: `Bearer ${user.token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  useEffect(() => {
+    getAll();
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -65,9 +172,10 @@ const Chapitre = () => {
       }),
   });
   const formik = useFormik({
-    initialValues: initData,
+    initialValues: initQuest,
     //validationSchema: validateData,
     onSubmit: (values) => {
+      values.evaluation_lecon = evaluation;
       console.log(values);
       if (editId === "") {
         handleSubmit(values);
@@ -78,58 +186,18 @@ const Chapitre = () => {
     },
   });
 
-  const getPeriode = () => {
-    request
-      .get(endPoint.periodes, header)
-      .then((res) => {
-        setPeriodes(res.data.data);
-        console.log(res.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  const getClasse = () => {
-    request
-      .get(endPoint.classes, header)
-      .then((res) => {
-        setClasses(res.data.data);
-        console.log(res.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+  const formikFile = useFormik({
+    initialValues: initQuest,
+    //validationSchema: validateData,
+    onSubmit: (values) => {
+      values.evaluation_lecon = evaluation;
+      handleSubmitFile(values);
+    },
+  });
 
-  const onClasseChange = (slug) => {
-    getMatiere(slug);
-  };
-
-  const getMatiere = (slug) => {
+  const getAll = () => {
     request
-      .get(endPoint.classes + "/" + slug + "/matieres", header)
-      .then((res) => {
-        console.log(res.data.data);
-        const matierelList = res.data.data.matiere_de_la_classe.map((data) => {
-          return data.matiere;
-        });
-        setMatieres(matierelList);
-        console.log(res.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  const getAll = (classeSelected, matiereSelected) => {
-    request
-      .get(
-        endPoint.chapitres +
-          "/?classe=" +
-          classeSelected +
-          "&matiere=" +
-          matiereSelected,
-        header
-      )
+      .get(endPoint.questions_lecons, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -138,9 +206,10 @@ const Chapitre = () => {
         console.log(error);
       });
   };
+
   const handleSubmit = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.chapitres, data, header), {
+    toast.promise(request.post(endPoint.questions_lecons, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -162,7 +231,7 @@ const Chapitre = () => {
   };
   const handleEditSubmit = (data) => {
     toast.promise(
-      request.post(endPoint.chapitres + "/" + editId, data, header),
+      request.post(endPoint.questions_lecons + "/" + editId, data, header),
       {
         pending: "Veuillez patienté...",
         success: {
@@ -188,7 +257,7 @@ const Chapitre = () => {
 
   const onDelete = () => {
     toast.promise(
-      request.delete(endPoint.chapitres + "/" + viewData.slug, header),
+      request.delete(endPoint.questions_lecons + "/" + viewData.slug, header),
       {
         pending: "Veuillez patienté...",
         success: {
@@ -210,6 +279,28 @@ const Chapitre = () => {
     );
   };
 
+  const handleSubmitFile = (data) => {
+    //setShowModal(true)
+    toast.promise(request.post(endPoint.questions_lecons_import, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setRefresh(refresh + 1);
+          return res.data.message;
+        },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
+        },
+      },
+    });
+  };
   const addModal = (e) => {
     e.preventDefault();
     setEditId("");
@@ -217,66 +308,41 @@ const Chapitre = () => {
   };
   const setEditeData = (e, data) => {
     e.preventDefault();
-    //console.log(data);
+    console.log(data);
     setEditId(data.slug);
-    formik.setFieldValue("matiere", data.matiere_de_la_classe.matiere.slug);
-    formik.setFieldValue("classe", data.matiere_de_la_classe.classe.slug);
-    formik.setFieldValue("periode", data.periode.slug);
-    formik.setFieldValue("label", data.label);
-    formik.setFieldValue("abreviation", data.abreviation);
-    formik.setFieldValue("description", data.description);
+
+    formik.setFieldValue("question", data.question);
+    formik.setFieldValue("type", data.type);
+    formik.setFieldValue("choix", data.choix);
+    formik.setFieldValue("point", data.point);
+    formik.setFieldValue("reponses", data.reponses);
   };
 
-  const changeClasse = (classe) => {
-    setClasseSelected(classe);
-    getMatiere(classe);
-    getAll(classe, matiereSelected);
-  };
-
-  const changeMatiere = (matiere) => {
-    setMatiereSelected(matiere);
-    getAll(classeSelected, matiere);
+  const getQuestionList = (text) => {
+    return text && text.split(";");
   };
 
   return (
     <>
-      <PageHeader
-        title="Liste des chapitres"
-        modal="form"
-        addModal={addModal}
-      />
-      <div className="d-flex mt-3">
-        <div className="me-2">
-          <InputField
-            type={"select"}
-            name="classe"
-            formik={formik}
-            placeholder="Sélectionnez une classe"
-            label={"Sélectionnez une classe"}
-            options={classes}
-            callback={changeClasse}
-          />
-        </div>
-        <div>
-          <InputField
-            type={"select"}
-            name="matiere"
-            formik={formik}
-            placeholder="Sélectionnez une matiere"
-            label={"Sélectionnez une matière"}
-            options={matieres}
-            callback={changeMatiere}
-          />
-        </div>
+      <PageHeader title="" modal="form" addModal={addModal} />
+      <div className="mt-3 fw-bold fs-4 text-primary">Liste des questions</div>
+      <div className="d-flex align-items-center">
+        <button
+          className="btn btn-primary ms-auto"
+          data-bs-toggle="modal"
+          data-bs-target="#importFile"
+        >
+          Importer une liste
+        </button>
       </div>
+
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
             #
           </th>
-          <th scope="col">Chapitre</th>
-          <th scope="col">Abreviation</th>
-          <th scope="col">Matière/Classe</th>
+          <th scope="col">Question</th>
+          <th scope="col">type</th>
           <th scope="col">Description</th>
           <th scope="col" className="text-center">
             Actions
@@ -290,13 +356,9 @@ const Chapitre = () => {
                   <input type="checkbox" value="selected" />
                 </td>
 
-                <td className="fw-bold1">{data.label}</td>
-                <td className="fw-bold1">{data.abreviation}</td>
-                <td className="fw-bold1">
-                  {data.matiere_de_la_classe.matiere.abreviation +
-                    "/" +
-                    data.matiere_de_la_classe.classe.label}
-                </td>
+                <td className="fw-bold1">{data.question}</td>
+                <td className="fw-bold1">{data.type}</td>
+
                 <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
@@ -309,7 +371,7 @@ const Chapitre = () => {
                           setViewData(data);
                         }}
                       >
-                        <span> Voir</span>
+                        <i class="bi bi-eye"></i>
                       </button>
                     </div>
                     <div className="d-inline-block mx-1">
@@ -321,7 +383,7 @@ const Chapitre = () => {
                           setEditeData(e, data);
                         }}
                       >
-                        <span> Modifier</span>
+                        <i class="bi bi-pencil-square"></i>
                       </button>
                     </div>
                     <div className="d-inline-block mx-1">
@@ -333,7 +395,7 @@ const Chapitre = () => {
                           setViewData(data);
                         }}
                       >
-                        <span> Supprimer</span>
+                        <i class="bi bi-trash"></i>
                       </button>
                     </div>
                   </div>
@@ -349,8 +411,8 @@ const Chapitre = () => {
             <div className="modal-header border-0">
               <h4 className="modal-title text-meduim text-bold">
                 {editId !== ""
-                  ? "Modification du chapitre"
-                  : "Ajout d’un chapitre"}
+                  ? "Modification d'une question"
+                  : "Ajout d’une question"}
               </h4>
               <button
                 type="button"
@@ -363,52 +425,92 @@ const Chapitre = () => {
               <form onSubmit={formik.handleSubmit}>
                 <InputField
                   type={"text"}
-                  name="label"
+                  name="question"
                   formik={formik}
-                  placeholder="Nom du chapitre"
-                  label={"Chapitre"}
+                  placeholder="Intitulé de la question"
+                  label={"Question"}
+                />
+                <InputField
+                  type={"select"}
+                  name="type"
+                  formik={formik}
+                  placeholder="Intitulé de la question"
+                  label={"Type de question"}
+                  options={[
+                    { slug: "CHOIX_MULTIPLE", label: "Choix multiple" },
+                    { slug: "VRAI_OU_FAUX", label: "Vrais ou faux" },
+                  ]}
                 />
                 <InputField
                   type={"text"}
-                  name="abreviation"
+                  name="choix"
                   formik={formik}
-                  placeholder="Abreviation du chapitre"
-                  label={"Abreviation"}
+                  placeholder="Entrez une reponse possible"
+                  label={
+                    "Liste des reponses possibles ( exemple : question 1; question 2; question 3; question 4)"
+                  }
+                />
+                <InputField
+                  type={"text"}
+                  name="point"
+                  formik={formik}
+                  placeholder="Nombre de point de la question"
+                  label={"Nombre de point"}
                 />
 
                 <InputField
-                  type={"select"}
-                  name="periode"
+                  type={"text"}
+                  name="reponses"
                   formik={formik}
-                  placeholder="Sélectionnez une periode"
-                  label={"Periode"}
-                  options={periodes}
-                />
-                <InputField
-                  type={"select"}
-                  name="classe"
-                  formik={formik}
-                  placeholder="Sélectionnez une classe"
-                  label={"Classe"}
-                  options={classes}
-                  callback={onClasseChange}
-                />
-                <InputField
-                  type={"select"}
-                  name="matiere"
-                  formik={formik}
-                  placeholder="Sélectionnez une matière"
-                  label={"Matière"}
-                  options={matieres}
-                />
-                <InputField
-                  type={"textaera"}
-                  name="description"
-                  formik={formik}
-                  placeholder="Description du chapitre"
-                  label={"Description"}
+                  placeholder="Entrez le numéro des bonnes réponses"
+                  label={"Liste des bonne réponses ( exemple : 1; 4 )"}
                 />
 
+                <div className="d-flex justify-content-start border-0">
+                  <button
+                    type="reset"
+                    className="btn btn-secondary me-2"
+                    data-bs-dismiss="modal"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    data-bs-dismiss="modal"
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="modal fade" id="importFile">
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content">
+            <div className="modal-header border-0">
+              <h4 className="modal-title text-meduim text-bold">
+                Importation d'une liste de question
+              </h4>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+
+            <div className="modal-body">
+              <form onSubmit={formikFile.handleSubmit}>
+                <InputField
+                  type={"file"}
+                  name="qcm"
+                  formik={formikFile}
+                  placeholder="Intitulé de la question"
+                  label={"Choisissez un fichier Excel"}
+                />
+                
                 <div className="d-flex justify-content-start border-0">
                   <button
                     type="reset"
@@ -446,30 +548,30 @@ const Chapitre = () => {
 
             <div className="modal-body">
               <div>
-                <span className="fw-bold d-inline-block me-2">Chapitre : </span>
-                <span className="d-inline-block">{viewData.label}</span>
+                <span className="fw-bold d-inline-block me-2">Question : </span>
+                <span className="d-inline-block">{viewData.question}</span>
               </div>
               <div>
-                <span className="fw-bold d-inline-block me-2">
-                  Abreviation :{" "}
-                </span>
-                <span className="d-inline-block">{viewData.abreviation}</span>
+                <span className="fw-bold d-inline-block me-2">Type : </span>
+                <span className="d-inline-block">{viewData.type}</span>
               </div>
               <div>
-                <span className="fw-bold d-inline-block me-2">
-                  Matière / Classe :{" "}
-                </span>
-                <span className="d-inline-block">
-                  {viewData.matiere_de_la_classe?.matiere?.abreviation +
-                    "/" +
-                    viewData.matiere_de_la_classe?.classe?.label}
-                </span>
+                <div>
+                  <span className="fw-bold d-inline-block me-2">Choix : </span>
+                </div>
+                <div className="d-inline-block ps-4">
+                  {getQuestionList(viewData.choix)?.map((data, idx) => {
+                    return (
+                      <div key={idx}>
+                        {idx + 1} - {data}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
               <div>
-                <span className="fw-bold d-inline-block me-2">
-                  Description :{" "}
-                </span>
-                <span className="d-inline-block">{viewData.description}</span>
+                <span className="fw-bold d-inline-block me-2">Reponses : </span>
+                <span className="d-inline-block">{viewData.reponses}</span>
               </div>
               <div className="mt-4 d-flex justify-content-end">
                 <button className="btn btn-primary" data-bs-dismiss="modal">
@@ -513,9 +615,8 @@ const Chapitre = () => {
           </div>
         </div>
       </div>
-      <Notify showModal={showModal} />
     </>
   );
 };
 
-export default Chapitre;
+export default Question;

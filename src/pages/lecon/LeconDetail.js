@@ -10,8 +10,6 @@ import { useParams } from "react-router-dom";
 import TextEditor from "../../Components/TextEditor";
 import InputField from "../../Components/InputField";
 import DOMPurify from "dompurify";
-import parse from "html-react-parser";
-import TextEditorView from "../../Components/TextEditorView";
 
 const initData = {
   label: "",
@@ -29,7 +27,12 @@ const LeconDetail = () => {
   const [files, setFiles] = useState([]);
   const [cours, setCours] = useState("");
   const [file, setFile] = useState("");
-
+  const fileSize = {
+    video: "La taille maximale des vidéos ne doit pas dépasser 20 mégaoctets.",
+    audio: "La taille maximale des audios ne doit pas dépasser 5 mégaoctets.",
+    image: "La taille maximale des images ne doit pas dépasser 1 mégaoctets.",
+    file: "La taille maximale des fichiers (PDF) ne doit pas dépasser 1 mégaoctets.",
+  };
   const [refresh, setRefresh] = useState(0);
   const header = {
     headers: {
@@ -102,7 +105,7 @@ const LeconDetail = () => {
 
   const getFile = () => {
     request
-      .get(endPoint.files+"/lecon/"+slug, header)
+      .get(endPoint.files + "/lecon/" + slug, header)
       .then((res) => {
         setFiles(res.data.data);
         console.log(res.data.data);
@@ -251,6 +254,10 @@ const LeconDetail = () => {
               Liste des resources
             </div>
 
+            <div className="text-danger mb-3 fw-bold">
+              {fileSize[formikFile.values.type]}
+            </div>
+
             <InputField
               type="select"
               name={"type"}
@@ -286,9 +293,14 @@ const LeconDetail = () => {
                     className="btn-secondary border border-primary rounded-2 pe-0 my-3"
                     key={data.slug}
                   >
-                    <span className="text-primary fw-bold py-1 rounded">{data.type}</span>
+                    <span className="text-primary fw-bold py-1 rounded">
+                      {data.type}
+                    </span>
                     <div className="d-flex justify-content-between rounded-5">
-                      {data.original_name}
+                      <div>
+                        <span>{data.original_name}</span> <br />
+                        <span className="fw-bold">{"Taille : " + data.taille}</span>
+                      </div>
                       <br />
                       <div>
                         <span
@@ -323,7 +335,7 @@ const ViewCours = ({ data, formik, setCours, file }) => {
     formik.setFieldValue("label", data.label);
     formik.setFieldValue("abreviation", data.abreviation);
     formik.setFieldValue("description", data.description);
-    mediaConfig()
+    mediaConfig();
   }, [data]);
   const changeView = (e, name) => {
     e.preventDefault();
@@ -331,27 +343,25 @@ const ViewCours = ({ data, formik, setCours, file }) => {
   };
 
   const mediaConfig = () => {
-    const videos = document.querySelectorAll('video');
-    videos.forEach(video => {
+    const videos = document.querySelectorAll("video");
+    videos.forEach((video) => {
       video.controls = true;
-      video.setAttribute("class", "w-100")
-
+      video.setAttribute("class", "w-100");
     });
 
-    const audios = document.querySelectorAll('audio');
-    audios.forEach(audio => {
+    const audios = document.querySelectorAll("audio");
+    audios.forEach((audio) => {
       audio.controls = true;
-      audio.setAttribute("class", "w-100")
+      audio.setAttribute("class", "w-100");
     });
 
-    const images = document.querySelectorAll('image');
-    images.forEach(image => {
-      image.setAttribute("class", "w-100")
-
+    const images = document.querySelectorAll("image");
+    images.forEach((image) => {
+      image.setAttribute("class", "w-100");
     });
-    
-    console.log(videos)
-  }
+
+    console.log(videos);
+  };
   return (
     <>
       <div className="d-flex justify-content-end mb-3">
@@ -367,7 +377,7 @@ const ViewCours = ({ data, formik, setCours, file }) => {
         >
           Modifier
         </button>
-        <button className="btn btn-outline-danger">Supprimer</button>
+        <button className="btn btn-outline-danger">De publier</button>
       </div>
       {view === "view" && (
         <>

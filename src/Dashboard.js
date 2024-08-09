@@ -20,7 +20,6 @@ import MatiereClasse from "./pages/MatiereClasse";
 import Chapitre from "./pages/Chapitre";
 import Lecon from "./pages/Lecon";
 import Cours from "./pages/Cours";
-
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
   const { user, onUserChange } = authCtx;
