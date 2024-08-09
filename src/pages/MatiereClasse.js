@@ -97,7 +97,7 @@ const MatiereClasse = () => {
   };
   const getAll = (classeSelected) => {
     request
-      .get(endPoint.matiereClasse + "/?classe=" + classeSelected, header)
+      .get(endPoint.matiereClasse + "/classe/" + classeSelected, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);

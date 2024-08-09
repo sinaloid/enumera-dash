@@ -30,8 +30,9 @@ const LeconListe = () => {
   const [matieres, setMatieres] = useState([]);
   const [classes, setClasses] = useState([]);
   const [classeMatiere, setClasseMatiere] = useState([]);
+  const [periodes, setPeriodes] = useState([]);
   const [refresh, setRefresh] = useState(0);
-  const navigate =  useNavigate()
+  const navigate = useNavigate();
 
   const header = {
     headers: {
@@ -41,7 +42,8 @@ const LeconListe = () => {
   };
 
   useEffect(() => {
-    getAll();
+    //getAll();
+    getPeriode();
     getClasse();
   }, [refresh]);
   const validateData = Yup.object({
@@ -79,7 +81,7 @@ const LeconListe = () => {
 
   const getAll = (chapitre) => {
     request
-      .get(endPoint.lecons+"/?chapitre="+chapitre, header)
+      .get(endPoint.lecons + "/chapitre/" + chapitre, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -101,8 +103,8 @@ const LeconListe = () => {
   };
 
   const onClasseChange = (slug) => {
-    setMatieres([])
-    setChapitres([])
+    setMatieres([]);
+    setChapitres([]);
     getMatiere(slug);
   };
 
@@ -123,27 +125,35 @@ const LeconListe = () => {
       });
   };
 
-  const onMatiereChange = (slug,classeSlug = "") => {
-    setChapitres([])
-    getChapitre(slug,classeSlug);
+  const getPeriode = () => {
+    request
+      .get(endPoint.periodes, header)
+      .then((res) => {
+        setPeriodes(res.data.data);
+        console.log(res.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
-  const getChapitre = (matiereSlug, classeSlug = "") => {
-    classeSlug = formik.values["classe"] ? formik.values["classe"] : classeSlug;
+  const onMatiereChange = (slug, classeSlug = "") => {
+    setChapitres([]);
+    getChapitre(slug, classeSlug);
+  };
+
+  const getChapitre = (matiereSelected, classeSelected, periodeSelected) => {
+    //classeSlug = formik.values["classe"] ? formik.values["classe"] : classeSlug;
     request
       .get(
-        endPoint.classes +
-          "/" +
-          classeSlug +
-          "/matieres/" +
-          matiereSlug +
-          "/chapitres",
+        endPoint.chapitres +
+          `/${matiereSelected}/${classeSelected}/${periodeSelected}`,
         header
       )
       .then((res) => {
         console.log(res.data.data);
 
-        setChapitres(res.data.data.chapitres);
+        setChapitres(res.data.data);
       })
       .catch((error) => {
         console.log(error);
@@ -246,32 +256,70 @@ const LeconListe = () => {
     formik.setFieldValue("description", data.description);
   };
 
-  const goToDetail = (e,data) => {
-    e.preventDefault()
-    navigate(data)
-  }
-  const [classeSelected, setClasseSelected] = useState('')
-  const [matiereSelected,setMatiereSelected] = useState('')
-  const [chapitreSelected,setChapitreSelected] = useState('')
+  const goToDetail = (e, data) => {
+    e.preventDefault();
+    navigate(data);
+  };
+  const [classeSelected, setClasseSelected] = useState("");
+  const [matiereSelected, setMatiereSelected] = useState("");
+  const [chapitreSelected, setChapitreSelected] = useState("");
+  const [periodeSelected, setPeriodeSelected] = useState("");
+
+  const changePeriode = (periode) => {
+    setPeriodeSelected(periode);
+    //getAll(classe, matiereSelected);
+    //filtreData(periode, classeSelected, matiereSelected);
+    filtreChapitre(periode, classeSelected, matiereSelected);
+
+  };
+
   const changeClasse = (classe) => {
     setClasseSelected(classe);
-    getMatiere(classe);
+    getMatiere(classe)
+    filtreChapitre(periodeSelected, classe, matiereSelected);
+
   };
 
   const changeMatiere = (matiere) => {
     setMatiereSelected(matiere);
-    getChapitre(matiere,classeSelected);
+    filtreChapitre(periodeSelected, classeSelected, matiere);
   };
 
   const changeChapitre = (chapitre) => {
     setChapitreSelected(chapitre);
-    
+
     getAll(chapitre);
+    //filtreData()
   };
+
+  const filtreChapitre = (periode, classe, matiere) => {
+    if(periode && classe && matiere){
+      console.log(periode,classe,matiere)
+      getChapitre(matiere, classe, periode);
+    }
+  }
+
+  const filtreData = (periode, classe, matiere) => {
+    if(periode && classe && matiere){
+      console.log(periode,classe,matiere)
+      getAll(periode, classe, matiere);
+    }
+  }
   return (
     <>
       <PageHeader title="Liste des leçons" modal="form" addModal={addModal} />
       <div className="d-flex mt-3">
+        <div className="me-2">
+          <InputField
+            type={"select"}
+            name="periode"
+            formik={formik}
+            placeholder="Sélectionnez une periode"
+            label={"Sélectionnez une periode"}
+            options={periodes}
+            callback={changePeriode}
+          />
+        </div>
         <div className="me-2">
           <InputField
             type={"select"}
@@ -347,7 +395,7 @@ const LeconListe = () => {
                         //data-bs-toggle="modal"
                         //data-bs-target="#view"
                         onClick={(e) => {
-                          goToDetail(e,data.slug);
+                          goToDetail(e, data.slug);
                         }}
                       >
                         <span> Cours</span>
@@ -359,7 +407,7 @@ const LeconListe = () => {
                         //data-bs-toggle="modal"
                         //data-bs-target="#view"
                         onClick={(e) => {
-                          goToDetail(e,data.slug+"/evaluations");
+                          goToDetail(e, data.slug + "/evaluations");
                         }}
                       >
                         <span> Evaluations</span>

@@ -30,6 +30,7 @@ const Chapitre = () => {
   const [matieres, setMatieres] = useState([]);
   const [classeSelected, setClasseSelected] = useState("");
   const [matiereSelected, setMatiereSelected] = useState("");
+  const [periodeSelected, setPeriodeSelected] = useState("");
   const [classes, setClasses] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const header = {
@@ -40,7 +41,7 @@ const Chapitre = () => {
   };
 
   useEffect(() => {
-    getAll("","");
+    ///getAll("","");
     getPeriode();
     getClasse();
   }, [refresh]);
@@ -120,14 +121,10 @@ const Chapitre = () => {
         console.log(error);
       });
   };
-  const getAll = (classeSelected, matiereSelected) => {
+  const getAll = (periodeSelected, classeSelected, matiereSelected) => {
     request
       .get(
-        endPoint.chapitres +
-          "/?classe=" +
-          classeSelected +
-          "&matiere=" +
-          matiereSelected,
+        endPoint.chapitres+`/${matiereSelected}/${classeSelected}/${periodeSelected}`,
         header
       )
       .then((res) => {
@@ -227,16 +224,32 @@ const Chapitre = () => {
     formik.setFieldValue("description", data.description);
   };
 
+  const changePeriode = (periode) => {
+    setPeriodeSelected(periode);
+    getMatiere(periode);
+    //getAll(classe, matiereSelected);
+    filtreData(periode, classeSelected, matiereSelected);
+
+  };
+
   const changeClasse = (classe) => {
     setClasseSelected(classe);
     getMatiere(classe);
-    getAll(classe, matiereSelected);
+    filtreData(periodeSelected, classe, matiereSelected);
+
   };
 
   const changeMatiere = (matiere) => {
     setMatiereSelected(matiere);
-    getAll(classeSelected, matiere);
+    filtreData(periodeSelected, classeSelected, matiere);
   };
+
+  const filtreData = (periode, classe, matiere) => {
+    if(periode && classe && matiere){
+      console.log(periode,classe,matiere)
+      getAll(periode, classe, matiere);
+    }
+  }
 
   return (
     <>
@@ -246,6 +259,17 @@ const Chapitre = () => {
         addModal={addModal}
       />
       <div className="d-flex mt-3">
+      <div className="me-2">
+          <InputField
+            type={"select"}
+            name="periode"
+            formik={formik}
+            placeholder="Sélectionnez une periode"
+            label={"Sélectionnez une periode"}
+            options={periodes}
+            callback={changePeriode}
+          />
+        </div>
         <div className="me-2">
           <InputField
             type={"select"}
