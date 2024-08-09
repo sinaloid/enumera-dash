@@ -74,7 +74,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
 
   const getAll = () => {
     request
-      .get(endPoint + "/?profile=" + profile, header)
+      .get(endPoint + "/profile/" + profile, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
