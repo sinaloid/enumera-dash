@@ -14,7 +14,6 @@ import PageHeader from "../../Components/PageHeader";
 import Table from "../../Components/Table";
 import TableHeader from "../../Components/TableHeader";
 import TableContent from "../../Components/TableContent";
-import { label } from "three/examples/jsm/nodes/Nodes.js";
 
 const initData = {
   label: "",
