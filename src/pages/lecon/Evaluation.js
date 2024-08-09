@@ -280,7 +280,7 @@ const EvaluationListe = ({ lecon }) => {
 
   const getAll = () => {
     request
-      .get(endPoint.evaluations_lecons, header)
+      .get(endPoint.evaluations_lecons+"/lecon/"+lecon, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
