@@ -33,6 +33,8 @@ const LeconListe = () => {
   const [periodes, setPeriodes] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const navigate = useNavigate();
+  const [isFirstTime, setIsFirstTime] = useState(true);
+
 
   const header = {
     headers: {
@@ -79,9 +81,9 @@ const LeconListe = () => {
     },
   });
 
-  const getAll = (chapitre) => {
+  const getAll = (endpoint) => {
     request
-      .get(endPoint.lecons + "/chapitre/" + chapitre, header)
+      .get(endpoint, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -95,7 +97,12 @@ const LeconListe = () => {
       .get(endPoint.classes, header)
       .then((res) => {
         setClasses(res.data.data);
-        console.log(res.data.data);
+        if(isFirstTime){
+          onSelectChange(res.data.data[0].slug)
+          getMatiere(res.data.data[0].slug)
+          formik.setFieldValue('classeSelected',res.data.data[0].slug)
+          setIsFirstTime(false)
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -142,12 +149,12 @@ const LeconListe = () => {
     getChapitre(slug, classeSlug);
   };
 
-  const getChapitre = (matiereSelected, classeSelected, periodeSelected) => {
+  const getChapitre = (classeSelected, periodeSelected,matiereSelected) => {
     //classeSlug = formik.values["classe"] ? formik.values["classe"] : classeSlug;
     request
       .get(
         endPoint.chapitres +
-          `/${matiereSelected}/${classeSelected}/${periodeSelected}`,
+          `/classe/${classeSelected}/periode/${periodeSelected}/matiere/${matiereSelected}`,
         header
       )
       .then((res) => {
@@ -260,51 +267,66 @@ const LeconListe = () => {
     e.preventDefault();
     navigate(data);
   };
-  const [classeSelected, setClasseSelected] = useState("");
-  const [matiereSelected, setMatiereSelected] = useState("");
-  const [chapitreSelected, setChapitreSelected] = useState("");
-  const [periodeSelected, setPeriodeSelected] = useState("");
-
-  const changePeriode = (periode) => {
-    setPeriodeSelected(periode);
-    //getAll(classe, matiereSelected);
-    //filtreData(periode, classeSelected, matiereSelected);
-    filtreChapitre(periode, classeSelected, matiereSelected);
-
-  };
 
   const changeClasse = (classe) => {
-    setClasseSelected(classe);
-    getMatiere(classe)
-    filtreChapitre(periodeSelected, classe, matiereSelected);
+    onSelectChange(
+      classe,
+      formik.values.periodeSelected,
+      formik.values.matiereSelected,
+      formik.values.chapitreSelected
+    );
+    getMatiere(classe);
+  };
 
+  const changePeriode = (periode) => {
+    onSelectChange(
+      formik.values.classeSelected,
+      periode,
+      formik.values.matiereSelected,
+      formik.values.chapitreSelected
+    );
   };
 
   const changeMatiere = (matiere) => {
-    setMatiereSelected(matiere);
-    filtreChapitre(periodeSelected, classeSelected, matiere);
+    onSelectChange(
+      formik.values.classeSelected,
+      formik.values.periodeSelected,
+      matiere,
+      ""
+    );
+    getChapitre(
+      formik.values.classeSelected,
+      formik.values.periodeSelected,
+      matiere
+    );
   };
-
   const changeChapitre = (chapitre) => {
-    setChapitreSelected(chapitre);
-
-    getAll(chapitre);
-    //filtreData()
+    onSelectChange(
+      formik.values.classeSelected,
+      formik.values.periodeSelected,
+      formik.values.matiereSelected,
+      chapitre
+    );
   };
 
-  const filtreChapitre = (periode, classe, matiere) => {
-    if(periode && classe && matiere){
-      console.log(periode,classe,matiere)
-      getChapitre(matiere, classe, periode);
-    }
-  }
+  const onSelectChange = (classe, periode, matiere, chapitre) => {
+    let url = endPoint.lecons + "/classe/" + classe;
 
-  const filtreData = (periode, classe, matiere) => {
-    if(periode && classe && matiere){
-      console.log(periode,classe,matiere)
-      getAll(periode, classe, matiere);
+    if (periode) {
+      url += "/periode/" + periode;
+
+      if (matiere) {
+        url += "/matiere/" + matiere;
+
+        if (chapitre) {
+          url += "/chapitre/" + chapitre;
+        }
+      }
     }
-  }
+
+    getAll(url);
+  };
+
   return (
     <>
       <PageHeader title="Liste des leçons" modal="form" addModal={addModal} />
@@ -312,18 +334,7 @@ const LeconListe = () => {
         <div className="me-2">
           <InputField
             type={"select"}
-            name="periode"
-            formik={formik}
-            placeholder="Sélectionnez une periode"
-            label={"Sélectionnez une periode"}
-            options={periodes}
-            callback={changePeriode}
-          />
-        </div>
-        <div className="me-2">
-          <InputField
-            type={"select"}
-            name="classe"
+            name="classeSelected"
             formik={formik}
             placeholder="Sélectionnez une classe"
             label={"Sélectionnez une classe"}
@@ -334,7 +345,19 @@ const LeconListe = () => {
         <div className="me-2">
           <InputField
             type={"select"}
-            name="matiere"
+            name="periodeSelected"
+            formik={formik}
+            placeholder="Sélectionnez une periode"
+            label={"Sélectionnez une periode"}
+            options={periodes}
+            callback={changePeriode}
+          />
+        </div>
+
+        <div className="me-2">
+          <InputField
+            type={"select"}
+            name="matiereSelected"
             formik={formik}
             placeholder="Sélectionnez une matiere"
             label={"Sélectionnez une matière"}
@@ -345,7 +368,7 @@ const LeconListe = () => {
         <div>
           <InputField
             type={"select"}
-            name="chapitre"
+            name="chapitreSelected"
             formik={formik}
             placeholder="Sélectionnez un chapitre"
             label={"Sélectionnez un chapitre"}
@@ -354,6 +377,7 @@ const LeconListe = () => {
           />
         </div>
       </div>
+      <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">

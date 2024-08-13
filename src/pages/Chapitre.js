@@ -28,9 +28,7 @@ const Chapitre = () => {
   const [viewData, setViewData] = useState({});
   const [periodes, setPeriodes] = useState([]);
   const [matieres, setMatieres] = useState([]);
-  const [classeSelected, setClasseSelected] = useState("");
-  const [matiereSelected, setMatiereSelected] = useState("");
-  const [periodeSelected, setPeriodeSelected] = useState("");
+  const [isFirstTime, setIsFirstTime] = useState(true);
   const [classes, setClasses] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const header = {
@@ -95,7 +93,13 @@ const Chapitre = () => {
       .get(endPoint.classes, header)
       .then((res) => {
         setClasses(res.data.data);
-        console.log(res.data.data);
+        if(isFirstTime){
+          onSelectChange(res.data.data[0].slug)
+          getMatiere(res.data.data[0].slug)
+          formik.setFieldValue('classeSelected',res.data.data[0].slug)
+          setIsFirstTime(false)
+        }
+        //console.log(res.data.data);
       })
       .catch((error) => {
         console.log(error);
@@ -108,25 +112,19 @@ const Chapitre = () => {
 
   const getMatiere = (slug) => {
     request
-      .get(endPoint.classes + "/" + slug + "/matieres", header)
+      .get(endPoint.matieres + "/classe/" + slug, header)
       .then((res) => {
         console.log(res.data.data);
-        const matierelList = res.data.data.matiere_de_la_classe.map((data) => {
-          return data.matiere;
-        });
-        setMatieres(matierelList);
+        setMatieres(res.data.data);
         console.log(res.data.data);
       })
       .catch((error) => {
         console.log(error);
       });
   };
-  const getAll = (periodeSelected, classeSelected, matiereSelected) => {
+  const getAll = (endpoint) => {
     request
-      .get(
-        endPoint.chapitres+`/${matiereSelected}/${classeSelected}/${periodeSelected}`,
-        header
-      )
+      .get(endpoint, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -224,32 +222,44 @@ const Chapitre = () => {
     formik.setFieldValue("description", data.description);
   };
 
-  const changePeriode = (periode) => {
-    setPeriodeSelected(periode);
-    getMatiere(periode);
-    //getAll(classe, matiereSelected);
-    filtreData(periode, classeSelected, matiereSelected);
-
+  const changeClasse = (classe) => {
+    onSelectChange(
+      classe,
+      formik.values.periodeSelected,
+      formik.values.matiereSelected
+    );
+    getMatiere(classe);
   };
 
-  const changeClasse = (classe) => {
-    setClasseSelected(classe);
-    getMatiere(classe);
-    filtreData(periodeSelected, classe, matiereSelected);
-
+  const changePeriode = (periode) => {
+    onSelectChange(
+      formik.values.classeSelected,
+      periode,
+      formik.values.matiereSelected
+    );
   };
 
   const changeMatiere = (matiere) => {
-    setMatiereSelected(matiere);
-    filtreData(periodeSelected, classeSelected, matiere);
+    onSelectChange(
+      formik.values.classeSelected,
+      formik.values.periodeSelected,
+      matiere
+    );
   };
 
-  const filtreData = (periode, classe, matiere) => {
-    if(periode && classe && matiere){
-      console.log(periode,classe,matiere)
-      getAll(periode, classe, matiere);
+  const onSelectChange = (classe, periode, matiere) => {
+    let url = endPoint.chapitres + "/classe/" + classe;
+
+    if (periode) {
+      url += "/periode/" + periode;
+
+      if (matiere) {
+        url += "/matiere/" + matiere;
+      }
     }
-  }
+
+    getAll(url);
+  };
 
   return (
     <>
@@ -259,21 +269,10 @@ const Chapitre = () => {
         addModal={addModal}
       />
       <div className="d-flex mt-3">
-      <div className="me-2">
-          <InputField
-            type={"select"}
-            name="periode"
-            formik={formik}
-            placeholder="Sélectionnez une periode"
-            label={"Sélectionnez une periode"}
-            options={periodes}
-            callback={changePeriode}
-          />
-        </div>
         <div className="me-2">
           <InputField
             type={"select"}
-            name="classe"
+            name="classeSelected"
             formik={formik}
             placeholder="Sélectionnez une classe"
             label={"Sélectionnez une classe"}
@@ -281,10 +280,21 @@ const Chapitre = () => {
             callback={changeClasse}
           />
         </div>
+        <div className="me-2">
+          <InputField
+            type={"select"}
+            name="periodeSelected"
+            formik={formik}
+            placeholder="Sélectionnez une periode"
+            label={"Sélectionnez une periode"}
+            options={periodes}
+            callback={changePeriode}
+          />
+        </div>
         <div>
           <InputField
             type={"select"}
-            name="matiere"
+            name="matiereSelected"
             formik={formik}
             placeholder="Sélectionnez une matiere"
             label={"Sélectionnez une matière"}
@@ -293,6 +303,7 @@ const Chapitre = () => {
           />
         </div>
       </div>
+      <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
