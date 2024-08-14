@@ -35,7 +35,6 @@ const LeconListe = () => {
   const navigate = useNavigate();
   const [isFirstTime, setIsFirstTime] = useState(true);
 
-
   const header = {
     headers: {
       Authorization: `Bearer ${user.token}`,
@@ -97,11 +96,11 @@ const LeconListe = () => {
       .get(endPoint.classes, header)
       .then((res) => {
         setClasses(res.data.data);
-        if(isFirstTime){
-          onSelectChange(res.data.data[0].slug)
-          getMatiere(res.data.data[0].slug)
-          formik.setFieldValue('classeSelected',res.data.data[0].slug)
-          setIsFirstTime(false)
+        if (isFirstTime) {
+          onSelectChange(res.data.data[0].slug);
+          getMatiere(res.data.data[0].slug);
+          formik.setFieldValue("classeSelected", res.data.data[0].slug);
+          setIsFirstTime(false);
         }
       })
       .catch((error) => {
@@ -144,12 +143,16 @@ const LeconListe = () => {
       });
   };
 
-  const onMatiereChange = (slug, classeSlug = "") => {
+  const onMatiereChange = (matiere) => {
     setChapitres([]);
-    getChapitre(slug, classeSlug);
+    getChapitre(
+      formik.values.classe,
+      formik.values.periode,
+      matiere
+    );
   };
 
-  const getChapitre = (classeSelected, periodeSelected,matiereSelected) => {
+  const getChapitre = (classeSelected, periodeSelected, matiereSelected) => {
     //classeSlug = formik.values["classe"] ? formik.values["classe"] : classeSlug;
     request
       .get(
@@ -509,6 +512,14 @@ const LeconListe = () => {
                   label={"Classe"}
                   options={classes}
                   callback={onClasseChange}
+                />
+                <InputField
+                  type={"select"}
+                  name="periode"
+                  formik={formik}
+                  placeholder="Sélectionnez une periode"
+                  label={"Sélectionnez une periode"}
+                  options={periodes}
                 />
                 <InputField
                   type={"select"}
