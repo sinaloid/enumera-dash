@@ -40,7 +40,6 @@ const Chapitre = () => {
 
   useEffect(() => {
     ///getAll("","");
-      getPeriode();
       getClasse();
     
   }, [refresh]);
@@ -78,17 +77,6 @@ const Chapitre = () => {
     },
   });
 
-  const getPeriode = () => {
-    request
-      .get(endPoint.periodes, header)
-      .then((res) => {
-        setPeriodes(res.data.data);
-        console.log(res.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
   const getClasse = () => {
     request
       .get(endPoint.classes, header)
@@ -218,7 +206,6 @@ const Chapitre = () => {
     setEditId(data.slug);
     formik.setFieldValue("matiere", data.matiere_de_la_classe.matiere.slug);
     formik.setFieldValue("classe", data.matiere_de_la_classe.classe.slug);
-    formik.setFieldValue("periode", data.periode.slug);
     formik.setFieldValue("label", data.label);
     formik.setFieldValue("abreviation", data.abreviation);
     formik.setFieldValue("description", data.description);
@@ -227,37 +214,23 @@ const Chapitre = () => {
   const changeClasse = (classe) => {
     onSelectChange(
       classe,
-      formik.values.periodeSelected,
       formik.values.matiereSelected
     );
     getMatiere(classe);
   };
 
-  const changePeriode = (periode) => {
-    onSelectChange(
-      formik.values.classeSelected,
-      periode,
-      formik.values.matiereSelected
-    );
-  };
-
   const changeMatiere = (matiere) => {
     onSelectChange(
       formik.values.classeSelected,
-      formik.values.periodeSelected,
       matiere
     );
   };
 
-  const onSelectChange = (classe, periode, matiere) => {
+  const onSelectChange = (classe, matiere) => {
     let url = endPoint.chapitres + "/classe/" + classe;
 
-    if (periode) {
-      url += "/periode/" + periode;
-
-      if (matiere) {
-        url += "/matiere/" + matiere;
-      }
+    if (matiere) {
+      url += "/matiere/" + matiere;
     }
 
     getAll(url);
@@ -266,7 +239,7 @@ const Chapitre = () => {
   return (
     <>
       <PageHeader
-        title="Liste des chapitres"
+        title="Liste des sections"
         modal="form"
         addModal={addModal}
       />
@@ -280,17 +253,6 @@ const Chapitre = () => {
             label={"Sélectionnez une classe"}
             options={classes}
             callback={changeClasse}
-          />
-        </div>
-        <div className="me-2">
-          <InputField
-            type={"select"}
-            name="periodeSelected"
-            formik={formik}
-            placeholder="Sélectionnez une periode"
-            label={"Sélectionnez une periode"}
-            options={periodes}
-            callback={changePeriode}
           />
         </div>
         <div>
@@ -313,7 +275,6 @@ const Chapitre = () => {
           </th>
           <th scope="col">Section</th>
           <th scope="col">Classe</th>
-          <th scope="col">Periode</th>
           <th scope="col">Matière</th>
           <th scope="col">Coefficient</th>
           <th scope="col" className="text-center">
@@ -332,7 +293,6 @@ const Chapitre = () => {
                 <td className="fw-bold1">
                   {data.matiere_de_la_classe.classe.label}
                 </td>
-                <td className="fw-bold1 text-nowrap">{data.periode.label}</td>
                 <td className="fw-bold1">
                   {data.matiere_de_la_classe.matiere.abreviation}
                 </td>
