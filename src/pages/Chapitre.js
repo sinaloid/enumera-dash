@@ -40,8 +40,9 @@ const Chapitre = () => {
 
   useEffect(() => {
     ///getAll("","");
-    getPeriode();
-    getClasse();
+      getPeriode();
+      getClasse();
+    
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -93,11 +94,11 @@ const Chapitre = () => {
       .get(endPoint.classes, header)
       .then((res) => {
         setClasses(res.data.data);
-        if(isFirstTime){
-          onSelectChange(res.data.data[0].slug)
-          getMatiere(res.data.data[0].slug)
-          formik.setFieldValue('classeSelected',res.data.data[0].slug)
-          setIsFirstTime(false)
+        if (isFirstTime) {
+          onSelectChange(res.data.data[0].slug);
+          getMatiere(res.data.data[0].slug);
+          formik.setFieldValue("classeSelected", res.data.data[0].slug);
+          setIsFirstTime(false);
         }
         //console.log(res.data.data);
       })
@@ -166,6 +167,7 @@ const Chapitre = () => {
             const res = data;
             setEditId("");
             setRefresh(refresh + 1);
+            //getAll()
             return res.data.message;
           },
         },
@@ -309,10 +311,11 @@ const Chapitre = () => {
           <th scope="col" className="border-raduis-left">
             #
           </th>
-          <th scope="col">Chapitre</th>
-          <th scope="col">Abreviation</th>
-          <th scope="col">Matière/Classe</th>
-          <th scope="col">Description</th>
+          <th scope="col">Section</th>
+          <th scope="col">Classe</th>
+          <th scope="col">Periode</th>
+          <th scope="col">Matière</th>
+          <th scope="col">Coefficient</th>
           <th scope="col" className="text-center">
             Actions
           </th>
@@ -326,13 +329,16 @@ const Chapitre = () => {
                 </td>
 
                 <td className="fw-bold1">{data.label}</td>
-                <td className="fw-bold1">{data.abreviation}</td>
                 <td className="fw-bold1">
-                  {data.matiere_de_la_classe.matiere.abreviation +
-                    "/" +
-                    data.matiere_de_la_classe.classe.label}
+                  {data.matiere_de_la_classe.classe.label}
                 </td>
-                <td className="fw-bold1">{data.description}</td>
+                <td className="fw-bold1 text-nowrap">{data.periode.label}</td>
+                <td className="fw-bold1">
+                  {data.matiere_de_la_classe.matiere.abreviation}
+                </td>
+                <td className="fw-bold1">
+                  {data.matiere_de_la_classe.coefficient}
+                </td>
                 <td className="text-center">
                   <div className="btn-group">
                     <div className="d-inline-block mx-1">
@@ -384,8 +390,8 @@ const Chapitre = () => {
             <div className="modal-header border-0">
               <h4 className="modal-title text-meduim text-bold">
                 {editId !== ""
-                  ? "Modification du chapitre"
-                  : "Ajout d’un chapitre"}
+                  ? "Modification de la section"
+                  : "Ajout d’une section"}
               </h4>
               <button
                 type="button"
@@ -400,14 +406,14 @@ const Chapitre = () => {
                   type={"text"}
                   name="label"
                   formik={formik}
-                  placeholder="Nom du chapitre"
-                  label={"Chapitre"}
+                  placeholder="Nom de la section : chapitre, partie, thème, catégorie, rubrique..."
+                  label={"Section"}
                 />
                 <InputField
                   type={"text"}
                   name="abreviation"
                   formik={formik}
-                  placeholder="Abreviation du chapitre"
+                  placeholder="Abreviation de la section"
                   label={"Abreviation"}
                 />
 
@@ -440,7 +446,7 @@ const Chapitre = () => {
                   type={"textaera"}
                   name="description"
                   formik={formik}
-                  placeholder="Description du chapitre"
+                  placeholder="Description de la section"
                   label={"Description"}
                 />
 

@@ -145,11 +145,7 @@ const LeconListe = () => {
 
   const onMatiereChange = (matiere) => {
     setChapitres([]);
-    getChapitre(
-      formik.values.classe,
-      formik.values.periode,
-      matiere
-    );
+    getChapitre(formik.values.classe, formik.values.periode, matiere);
   };
 
   const getChapitre = (classeSelected, periodeSelected, matiereSelected) => {
@@ -387,9 +383,11 @@ const LeconListe = () => {
             #
           </th>
           <th scope="col">Leçon</th>
-          <th scope="col">Abreviation</th>
-          <th scope="col">Chapitre</th>
-          <th scope="col">Description</th>
+          <th scope="col">Section</th>
+          <th scope="col">Classe</th>
+          <th scope="col">Periode</th>
+          <th scope="col">Matière</th>
+          <th scope="col">Coefficient</th>
           <th scope="col" className="text-center">
             Actions
           </th>
@@ -403,17 +401,19 @@ const LeconListe = () => {
                 </td>
 
                 <td className="fw-bold1">{data.label}</td>
-                <td className="fw-bold1">{data.abreviation}</td>
                 <td className="fw-bold1">
-                  {data.chapitre?.label +
-                    " : " +
-                    data.chapitre?.matiere_de_la_classe.matiere.abreviation +
-                    "/" +
-                    data.chapitre?.matiere_de_la_classe.classe.label +
-                    "/" +
-                    data.chapitre?.periode.abreviation}
+                  {data.chapitre?.label}
                 </td>
-                <td className="fw-bold1">{data.description}</td>
+                <td className="fw-bold1">
+                  {data.chapitre?.matiere_de_la_classe?.classe?.label}
+                </td>
+                <td className="fw-bold1 text-nowrap">
+                  {data.chapitre?.periode?.label}
+                </td>
+                <td className="fw-bold1">
+                  {data.chapitre?.matiere_de_la_classe.matiere.abreviation}
+                </td>
+                <td className="fw-bold1">{data.chapitre?.matiere_de_la_classe?.coefficient}</td>
                 <td className="text-center">
                   <div className="btn-group">
                     <div className="d-inline-block mx-1">

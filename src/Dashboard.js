@@ -20,6 +20,8 @@ import MatiereClasse from "./pages/MatiereClasse";
 import Chapitre from "./pages/Chapitre";
 import Lecon from "./pages/Lecon";
 import Cours from "./pages/Cours";
+import Evaluation from "./pages/Evaluation";
+import CoursEnLigne from "./pages/CoursEnLigne";
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
   const { user, onUserChange } = authCtx;
@@ -44,6 +46,11 @@ const Dashboard = () => {
   const deconnect = () => {
     deleteUser();
     onUserChange(initialUser);
+  };
+
+  const goBack = (e) => {
+    e.preventDefault();
+    navigate(-1);
   };
   return (
     <>
@@ -99,90 +106,95 @@ const Dashboard = () => {
                     </span>
                   </NavLink>
                 </li>
-                <li className="nav-item my-1 px-2">
-                  <NavLink
-                    to="/dashboard/classes"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
-                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
-                    }
-                  >
-                    <span className="d-none d-md-block d-lg-none wd-0">
-                      <img src={employe} alt="" />
-                    </span>
-                    <span
-                      className="d-block d-md-none d-lg-block wd-80"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#sidebarMenu.show"
-                    >
-                      Classes
-                    </span>
-                  </NavLink>
-                </li>
-                <li className="nav-item my-1 px-2">
-                  <NavLink
-                    to="/dashboard/matieres"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
-                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
-                    }
-                  >
-                    <span className="d-none d-md-block d-lg-none wd-0">
-                      <img src={rendv} alt="" />
-                    </span>
-                    <span
-                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#sidebarMenu.show"
-                    >
-                      Matières
-                    </span>
-                  </NavLink>
-                </li>
-                <li className="nav-item my-1 px-2">
-                  <NavLink
-                    to="/dashboard/periodes"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
-                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
-                    }
-                  >
-                    <span className="d-none d-md-block d-lg-none wd-0">
-                      <img src={rendv} alt="" />
-                    </span>
-                    <span
-                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#sidebarMenu.show"
-                    >
-                      Periodes
-                    </span>
-                  </NavLink>
-                </li>
-                <li className="nav-item my-1 px-2">
-                  <NavLink
-                    to="/dashboard/matieres-d-une-classe"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
-                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
-                    }
-                  >
-                    <span className="d-none d-md-block d-lg-none wd-0">
-                      <img src={agenda} alt="" />
-                    </span>
-                    <span
-                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#sidebarMenu.show"
-                    >
-                      Matière d'une classe
-                    </span>
-                  </NavLink>
-                </li>
+                {user.profile === "ADMIN" && (
+                  <>
+                    <li className="nav-item my-1 px-2">
+                      <NavLink
+                        to="/dashboard/classes"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                            : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                        }
+                      >
+                        <span className="d-none d-md-block d-lg-none wd-0">
+                          <img src={employe} alt="" />
+                        </span>
+                        <span
+                          className="d-block d-md-none d-lg-block wd-80"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#sidebarMenu.show"
+                        >
+                          Classes
+                        </span>
+                      </NavLink>
+                    </li>
+                    <li className="nav-item my-1 px-2">
+                      <NavLink
+                        to="/dashboard/matieres"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                            : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                        }
+                      >
+                        <span className="d-none d-md-block d-lg-none wd-0">
+                          <img src={rendv} alt="" />
+                        </span>
+                        <span
+                          className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#sidebarMenu.show"
+                        >
+                          Matières
+                        </span>
+                      </NavLink>
+                    </li>
+                    <li className="nav-item my-1 px-2">
+                      <NavLink
+                        to="/dashboard/periodes"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                            : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                        }
+                      >
+                        <span className="d-none d-md-block d-lg-none wd-0">
+                          <img src={rendv} alt="" />
+                        </span>
+                        <span
+                          className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#sidebarMenu.show"
+                        >
+                          Periodes
+                        </span>
+                      </NavLink>
+                    </li>
+                    <li className="nav-item my-1 px-2">
+                      <NavLink
+                        to="/dashboard/matieres-d-une-classe"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                            : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                        }
+                      >
+                        <span className="d-none d-md-block d-lg-none wd-0">
+                          <img src={agenda} alt="" />
+                        </span>
+                        <span
+                          className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#sidebarMenu.show"
+                        >
+                          Matière d'une classe
+                        </span>
+                      </NavLink>
+                    </li>
+                  </>
+                )}
+
                 <li className="nav-item my-1 px-2">
                   <NavLink
                     to="/dashboard/chapitres"
@@ -200,7 +212,7 @@ const Dashboard = () => {
                       data-bs-toggle="collapse"
                       data-bs-target="#sidebarMenu.show"
                     >
-                      Chapitres
+                      Section
                     </span>
                   </NavLink>
                 </li>
@@ -222,6 +234,69 @@ const Dashboard = () => {
                       data-bs-target="#sidebarMenu.show"
                     >
                       Leçons
+                    </span>
+                  </NavLink>
+                </li>
+                <li className="nav-item my-1 px-2">
+                  <NavLink
+                    to="/dashboard/evaluations"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                    }
+                  >
+                    <span className="d-none d-md-block d-lg-none wd-0">
+                      <img src={agenda} alt="" />
+                    </span>
+                    <span
+                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#sidebarMenu.show"
+                    >
+                      Evaluations
+                    </span>
+                  </NavLink>
+                </li>
+                <li className="nav-item my-1 px-2">
+                  <NavLink
+                    to="/dashboard/discussions"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                    }
+                  >
+                    <span className="d-none d-md-block d-lg-none wd-0">
+                      <img src={agenda} alt="" />
+                    </span>
+                    <span
+                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#sidebarMenu.show"
+                    >
+                      Discussions
+                    </span>
+                  </NavLink>
+                </li>
+                <li className="nav-item my-1 px-2">
+                  <NavLink
+                    to="/dashboard/cours-en-ligne"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                    }
+                  >
+                    <span className="d-none d-md-block d-lg-none wd-0">
+                      <img src={agenda} alt="" />
+                    </span>
+                    <span
+                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#sidebarMenu.show"
+                    >
+                      Cours en ligne
                     </span>
                   </NavLink>
                 </li>
@@ -269,70 +344,73 @@ const Dashboard = () => {
                     </span>
                   </NavLink>
                 </li>
-                <li className="nav-item my-1 px-2">
-                  <NavLink
-                    to="/dashboard/enseignants"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
-                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
-                    }
-                  >
-                    <span className="d-none d-md-block d-lg-none wd-0">
-                      <img src={patient} alt="" />
-                    </span>
-                    <span
-                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#sidebarMenu.show"
-                    >
-                      Enseignants
-                    </span>
-                  </NavLink>
-                </li>
-                <li className="nav-item my-1 px-2">
-                  <NavLink
-                    to="/dashboard/parents"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
-                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
-                    }
-                  >
-                    <span className="d-none d-md-block d-lg-none wd-0">
-                      <img src={agenda} alt="" />
-                    </span>
-                    <span
-                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#sidebarMenu.show"
-                    >
-                      Parents
-                    </span>
-                  </NavLink>
-                </li>
-
-                <li className="nav-item my-1 px-2">
-                  <NavLink
-                    to="/dashboard/admin"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
-                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
-                    }
-                  >
-                    <span className="d-none d-md-block d-lg-none wd-0">
-                      <img src={agenda} alt="" />
-                    </span>
-                    <span
-                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#sidebarMenu.show"
-                    >
-                      Administrateurs
-                    </span>
-                  </NavLink>
-                </li>
+                {user.profile === "ADMIN" && (
+                  <>
+                    <li className="nav-item my-1 px-2">
+                      <NavLink
+                        to="/dashboard/enseignants"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                            : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                        }
+                      >
+                        <span className="d-none d-md-block d-lg-none wd-0">
+                          <img src={patient} alt="" />
+                        </span>
+                        <span
+                          className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#sidebarMenu.show"
+                        >
+                          Enseignants
+                        </span>
+                      </NavLink>
+                    </li>
+                    <li className="nav-item my-1 px-2">
+                      <NavLink
+                        to="/dashboard/parents"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                            : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                        }
+                      >
+                        <span className="d-none d-md-block d-lg-none wd-0">
+                          <img src={agenda} alt="" />
+                        </span>
+                        <span
+                          className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#sidebarMenu.show"
+                        >
+                          Parents
+                        </span>
+                      </NavLink>
+                    </li>
+                    <li className="nav-item my-1 px-2">
+                      <NavLink
+                        to="/dashboard/admin"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                            : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                        }
+                      >
+                        <span className="d-none d-md-block d-lg-none wd-0">
+                          <img src={agenda} alt="" />
+                        </span>
+                        <span
+                          className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#sidebarMenu.show"
+                        >
+                          Administrateurs
+                        </span>
+                      </NavLink>
+                    </li>
+                  </>
+                )}
               </ul>
 
               <ul className="nav flex-column w-100 position-absolute bottom-0 mb-2">
@@ -367,16 +445,23 @@ const Dashboard = () => {
 
           <main className="col-md-11 ms-sm-auto col-lg-10 px-md-4 h-90 text-small bg-primary-light1">
             <div className="sticky-top my-4">
-              <span className="fw-bold">Retour</span>
+              <span className="fw-bold cursor bg-white" onClick={goBack}>
+                Retour
+              </span>
             </div>
             <Routes>
               <Route path="/" element={<> Accueil</>} />
               <Route path="/classes" element={<Classe />} />
               <Route path="/matieres" element={<Matiere />} />
-              <Route path="/matieres-d-une-classe" element={<MatiereClasse />} />
+              <Route
+                path="/matieres-d-une-classe"
+                element={<MatiereClasse />}
+              />
               <Route path="/chapitres" element={<Chapitre />} />
               <Route path="/lecons/*" element={<Lecon />} />
               <Route path="/cours/*" element={<Cours />} />
+              <Route path="/evaluations" element={<Evaluation />} />
+              <Route path="/cours-en-ligne" element={<CoursEnLigne />} />
               <Route path="/periodes" element={<Periode />} />
               <Route path="/eleves" element={<Eleve />} />
               <Route path="/enseignants" element={<Enseignant />} />

@@ -217,6 +217,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
           <th scope="col">Date de naissance</th>
           <th scope="col">Genre</th>
           <th scope="col">Contact</th>
+          <th scope="col">Classes</th>
           <th scope="col" className="text-center">
             Etat du compte
           </th>
@@ -242,6 +243,9 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                     <span className="fs-14">Email : {data.email}</span>
                   </div>
                 </td>
+                <td>
+                  null
+                </td>
                 <td className="text-center">
                   {data.isBlocked === 1 ? (
                     <span className="btn-sm bg-danger fw-bold rounded-2 text-white">
@@ -253,6 +257,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                     </span>
                   )}
                 </td>
+                
                 <td className="text-center">
                   <div className="btn-group">
                     {/**

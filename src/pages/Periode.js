@@ -165,6 +165,7 @@ const Periode = () => {
   return (
     <>
       <PageHeader title="Liste des periodes" modal="form" addModal={addModal} />
+      <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">

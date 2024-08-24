@@ -13,20 +13,16 @@ import Notify from "../Components/Notify";
 import { toast } from "react-toastify";
 
 const initData = {
-  classe: "",
-  matiere: "",
-  coefficient: "",
+  label: "",
+  description: "",
 };
-const MatiereClasse = () => {
+const CoursEnLigne = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
   const [editId, setEditId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
-  const [classes, setClasses] = useState([]);
-  const [classeSelected, setClasseSelected] = useState("");
-  const [matieres, setMatieres] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const header = {
     headers: {
@@ -37,8 +33,6 @@ const MatiereClasse = () => {
 
   useEffect(() => {
     //getAll();
-    getClasse();
-    getMatiere();
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -73,32 +67,9 @@ const MatiereClasse = () => {
     },
   });
 
-  const getClasse = () => {
+  const getAll = () => {
     request
       .get(endPoint.classes, header)
-      .then((res) => {
-        setClasses(res.data.data);
-        console.log(res.data.data);
-        getAll(res.data.data[0].slug);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  const getMatiere = () => {
-    request
-      .get(endPoint.matieres, header)
-      .then((res) => {
-        setMatieres(res.data.data);
-        console.log(res.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  const getAll = (classeSelected) => {
-    request
-      .get(endPoint.matiereClasse + "/classe/" + classeSelected, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -109,7 +80,7 @@ const MatiereClasse = () => {
   };
   const handleSubmit = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.matiereClasse, data, header), {
+    toast.promise(request.post(endPoint.classes, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -130,34 +101,31 @@ const MatiereClasse = () => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(
-      request.post(endPoint.matiereClasse + "/" + editId, data, header),
-      {
-        pending: "Veuillez patienté...",
-        success: {
-          render({ data }) {
-            console.log(data);
-            const res = data;
-            setEditId("");
-            setRefresh(refresh + 1);
-            return res.data.message;
-          },
+    toast.promise(request.post(endPoint.classes + "/" + editId, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setEditId("");
+          setRefresh(refresh + 1);
+          return res.data.message;
         },
-        error: {
-          render({ data }) {
-            console.log(data);
-            return data.response.data.errors
-              ? data.response.data.errors
-              : data.response.data.error;
-          },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
         },
-      }
-    );
+      },
+    });
   };
 
   const onDelete = () => {
     toast.promise(
-      request.delete(endPoint.matiereClasse + "/" + viewData.slug, header),
+      request.delete(endPoint.classes + "/" + viewData.slug, header),
       {
         pending: "Veuillez patienté...",
         success: {
@@ -177,6 +145,16 @@ const MatiereClasse = () => {
         },
       }
     );
+
+    request
+      .delete(endPoint.classes + "/" + viewData.slug, header)
+      .then((res) => {
+        console.log(res.data);
+        setRefresh(refresh + 1);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const addModal = (e) => {
@@ -184,49 +162,20 @@ const MatiereClasse = () => {
     setEditId("");
     formik.resetForm();
   };
-  const setEditeData = (e, data) => {
-    e.preventDefault();
-    //console.log(data);
-    setEditId(data.slug);
-    formik.setFieldValue("classe", data.classe.slug);
-    formik.setFieldValue("matiere", data.matiere.slug);
-    formik.setFieldValue("coefficient", data.coefficient);
-  };
-
-  const changeClasse = (slug) => {
-    console.log(slug);
-    setClasseSelected(slug);
-    getAll(slug);
-  };
   return (
     <>
-      <PageHeader
-        title="Liste des matières d'une classe"
-        modal="form"
-        addModal={addModal}
-      />
-      <div className="d-flex">
-        <InputField
-          type={"select"}
-          name="classe"
-          formik={formik}
-          placeholder="Sélectionnez une classe"
-          label={"Sélectionnez une classe"}
-          options={classes}
-          callback={changeClasse}
-        />
-      </div>
+      <PageHeader title="Liste des cours en ligne" modal="form" addModal={addModal} />
       <div className="fw-bold">{datas.length} resultats</div>
-
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
             #
           </th>
-          <th scope="col">Classe</th>
-          <th scope="col">Matière</th>
-          <th scope="col">Abreviation</th>
-          <th scope="col">Coefficient</th>
+          <th scope="col">Date</th>
+          <th scope="col">Heure</th>
+          <th scope="col">Durée</th>
+          <th scope="col">Etat</th>
+          <th scope="col">Description</th>
           <th scope="col" className="text-center">
             Actions
           </th>
@@ -239,10 +188,11 @@ const MatiereClasse = () => {
                   <input type="checkbox" value="selected" />
                 </td>
 
-                <td className="fw-bold1">{data.classe?.label}</td>
-                <td className="fw-bold1">{data.matiere.label}</td>
-                <td className="fw-bold1">{data.matiere.abreviation}</td>
-                <td className="fw-bold1">{data.coefficient}</td>
+                <td className="fw-bold1">{data.label}</td>
+                <td className="fw-bold1">{data.description}</td>
+                <td className="fw-bold1">{data.description}</td>
+                <td className="fw-bold1">{data.description}</td>
+                <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
                     <div className="d-inline-block mx-1">
@@ -263,7 +213,9 @@ const MatiereClasse = () => {
                         data-bs-toggle="modal"
                         data-bs-target="#form"
                         onClick={(e) => {
-                          setEditeData(e, data);
+                          formik.setFieldValue("label", data.label);
+                          formik.setFieldValue("description", data.description);
+                          setEditId(data.slug);
                         }}
                       >
                         <span> Modifier</span>
@@ -294,8 +246,8 @@ const MatiereClasse = () => {
             <div className="modal-header border-0">
               <h4 className="modal-title text-meduim text-bold">
                 {editId !== ""
-                  ? "Modification d’une matière d'une classe"
-                  : "Ajout d’une matière d'une classe"}
+                  ? "Modification d’une classe"
+                  : "Ajout d’une classe"}
               </h4>
               <button
                 type="button"
@@ -307,28 +259,18 @@ const MatiereClasse = () => {
             <div className="modal-body">
               <form onSubmit={formik.handleSubmit}>
                 <InputField
-                  type={"select"}
-                  name="classe"
-                  formik={formik}
-                  placeholder="Sélectionnez une classe"
-                  label={"Classe"}
-                  options={classes}
-                />
-                <InputField
-                  type={"select"}
-                  name="matiere"
-                  formik={formik}
-                  placeholder="Sélectionnez une matière"
-                  label={"Matière"}
-                  options={matieres}
-                />
-
-                <InputField
                   type={"text"}
-                  name="coefficient"
+                  name="label"
                   formik={formik}
-                  placeholder="coefficient"
-                  label={"Coefficient"}
+                  placeholder="Nom de la classe"
+                  label={"Classe"}
+                />
+                <InputField
+                  type={"textaera"}
+                  name="description"
+                  formik={formik}
+                  placeholder="Description de la classe"
+                  label={"Description"}
                 />
 
                 <div className="d-flex justify-content-start border-0">
@@ -369,29 +311,13 @@ const MatiereClasse = () => {
             <div className="modal-body">
               <div>
                 <span className="fw-bold d-inline-block me-2">Classe : </span>
-                <span className="d-inline-block">{viewData.classe?.label}</span>
-              </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">Matière : </span>
-                <span className="d-inline-block">
-                  {viewData.matiere?.label}
-                </span>
+                <span className="d-inline-block">{viewData.label}</span>
               </div>
               <div>
                 <span className="fw-bold d-inline-block me-2">
-                  Abreviation :{" "}
+                  Description :{" "}
                 </span>
-                <span className="d-inline-block">
-                  {viewData.matiere?.abreviation}
-                </span>
-              </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">
-                  Coefficient :{" "}
-                </span>
-                <span className="d-inline-block">
-                  {viewData.coefficient}
-                </span>
+                <span className="d-inline-block">{viewData.description}</span>
               </div>
               <div className="mt-4 d-flex justify-content-end">
                 <button className="btn btn-primary" data-bs-dismiss="modal">
@@ -440,4 +366,4 @@ const MatiereClasse = () => {
   );
 };
 
-export default MatiereClasse;
+export default CoursEnLigne;

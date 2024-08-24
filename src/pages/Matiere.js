@@ -175,6 +175,7 @@ const Matiere = () => {
   return (
     <>
       <PageHeader title="Liste des matières" modal="form" addModal={addModal} />
+      <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
