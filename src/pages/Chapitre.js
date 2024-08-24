@@ -26,7 +26,6 @@ const Chapitre = () => {
   const [editId, setEditId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
-  const [periodes, setPeriodes] = useState([]);
   const [matieres, setMatieres] = useState([]);
   const [isFirstTime, setIsFirstTime] = useState(true);
   const [classes, setClasses] = useState([]);
@@ -228,6 +227,7 @@ const Chapitre = () => {
 
   const onSelectChange = (classe, matiere) => {
     let url = endPoint.chapitres + "/classe/" + classe;
+    //sessionStorage()
 
     if (matiere) {
       url += "/matiere/" + matiere;
@@ -377,14 +377,6 @@ const Chapitre = () => {
                   label={"Abreviation"}
                 />
 
-                <InputField
-                  type={"select"}
-                  name="periode"
-                  formik={formik}
-                  placeholder="Sélectionnez une periode"
-                  label={"Periode"}
-                  options={periodes}
-                />
                 <InputField
                   type={"select"}
                   name="classe"

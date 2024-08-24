@@ -17,8 +17,10 @@ const initData = {
   label: "",
   abreviation: "",
   chapitre: "",
+  periode: "",
   description: "",
 };
+
 const LeconListe = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
@@ -145,15 +147,15 @@ const LeconListe = () => {
 
   const onMatiereChange = (matiere) => {
     setChapitres([]);
-    getChapitre(formik.values.classe, formik.values.periode, matiere);
+    getChapitre(formik.values.classe, matiere);
   };
 
-  const getChapitre = (classeSelected, periodeSelected, matiereSelected) => {
+  const getChapitre = (classeSelected, matiereSelected) => {
     //classeSlug = formik.values["classe"] ? formik.values["classe"] : classeSlug;
     request
       .get(
         endPoint.chapitres +
-          `/classe/${classeSelected}/periode/${periodeSelected}/matiere/${matiereSelected}`,
+          `/classe/${classeSelected}/matiere/${matiereSelected}`,
         header
       )
       .then((res) => {
@@ -295,7 +297,6 @@ const LeconListe = () => {
     );
     getChapitre(
       formik.values.classeSelected,
-      formik.values.periodeSelected,
       matiere
     );
   };
@@ -408,7 +409,7 @@ const LeconListe = () => {
                   {data.chapitre?.matiere_de_la_classe?.classe?.label}
                 </td>
                 <td className="fw-bold1 text-nowrap">
-                  {data.chapitre?.periode?.label}
+                  {data.periode?.label}
                 </td>
                 <td className="fw-bold1">
                   {data.chapitre?.matiere_de_la_classe.matiere.abreviation}
@@ -461,7 +462,7 @@ const LeconListe = () => {
                           setViewData(data);
                         }}
                       >
-                        <i class="bi bi-eye"></i>
+                        <i class="bi bi-trash"></i>
                       </button>
                     </div>
                   </div>
