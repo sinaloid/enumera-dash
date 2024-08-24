@@ -39,8 +39,7 @@ const Chapitre = () => {
 
   useEffect(() => {
     ///getAll("","");
-      getClasse();
-    
+    getClasse();
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -85,6 +84,7 @@ const Chapitre = () => {
           onSelectChange(res.data.data[0].slug);
           getMatiere(res.data.data[0].slug);
           formik.setFieldValue("classeSelected", res.data.data[0].slug);
+          sessionStorage.setItem("classeSelected",res.data.data[0].slug)
           setIsFirstTime(false);
         }
         //console.log(res.data.data);
@@ -130,6 +130,7 @@ const Chapitre = () => {
           console.log(data);
           const res = data;
           setRefresh(refresh + 1);
+          onSelectChange(sessionStorage.getItem('classeSelected','matiereSelected'))
           return res.data.message;
         },
       },
@@ -155,6 +156,8 @@ const Chapitre = () => {
             setEditId("");
             setRefresh(refresh + 1);
             //getAll()
+            onSelectChange(sessionStorage.getItem('classeSelected','matiereSelected'))
+
             return res.data.message;
           },
         },
@@ -168,6 +171,36 @@ const Chapitre = () => {
         },
       }
     );
+  };
+
+  const handleSubmitFile = (e) => {
+    e.preventDefault()
+    //setShowModal(true)
+    const data = {
+      classe:formik.values.classe,
+      matiere:formik.values.matiere,
+      file:formik.values.file,
+    }
+    toast.promise(request.post(endPoint.chapitres+"/import", data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setRefresh(refresh + 1);
+          onSelectChange(sessionStorage.getItem('classeSelected','matiereSelected'))
+          return res.data.message;
+        },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
+        },
+      },
+    });
   };
 
   const onDelete = () => {
@@ -211,18 +244,14 @@ const Chapitre = () => {
   };
 
   const changeClasse = (classe) => {
-    onSelectChange(
-      classe,
-      formik.values.matiereSelected
-    );
+    sessionStorage.setItem("classeSelected",classe)
+    onSelectChange(classe, formik.values.matiereSelected);
     getMatiere(classe);
   };
 
   const changeMatiere = (matiere) => {
-    onSelectChange(
-      formik.values.classeSelected,
-      matiere
-    );
+    sessionStorage.setItem("matiereSelected",matiere)
+    onSelectChange(formik.values.classeSelected, matiere);
   };
 
   const onSelectChange = (classe, matiere) => {
@@ -238,11 +267,7 @@ const Chapitre = () => {
 
   return (
     <>
-      <PageHeader
-        title="Liste des sections"
-        modal="form"
-        addModal={addModal}
-      />
+      <PageHeader title="Liste des sections" modal="form" addModal={addModal} />
       <div className="d-flex mt-3">
         <div className="me-2">
           <InputField
@@ -265,6 +290,9 @@ const Chapitre = () => {
             options={matieres}
             callback={changeMatiere}
           />
+        </div>
+        <div className="mt-2 ms-auto">
+        <button className="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#import">Importer une liste</button>
         </div>
       </div>
       <div className="fw-bold">{datas.length} resultats</div>
@@ -502,6 +530,68 @@ const Chapitre = () => {
                   Oui
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="modal fade" id="import">
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content">
+            <div className="modal-header border-0">
+              <h4 className="modal-title text-meduim text-bold">
+                {"Importation de fichier"}
+              </h4>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+
+            <div className="modal-body">
+              <form onSubmit={handleSubmitFile}>
+                <InputField
+                  type={"select"}
+                  name="classe"
+                  formik={formik}
+                  placeholder="Sélectionnez une classe"
+                  label={"Classe"}
+                  options={classes}
+                  callback={onClasseChange}
+                />
+                <InputField
+                  type={"select"}
+                  name="matiere"
+                  formik={formik}
+                  placeholder="Sélectionnez une matière"
+                  label={"Matière"}
+                  options={matieres}
+                />
+                <InputField
+                  type={"file"}
+                  name="file"
+                  formik={formik}
+                  placeholder=""
+                  label={"Fichier excel ou csv"}
+                />
+
+                <div className="d-flex justify-content-start border-0">
+                  <button
+                    type="reset"
+                    className="btn btn-secondary me-2"
+                    data-bs-dismiss="modal"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    data-bs-dismiss="modal"
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

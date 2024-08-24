@@ -76,6 +76,8 @@ const LeconDetail = () => {
       values.abreviation = lecon.abreviation;
       values.lecon = lecon.slug;
       values.description = cours;
+      console.log(values)
+
       if (values.slug) {
         values._method = "put";
         handleEditSubmit(values);
