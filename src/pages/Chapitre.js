@@ -80,11 +80,20 @@ const Chapitre = () => {
       .get(endPoint.classes, header)
       .then((res) => {
         setClasses(res.data.data);
+        const classeSelected = localStorage.getItem("classeSelected");
+        const matiereSelected = localStorage.getItem("matiereSelected");
         if (isFirstTime) {
-          onSelectChange(res.data.data[0].slug);
-          getMatiere(res.data.data[0].slug);
-          formik.setFieldValue("classeSelected", res.data.data[0].slug);
-          sessionStorage.setItem("classeSelected",res.data.data[0].slug)
+          if (classeSelected) {
+            onSelectChange(classeSelected, matiereSelected);
+            getMatiere(classeSelected);
+            formik.setFieldValue("classeSelected", classeSelected);
+            formik.setFieldValue("matiereSelected", matiereSelected);
+          } else {
+            onSelectChange(res.data.data[0].slug);
+            getMatiere(res.data.data[0].slug);
+            formik.setFieldValue("classeSelected", res.data.data[0].slug);
+            localStorage.setItem("classeSelected", res.data.data[0].slug);
+          }
           setIsFirstTime(false);
         }
         //console.log(res.data.data);
@@ -122,15 +131,16 @@ const Chapitre = () => {
       });
   };
   const handleSubmit = (data) => {
-    //setShowModal(true)
     toast.promise(request.post(endPoint.chapitres, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
           console.log(data);
           const res = data;
-          setRefresh(refresh + 1);
-          onSelectChange(sessionStorage.getItem('classeSelected','matiereSelected'))
+          onSelectChange(
+            localStorage.getItem("classeSelected"),
+            localStorage.getItem("matiereSelected")
+          );
           return res.data.message;
         },
       },
@@ -154,9 +164,10 @@ const Chapitre = () => {
             console.log(data);
             const res = data;
             setEditId("");
-            setRefresh(refresh + 1);
-            //getAll()
-            onSelectChange(sessionStorage.getItem('classeSelected','matiereSelected'))
+            onSelectChange(
+              localStorage.getItem("classeSelected"),
+              localStorage.getItem("matiereSelected")
+            );
 
             return res.data.message;
           },
@@ -174,21 +185,22 @@ const Chapitre = () => {
   };
 
   const handleSubmitFile = (e) => {
-    e.preventDefault()
-    //setShowModal(true)
+    e.preventDefault();
     const data = {
-      classe:formik.values.classe,
-      matiere:formik.values.matiere,
-      file:formik.values.file,
-    }
-    toast.promise(request.post(endPoint.chapitres+"/import", data, header), {
+      classe: formik.values.classe,
+      matiere: formik.values.matiere,
+      file: formik.values.file,
+    };
+    toast.promise(request.post(endPoint.chapitres + "/import", data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
           console.log(data);
           const res = data;
-          setRefresh(refresh + 1);
-          onSelectChange(sessionStorage.getItem('classeSelected','matiereSelected'))
+          onSelectChange(
+            localStorage.getItem("classeSelected"),
+            localStorage.getItem("matiereSelected")
+          );
           return res.data.message;
         },
       },
@@ -211,7 +223,10 @@ const Chapitre = () => {
         success: {
           render({ data }) {
             const res = data;
-            setRefresh(refresh + 1);
+            onSelectChange(
+              localStorage.getItem("classeSelected"),
+              localStorage.getItem("matiereSelected")
+            );
             return res.data.message;
           },
         },
@@ -244,19 +259,18 @@ const Chapitre = () => {
   };
 
   const changeClasse = (classe) => {
-    sessionStorage.setItem("classeSelected",classe)
+    localStorage.setItem("classeSelected", classe);
     onSelectChange(classe, formik.values.matiereSelected);
     getMatiere(classe);
   };
 
   const changeMatiere = (matiere) => {
-    sessionStorage.setItem("matiereSelected",matiere)
+    localStorage.setItem("matiereSelected", matiere);
     onSelectChange(formik.values.classeSelected, matiere);
   };
 
   const onSelectChange = (classe, matiere) => {
     let url = endPoint.chapitres + "/classe/" + classe;
-    //sessionStorage()
 
     if (matiere) {
       url += "/matiere/" + matiere;
@@ -292,7 +306,13 @@ const Chapitre = () => {
           />
         </div>
         <div className="mt-2 ms-auto">
-        <button className="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#import">Importer une liste</button>
+          <button
+            className="btn btn-primary mt-4"
+            data-bs-toggle="modal"
+            data-bs-target="#import"
+          >
+            Importer une liste
+          </button>
         </div>
       </div>
       <div className="fw-bold">{datas.length} resultats</div>

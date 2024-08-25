@@ -98,10 +98,27 @@ const LeconListe = () => {
       .get(endPoint.classes, header)
       .then((res) => {
         setClasses(res.data.data);
+        const classeSelected = localStorage.getItem("classeSelected");
+        const matiereSelected = localStorage.getItem("matiereSelected");
+        const periodeSelected = localStorage.getItem("periodeSelected");
+        const chapitreSelected = localStorage.getItem("chapitreSelected");
         if (isFirstTime) {
-          onSelectChange(res.data.data[0].slug);
-          getMatiere(res.data.data[0].slug);
-          formik.setFieldValue("classeSelected", res.data.data[0].slug);
+          if (classeSelected) {
+            onSelectChange(classeSelected,periodeSelected,matiereSelected,chapitreSelected);
+            getMatiere(classeSelected);
+            if(classeSelected && matiereSelected){
+              getChapitre(classeSelected,matiereSelected)
+            }
+            formik.setFieldValue("classeSelected", classeSelected);
+            formik.setFieldValue("periodeSelected", periodeSelected);
+            formik.setFieldValue("matiereSelected", matiereSelected);
+            formik.setFieldValue("chapitreSelected", chapitreSelected);
+          } else {
+            onSelectChange(res.data.data[0].slug);
+            getMatiere(res.data.data[0].slug);
+            formik.setFieldValue("classeSelected", res.data.data[0].slug);
+            localStorage.setItem("classeSelected", res.data.data[0].slug);
+          }
           setIsFirstTime(false);
         }
       })
@@ -276,6 +293,7 @@ const LeconListe = () => {
       formik.values.matiereSelected,
       formik.values.chapitreSelected
     );
+    localStorage.setItem('classeSelected',classe)
     getMatiere(classe);
   };
 
@@ -286,6 +304,8 @@ const LeconListe = () => {
       formik.values.matiereSelected,
       formik.values.chapitreSelected
     );
+    localStorage.setItem('periodeSelected',periode)
+
   };
 
   const changeMatiere = (matiere) => {
@@ -295,6 +315,8 @@ const LeconListe = () => {
       matiere,
       ""
     );
+    localStorage.setItem('matiereSelected',matiere)
+
     getChapitre(
       formik.values.classeSelected,
       matiere
@@ -307,6 +329,8 @@ const LeconListe = () => {
       formik.values.matiereSelected,
       chapitre
     );
+    localStorage.setItem('chapitreSelected',chapitre)
+
   };
 
   const onSelectChange = (classe, periode, matiere, chapitre) => {
@@ -370,8 +394,8 @@ const LeconListe = () => {
             type={"select"}
             name="chapitreSelected"
             formik={formik}
-            placeholder="Sélectionnez un chapitre"
-            label={"Sélectionnez un chapitre"}
+            placeholder="Sélectionnez une section"
+            label={"Sélectionnez une section"}
             options={chapitres}
             callback={changeChapitre}
           />
