@@ -52,7 +52,7 @@ const Login = () => {
           console.log(data);
           const res = data;
           onUserChange({
-            isAuth: true, 
+            isAuth: true,
             is_active: res.data.user.is_active,
             is_blocked: res.data.user.is_blocked,
             profile: res.data.user.profile,
@@ -67,15 +67,15 @@ const Login = () => {
       error: {
         render({ data }) {
           console.log(data);
-          if(!data?.response?.data?.user?.email_verified_at){
+          if (!data?.response?.data?.user?.email_verified_at) {
             onUserChange({
-                ...user,
-                user:values.user
-            })
+              ...user,
+              user: values.user,
+            });
             //window.location.href="/verification-du-code-otp"
           }
-          if(data?.response?.data?.message){
-            return data?.response?.data?.message
+          if (data?.response?.data?.message) {
+            return data?.response?.data?.message;
           }
           return data?.response?.data?.errors
             ? data?.response?.data?.errors
@@ -176,7 +176,8 @@ const Login = () => {
                 >
                   Se connecter
                 </button>
-                <div className="text-center my-3">
+                {/**
+                 * <div className="text-center my-3">
                   <span>
                     <span>{"Vous n'avez pas de compte ?"}</span>
                     <Link to={"/inscription"} className="fs-14 text-black">
@@ -185,6 +186,7 @@ const Login = () => {
                     </Link>
                   </span>
                 </div>
+                 */}
               </form>
             </div>
           </div>
