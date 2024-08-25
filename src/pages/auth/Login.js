@@ -10,7 +10,7 @@ import InputField from "../../Components/InputField";
 import { toast } from "react-toastify";
 
 const initValue = {
-  user: "ounoid@gmail.com",
+  user: "gestionnaire@enumera.tech",
   password: "12345678",
 };
 const Login = () => {
