@@ -11,6 +11,7 @@ import endPoint from "../services/endPoint";
 import { AppContext } from "../services/context";
 import Notify from "../Components/Notify";
 import { toast } from "react-toastify";
+import Retour from "../Components/Retour";
 
 const initData = {
   label: "",
@@ -165,7 +166,12 @@ const Evaluation = () => {
   return (
     <>
       <PageHeader title="Liste des evaluations" modal="#form" addModal={addModal} />
-      <div className="fw-bold">{datas.length} resultats</div>
+      <div className="d-flex mb-1">
+        <div className="fw-bold me-auto">{datas.length} resultats</div>
+        <button className="btn btn-sm btn-primary text-white rounded px-2">
+          <Retour />
+        </button>
+      </div>
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">

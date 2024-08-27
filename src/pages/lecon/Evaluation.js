@@ -14,6 +14,7 @@ import PageHeader from "../../Components/PageHeader";
 import Table from "../../Components/Table";
 import TableHeader from "../../Components/TableHeader";
 import TableContent from "../../Components/TableContent";
+import Retour from "../../Components/Retour";
 
 const initData = {
   label: "",
@@ -280,7 +281,7 @@ const EvaluationListe = ({ lecon }) => {
 
   const getAll = () => {
     request
-      .get(endPoint.evaluations_lecons+"/lecon/"+lecon, header)
+      .get(endPoint.evaluations_lecons + "/lecon/" + lecon, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -385,8 +386,13 @@ const EvaluationListe = ({ lecon }) => {
   return (
     <>
       <PageHeader title="" modal="form" addModal={addModal} />
-      <div className="mt-3 fw-bold fs-4 text-primary">Liste des evaluations</div>
-
+      <div className="mt-3 fw-bold fs-4 text-primary">
+        Liste des evaluations
+      </div>
+      <div className="d-flex mb-1">
+        <div className="fw-bold me-auto">{datas.length} resultats</div>
+        <Retour />
+      </div>
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">

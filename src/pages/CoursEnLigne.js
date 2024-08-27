@@ -164,7 +164,7 @@ const CoursEnLigne = () => {
   };
   return (
     <>
-      <PageHeader title="Liste des cours en ligne" modal="form" addModal={addModal} />
+      <PageHeader title="Liste des cours en ligne" modal="#form" addModal={addModal} />
       <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>

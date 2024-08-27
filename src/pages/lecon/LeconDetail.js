@@ -12,6 +12,7 @@ import InputField from "../../Components/InputField";
 import DOMPurify from "dompurify";
 import { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
+import Retour from "../../Components/Retour";
 
 const initData = {
   label: "",
@@ -76,7 +77,7 @@ const LeconDetail = () => {
       values.abreviation = lecon.abreviation;
       values.lecon = lecon.slug;
       values.description = cours;
-      console.log(values)
+      console.log(values);
 
       if (values.slug) {
         values._method = "put";
@@ -229,7 +230,6 @@ const LeconDetail = () => {
     <>
       <div className="card p-4 border">
         <div className="text-primary">
-          <span className=" d-inline-block me-2 fs-1">Leçon : </span>
           <span className=" d-inline-block fs-1">{lecon.label}</span>
         </div>
         <div>
@@ -259,6 +259,9 @@ const LeconDetail = () => {
       </div>
       <div className="row">
         <div className="col-12 col-md-8">
+          <div className="d-flex mt-2">
+            <Retour />
+          </div>
           <div className="card p-4 my-2 border">
             {lecon.cours ? (
               <>
@@ -508,12 +511,12 @@ const ViewCours = ({ data, formik, formikCoursFile, setCours, file }) => {
   );
 };
 
-const Tinymce = ({ title, setValue, replaceData, file, editable=true }) => {
+const Tinymce = ({ title, setValue, replaceData, file, editable = true }) => {
   const editorRef = useRef(null);
   const log = () => {
     if (editorRef.current) {
       //console.log(editorRef.current.getContent());
-      editorRef.current.setContent(replaceData)
+      editorRef.current.setContent(replaceData);
     }
   };
   useEffect(() => {
@@ -522,7 +525,7 @@ const Tinymce = ({ title, setValue, replaceData, file, editable=true }) => {
     }
     if (editorRef.current) {
       //console.log(editorRef.current.getContent());
-      editorRef.current = (replaceData)
+      editorRef.current = replaceData;
     }
   }, [replaceData]);
 
@@ -623,7 +626,7 @@ const Tinymce = ({ title, setValue, replaceData, file, editable=true }) => {
             { title: "My page 1", value: "https://www.tiny.cloud" },
             { title: "My page 2", value: "http://www.moxiecode.com" },
           ],
-          
+
           importcss_append: true,
           height: 600,
           image_caption: true,

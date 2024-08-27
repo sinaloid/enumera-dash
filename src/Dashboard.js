@@ -22,6 +22,7 @@ import Lecon from "./pages/Lecon";
 import Cours from "./pages/Cours";
 import Evaluation from "./pages/Evaluation";
 import CoursEnLigne from "./pages/CoursEnLigne";
+import Retour from "./Components/Retour";
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
   const { user, onUserChange } = authCtx;
@@ -48,10 +49,7 @@ const Dashboard = () => {
     onUserChange(initialUser);
   };
 
-  const goBack = (e) => {
-    e.preventDefault();
-    navigate(-1);
-  };
+  
   return (
     <>
       <header className="container-fluid navbar navbar-dark bg-white sticky-top flex-md-nowrap px-0 py-2 shadow1 d-md-none">
@@ -445,9 +443,7 @@ const Dashboard = () => {
 
           <main className="col-md-11 ms-sm-auto col-lg-10 px-md-4 h-90 text-small bg-primary-light1">
             <div className="sticky-top my-4">
-              <span className="fw-bold cursor bg-white" onClick={goBack}>
-                Retour
-              </span>
+              <Retour />
             </div>
             <Routes>
               <Route path="/" element={<> Accueil</>} />

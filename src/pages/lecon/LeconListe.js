@@ -12,6 +12,7 @@ import { AppContext } from "../../services/context";
 import Notify from "../../Components/Notify";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Retour from "../../Components/Retour";
 
 const initData = {
   label: "",
@@ -104,11 +105,18 @@ const LeconListe = () => {
         const chapitreSelected = localStorage.getItem("chapitreSelected");
         if (isFirstTime) {
           if (classeSelected) {
-            onSelectChange(classeSelected,periodeSelected,matiereSelected,chapitreSelected);
+            //alert(classeSelected,periodeSelected,matiereSelected,chapitreSelected);
+            onSelectChange(
+              classeSelected,
+              periodeSelected,
+              matiereSelected,
+              chapitreSelected
+            );
             getMatiere(classeSelected);
-            if(classeSelected && matiereSelected){
-              getChapitre(classeSelected,matiereSelected)
+            if (classeSelected && matiereSelected) {
+              getChapitre(classeSelected, matiereSelected);
             }
+            ///alert('ok')
             formik.setFieldValue("classeSelected", classeSelected);
             formik.setFieldValue("periodeSelected", periodeSelected);
             formik.setFieldValue("matiereSelected", matiereSelected);
@@ -293,7 +301,7 @@ const LeconListe = () => {
       formik.values.matiereSelected,
       formik.values.chapitreSelected
     );
-    localStorage.setItem('classeSelected',classe)
+    localStorage.setItem("classeSelected", classe);
     getMatiere(classe);
   };
 
@@ -304,8 +312,7 @@ const LeconListe = () => {
       formik.values.matiereSelected,
       formik.values.chapitreSelected
     );
-    localStorage.setItem('periodeSelected',periode)
-
+    localStorage.setItem("periodeSelected", periode);
   };
 
   const changeMatiere = (matiere) => {
@@ -315,12 +322,9 @@ const LeconListe = () => {
       matiere,
       ""
     );
-    localStorage.setItem('matiereSelected',matiere)
+    localStorage.setItem("matiereSelected", matiere);
 
-    getChapitre(
-      formik.values.classeSelected,
-      matiere
-    );
+    getChapitre(formik.values.classeSelected, matiere);
   };
   const changeChapitre = (chapitre) => {
     onSelectChange(
@@ -329,12 +333,12 @@ const LeconListe = () => {
       formik.values.matiereSelected,
       chapitre
     );
-    localStorage.setItem('chapitreSelected',chapitre)
-
+    localStorage.setItem("chapitreSelected", chapitre);
   };
 
   const onSelectChange = (classe, periode, matiere, chapitre) => {
     let url = endPoint.lecons + "/classe/" + classe;
+    console.log(classe, periode, matiere, chapitre);
 
     if (periode) {
       url += "/periode/" + periode;
@@ -401,7 +405,10 @@ const LeconListe = () => {
           />
         </div>
       </div>
-      <div className="fw-bold">{datas.length} resultats</div>
+      <div className="d-flex mb-1">
+        <div className="fw-bold me-auto">{datas.length} resultats</div>
+        <Retour />
+      </div>
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
@@ -417,7 +424,7 @@ const LeconListe = () => {
             Actions
           </th>
         </TableHeader>
-        <TableContent>
+        <TableContent isLoading={true} isError={false}>
           {datas.map((data, idx) => {
             return (
               <tr key={idx}>
@@ -426,19 +433,17 @@ const LeconListe = () => {
                 </td>
 
                 <td className="fw-bold1">{data.label}</td>
-                <td className="fw-bold1">
-                  {data.chapitre?.label}
-                </td>
+                <td className="fw-bold1">{data.chapitre?.label}</td>
                 <td className="fw-bold1">
                   {data.chapitre?.matiere_de_la_classe?.classe?.label}
                 </td>
-                <td className="fw-bold1 text-nowrap">
-                  {data.periode?.label}
-                </td>
+                <td className="fw-bold1 text-nowrap">{data.periode?.label}</td>
                 <td className="fw-bold1">
                   {data.chapitre?.matiere_de_la_classe.matiere.abreviation}
                 </td>
-                <td className="fw-bold1">{data.chapitre?.matiere_de_la_classe?.coefficient}</td>
+                <td className="fw-bold1">
+                  {data.chapitre?.matiere_de_la_classe?.coefficient}
+                </td>
                 <td className="text-center">
                   <div className="btn-group">
                     <div className="d-inline-block mx-1">
