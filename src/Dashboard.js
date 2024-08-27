@@ -212,7 +212,7 @@ const Dashboard = () => {
                       data-bs-toggle="collapse"
                       data-bs-target="#sidebarMenu.show"
                     >
-                      Section
+                      Sections
                     </span>
                   </NavLink>
                 </li>
@@ -296,7 +296,7 @@ const Dashboard = () => {
                       data-bs-toggle="collapse"
                       data-bs-target="#sidebarMenu.show"
                     >
-                      Cours en ligne
+                      Classes virtuelles
                     </span>
                   </NavLink>
                 </li>

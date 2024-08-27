@@ -11,7 +11,7 @@ const Eleve = () => {
   const [datas, setDatas] = useState([]);
   return (
     <>
-      <Utilisateur endPoint={endPoint.utilisateurs} profile={"ELEVE"} title={"Liste des élèves"} />
+      <Utilisateur endPoint={endPoint.utilisateurs} profile={"ELEVE1"} title={"Liste des élèves"} />
     </>
   );
 };

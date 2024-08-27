@@ -164,7 +164,7 @@ const Evaluation = () => {
   };
   return (
     <>
-      <PageHeader title="Liste des evaluations" modal="form" addModal={addModal} />
+      <PageHeader title="Liste des evaluations" modal="#form" addModal={addModal} />
       <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
