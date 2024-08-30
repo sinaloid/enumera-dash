@@ -249,7 +249,7 @@ const LeconDetail = () => {
               "/" +
               lecon.chapitre?.matiere_de_la_classe?.classe?.label +
               "/" +
-              lecon.chapitre?.periode?.abreviation}
+              lecon.periode?.abreviation}
           </span>
         </div>
         <div>

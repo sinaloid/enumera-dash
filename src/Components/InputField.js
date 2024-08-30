@@ -55,6 +55,34 @@ const InputField = ({ type, formik, label, placeholder, name, children, options 
     );
   }
 
+  if (type === "time") {
+    return (
+      <div className="mb-3">
+        {label && (
+          <label className="form-label" htmlFor={name}>
+            {label}
+          </label>
+        )}
+        <input
+          className="form-control"
+          type="time"
+          id={name}
+          name={name}
+          placeholder={placeholder}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values[name]}
+        />
+        {
+            children
+        }
+        {formik.touched[name] && formik.errors[name] ? (
+          <div className="text-danger">{formik.errors[name]}</div>
+        ) : null}
+      </div>
+    );
+  }
+
   if (type === "email") {
     return (
       <div className="mb-3">

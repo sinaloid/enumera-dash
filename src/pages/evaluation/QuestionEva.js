@@ -22,7 +22,7 @@ const initData = {
   lecon: "",
   description: "",
 };
-const Question = () => {
+const QuestionEva = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [lecon, setLecon] = useState({});
@@ -41,7 +41,7 @@ const Question = () => {
   };
 
   useEffect(() => {
-    get();
+    //get();
     getEvaluation();
   }, [refresh]);
 
@@ -59,7 +59,7 @@ const Question = () => {
 
   const getEvaluation = () => {
     request
-      .get(endPoint.evaluations_lecons + "/" + evaluationSlug, header)
+      .get(endPoint.evaluations + "/" + slug, header)
       .then((res) => {
         setEvaluation(res.data.data);
         //console.log(res.data.data);
@@ -89,28 +89,38 @@ const Question = () => {
           <span className=" d-inline-block fs-1">{evaluation.label}</span>
         </div>
         <div>
-          <span className="fw-bold d-inline-block me-2">leçon : </span>
-          <span className="d-inline-block">{lecon.label}</span>
-        </div>
-        <div>
-          <span className="fw-bold d-inline-block me-2">Chapitre : </span>
-          <span className="d-inline-block">{lecon.chapitre?.label}</span>
-        </div>
-        <div>
-          <span className="fw-bold d-inline-block me-2">
-            Matière/Classe/Periode :{" "}
-          </span>
+          <span className="fw-bold d-inline-block me-2">Classe : </span>
           <span className="d-inline-block">
-            {lecon.chapitre?.matiere_de_la_classe?.matiere?.abreviation +
-              "/" +
-              lecon.chapitre?.matiere_de_la_classe?.classe?.label +
-              "/" +
-              lecon.chapitre?.periode?.abreviation}
+            {evaluation?.matiere_de_la_classe?.classe?.label}
           </span>
+        </div>
+        <div>
+          <span className="fw-bold d-inline-block me-2">Matière : </span>
+          <span className="d-inline-block">
+            {evaluation?.matiere_de_la_classe?.matiere?.label}
+          </span>
+        </div>
+        <div className="d-flex">
+          <div className="me-3">
+            <span className="fw-bold d-inline-block me-2">Date : </span>
+            <span className="d-inline-block">{evaluation.date}</span>
+          </div>
+          <div className="me-3">
+            <span className="fw-bold d-inline-block me-2">
+              Heure de début :{" "}
+            </span>
+            <span className="d-inline-block">{evaluation.heure_debut}</span>
+          </div>
+          <div className="me-3">
+            <span className="fw-bold d-inline-block me-2">
+              Heure de fin :{" "}
+            </span>
+            <span className="d-inline-block">{evaluation.heure_fin}</span>
+          </div>
         </div>
         <div>
           <span className="fw-bold d-inline-block me-2">Description : </span>
-          <span className="d-inline-block">{lecon.description}</span>
+          <span className="d-inline-block">{evaluation.description}</span>
         </div>
       </div>
       <QuestionListe evaluation={evaluationSlug} />
@@ -131,9 +141,11 @@ const QuestionListe = ({ evaluation }) => {
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
   const [editId, setEditId] = useState("");
-  const {evaluationSlug } = useParams();
+  const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
+  const {slug} = useParams()
   const [refresh, setRefresh] = useState(0);
+  const navigate = useNavigate();
 
   const header = {
     headers: {
@@ -169,7 +181,7 @@ const QuestionListe = ({ evaluation }) => {
     initialValues: initQuest,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      values.evaluation_lecon = evaluation;
+      values.evaluation = slug;
       console.log(values);
       if (editId === "") {
         handleSubmit(values);
@@ -184,14 +196,14 @@ const QuestionListe = ({ evaluation }) => {
     initialValues: initQuest,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      values.evaluation_lecon = evaluation;
+      values.evaluation = slug;
       handleSubmitFile(values);
     },
   });
 
   const getAll = () => {
     request
-      .get(endPoint.questions_lecons+"/evaluation/"+evaluationSlug, header)
+      .get(endPoint.questions+"/evaluation/"+slug, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -203,7 +215,7 @@ const QuestionListe = ({ evaluation }) => {
 
   const handleSubmit = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.questions_lecons, data, header), {
+    toast.promise(request.post(endPoint.questions, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -225,7 +237,7 @@ const QuestionListe = ({ evaluation }) => {
   };
   const handleEditSubmit = (data) => {
     toast.promise(
-      request.post(endPoint.questions_lecons + "/" + editId, data, header),
+      request.post(endPoint.questions + "/" + editId, data, header),
       {
         pending: "Veuillez patienté...",
         success: {
@@ -251,7 +263,7 @@ const QuestionListe = ({ evaluation }) => {
 
   const onDelete = () => {
     toast.promise(
-      request.delete(endPoint.questions_lecons + "/" + viewData.slug, header),
+      request.delete(endPoint.questions + "/" + viewData.slug, header),
       {
         pending: "Veuillez patienté...",
         success: {
@@ -275,25 +287,28 @@ const QuestionListe = ({ evaluation }) => {
 
   const handleSubmitFile = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.questions_lecons_import, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.post(endPoint.questions_import, data, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
+      }
+    );
   };
   const addModal = (e) => {
     e.preventDefault();
@@ -504,7 +519,7 @@ const QuestionListe = ({ evaluation }) => {
                   placeholder="Intitulé de la question"
                   label={"Choisissez un fichier Excel"}
                 />
-                
+
                 <div className="d-flex justify-content-start border-0">
                   <button
                     type="reset"
@@ -613,4 +628,4 @@ const QuestionListe = ({ evaluation }) => {
   );
 };
 
-export default Question;
+export default QuestionEva;

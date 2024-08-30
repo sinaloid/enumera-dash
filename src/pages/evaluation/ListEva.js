@@ -1,239 +1,38 @@
-/* eslint-disable no-undef */
 import { useFormik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
+import PageHeader from "../../Components/PageHeader";
+import Table from "../../Components/Table";
+import TableContent from "../../Components/TableContent";
+import TableHeader from "../../Components/TableHeader";
 import * as Yup from "yup";
+import InputField from "../../Components/InputField";
 import request from "../../services/request";
 import endPoint from "../../services/endPoint";
 import { AppContext } from "../../services/context";
+import Notify from "../../Components/Notify";
 import { toast } from "react-toastify";
-import { useNavigate, useParams } from "react-router-dom";
-import TextEditor from "../../Components/TextEditor";
-import InputField from "../../Components/InputField";
-import DOMPurify from "dompurify";
-import PageHeader from "../../Components/PageHeader";
-import Table from "../../Components/Table";
-import TableHeader from "../../Components/TableHeader";
-import TableContent from "../../Components/TableContent";
 import Retour from "../../Components/Retour";
+import { useNavigate } from "react-router-dom";
 
 const initData = {
   label: "",
   abreviation: "",
-  type: "pdf",
-  lecon: "",
+  date: "",
+  heure_debut: "",
+  heure_fin: "",
   description: "",
 };
-const Evaluation = () => {
-  const authCtx = useContext(AppContext);
-  const { user } = authCtx;
-  const [lecon, setLecon] = useState({});
-  const [editId, setEditId] = useState("");
-  const { slug } = useParams();
-  const [files, setFiles] = useState([]);
-  const [cours, setCours] = useState("");
-
-  const [refresh, setRefresh] = useState(0);
-  const header = {
-    headers: {
-      Authorization: `Bearer ${user.token}`,
-      "Content-Type": "multipart/form-data",
-    },
-  };
-
-  useEffect(() => {
-    get();
-    getFile();
-  }, [refresh]);
-  const validateData = Yup.object({
-    label: Yup.string()
-      .min(3, "Le nom de la catégorie doit contenir 3 caractères ou moins")
-      .required("Ce champ est obligatoire. Veuillez le remplir pour continuer"),
-    image: Yup.mixed()
-      .required("Une image est requise")
-      .test(
-        "fileFormat",
-        "Seuls les fichiers jpeg, png et gif sont autorisés",
-        (value) => {
-          return (
-            value &&
-            ["image/jpeg", "image/png", "image/gif"].includes(value.type)
-          );
-        }
-      )
-      .test("fileSize", "La taille maximale autorisée est de 2 Mo", (value) => {
-        return value && value.size <= 2 * 1024 * 1024;
-      }),
-  });
-  const formik = useFormik({
-    initialValues: initData,
-    //validationSchema: validateData,
-    onSubmit: (values) => {
-      values.label = lecon.label;
-      values.abreviation = lecon.abreviation;
-      values.lecon = lecon.slug;
-      values.description = cours;
-      if (values.slug) {
-        values._method = "put";
-        handleEditSubmit(values);
-      } else {
-        handleSubmit(values);
-      }
-    },
-  });
-
-  const formikFile = useFormik({
-    initialValues: { type: "", files: "" },
-    //validationSchema: validateData,
-    onSubmit: (values) => {
-      values.lecon = slug;
-      sendFile(values);
-    },
-  });
-
-  const get = () => {
-    request
-      .get(endPoint.lecons + "/" + slug, header)
-      .then((res) => {
-        setLecon(res.data.data);
-        console.log(res.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const getFile = () => {
-    request
-      .get(endPoint.files + "/lecon/" + slug, header)
-      .then((res) => {
-        setFiles(res.data.data);
-        console.log(res.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  const handleSubmit = (data) => {
-    //setShowModal(true)
-    toast.promise(request.post(endPoint.cours, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
-        },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
-        },
-      },
-    });
-  };
-  const handleEditSubmit = (data) => {
-    toast.promise(
-      request.post(endPoint.cours + "/" + data.slug, data, header),
-      {
-        pending: "Veuillez patienté...",
-        success: {
-          render({ data }) {
-            console.log(data);
-            const res = data;
-            setEditId("");
-            setRefresh(refresh + 1);
-            return res.data.message;
-          },
-        },
-        error: {
-          render({ data }) {
-            console.log(data);
-            return data.response.data.errors
-              ? data.response.data.errors
-              : data.response.data.error;
-          },
-        },
-      }
-    );
-  };
-
-  const sendFile = (data) => {
-    //setShowModal(true)
-    toast.promise(request.post(endPoint.files, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
-        },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
-        },
-      },
-    });
-  };
-
-  return (
-    <>
-      <div className="card p-4 border">
-        <div className="text-primary">
-          <span className=" d-inline-block fs-1">{lecon.label}</span>
-        </div>
-        <div>
-          <span className="fw-bold d-inline-block me-2">Abreviation : </span>
-          <span className="d-inline-block">{lecon.abreviation}</span>
-        </div>
-        <div>
-          <span className="fw-bold d-inline-block me-2">Chapitre : </span>
-          <span className="d-inline-block">{lecon.chapitre?.label}</span>
-        </div>
-        <div>
-          <span className="fw-bold d-inline-block me-2">
-            Matière/Classe/Periode :{" "}
-          </span>
-          <span className="d-inline-block">
-            {lecon.chapitre?.matiere_de_la_classe?.matiere?.abreviation +
-              "/" +
-              lecon.chapitre?.matiere_de_la_classe?.classe?.label +
-              "/" +
-              lecon.periode?.abreviation}
-          </span>
-        </div>
-        <div>
-          <span className="fw-bold d-inline-block me-2">Description : </span>
-          <span className="d-inline-block">{lecon.description}</span>
-        </div>
-      </div>
-      <EvaluationListe lecon={slug} />
-    </>
-  );
-};
-
-const EvaluationListe = ({ lecon }) => {
+const ListEva = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
   const [editId, setEditId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
-  const [chapitres, setChapitres] = useState([]);
-  const [matieres, setMatieres] = useState([]);
-  const [classes, setClasses] = useState([]);
-  const [classeMatiere, setClasseMatiere] = useState([]);
   const [refresh, setRefresh] = useState(0);
-  const navigate = useNavigate();
-
+  const [classes, setClasses] = useState([]);
+  const [matieres, setMatieres] = useState([]);
+  const navigate = useNavigate()
   const header = {
     headers: {
       Authorization: `Bearer ${user.token}`,
@@ -243,6 +42,8 @@ const EvaluationListe = ({ lecon }) => {
 
   useEffect(() => {
     getAll();
+    getClasse()
+    getMatiere()
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -268,7 +69,7 @@ const EvaluationListe = ({ lecon }) => {
     initialValues: initData,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      values.lecon = lecon;
+      values.abreviation = values.label
       if (editId === "") {
         handleSubmit(values);
       } else {
@@ -278,9 +79,33 @@ const EvaluationListe = ({ lecon }) => {
     },
   });
 
+  const getClasse = () => {
+    request
+      .get(endPoint.classes, header)
+      .then((res) => {
+        setClasses(res.data.data);
+        console.log(res.data.data);
+        getAll(res.data.data[0].slug);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const getMatiere = () => {
+    request
+      .get(endPoint.matieres, header)
+      .then((res) => {
+        setMatieres(res.data.data);
+        console.log(res.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   const getAll = () => {
     request
-      .get(endPoint.evaluations_lecons + "/lecon/" + lecon, header)
+      .get(endPoint.evaluations, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -289,10 +114,9 @@ const EvaluationListe = ({ lecon }) => {
         console.log(error);
       });
   };
-
   const handleSubmit = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.evaluations_lecons, data, header), {
+    toast.promise(request.post(endPoint.evaluations, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -313,34 +137,31 @@ const EvaluationListe = ({ lecon }) => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(
-      request.post(endPoint.evaluations_lecons + "/" + editId, data, header),
-      {
-        pending: "Veuillez patienté...",
-        success: {
-          render({ data }) {
-            console.log(data);
-            const res = data;
-            setEditId("");
-            setRefresh(refresh + 1);
-            return res.data.message;
-          },
+    toast.promise(request.post(endPoint.evaluations + "/" + editId, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setEditId("");
+          setRefresh(refresh + 1);
+          return res.data.message;
         },
-        error: {
-          render({ data }) {
-            console.log(data);
-            return data.response.data.errors
-              ? data.response.data.errors
-              : data.response.data.error;
-          },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
         },
-      }
-    );
+      },
+    });
   };
 
   const onDelete = () => {
     toast.promise(
-      request.delete(endPoint.evaluations_lecons + "/" + viewData.slug, header),
+      request.delete(endPoint.evaluations + "/" + viewData.slug, header),
       {
         pending: "Veuillez patienté...",
         success: {
@@ -360,6 +181,16 @@ const EvaluationListe = ({ lecon }) => {
         },
       }
     );
+
+    request
+      .delete(endPoint.classes + "/" + viewData.slug, header)
+      .then((res) => {
+        console.log(res.data);
+        setRefresh(refresh + 1);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const addModal = (e) => {
@@ -367,38 +198,47 @@ const EvaluationListe = ({ lecon }) => {
     setEditId("");
     formik.resetForm();
   };
+
   const setEditeData = (e, data) => {
     e.preventDefault();
-    console.log(data);
     setEditId(data.slug);
-
     formik.setFieldValue("label", data.label);
     formik.setFieldValue("abreviation", data.abreviation);
     formik.setFieldValue("description", data.description);
+    formik.setFieldValue("date", data.date);
+    formik.setFieldValue("heure_debut", data.heure_debut);
+    formik.setFieldValue("heure_fin", data.heure_fin);
+    formik.setFieldValue("classe", data.matiere_de_la_classe.classe.slug);
+    formik.setFieldValue("matiere", data.matiere_de_la_classe.matiere.slug);
   };
-
   const goToDetail = (e, data) => {
     e.preventDefault();
-    navigate(data);
+    navigate("/dashboard/evaluations/"+data+"/questions");
   };
-
   return (
     <>
-      <PageHeader title="" modal="form" addModal={addModal} />
-      <div className="mt-3 fw-bold fs-4 text-primary">
-        Liste des evaluations
-      </div>
+      <PageHeader
+        title="Liste des evaluations"
+        modal="form"
+        addModal={addModal}
+      />
       <div className="d-flex mb-1">
         <div className="fw-bold me-auto">{datas.length} resultats</div>
         <Retour />
       </div>
+
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
             #
           </th>
-          <th scope="col">Evaluation</th>
-          <th scope="col">Abreviation</th>
+          <th scope="col">Intitulé</th>
+          <th scope="col">Classe</th>
+          <th scope="col">Matière</th>
+          <th scope="col">Date</th>
+          <th scope="col">Heure de début</th>
+          <th scope="col">Heure de fin</th>
+          <th scope="col">Etat</th>
           <th scope="col">Description</th>
           <th scope="col" className="text-center">
             Actions
@@ -413,21 +253,23 @@ const EvaluationListe = ({ lecon }) => {
                 </td>
 
                 <td className="fw-bold1">{data.label}</td>
-                <td className="fw-bold1">{data.abreviation}</td>
-
+                <td className="fw-bold1">{data.matiere_de_la_classe.classe.label}</td>
+                <td className="fw-bold1">{data.matiere_de_la_classe.matiere.label}</td>
+                <td className="fw-bold1">{data.date}</td>
+                <td className="fw-bold1">{data.heure_debut}</td>
+                <td className="fw-bold1">{data.heure_fin}</td>
+                <td className="fw-bold1">{data.etat}</td>
                 <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
                     <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
-                        //data-bs-toggle="modal"
-                        //data-bs-target="#view"
                         onClick={(e) => {
                           goToDetail(e, data.slug);
                         }}
                       >
-                        <span> Questions</span>
+                        <span>Questions</span>
                       </button>
                     </div>
                     <div className="d-inline-block mx-1">
@@ -436,10 +278,10 @@ const EvaluationListe = ({ lecon }) => {
                         data-bs-toggle="modal"
                         data-bs-target="#form"
                         onClick={(e) => {
-                          setEditeData(e, data);
+                          setEditeData(e,data)
                         }}
                       >
-                        <i class="bi bi-pencil-square"></i>
+                        <span> Modifier</span>
                       </button>
                     </div>
                     <div className="d-inline-block mx-1">
@@ -451,7 +293,7 @@ const EvaluationListe = ({ lecon }) => {
                           setViewData(data);
                         }}
                       >
-                        <i class="bi bi-trash"></i>
+                        <span> Supprimer</span>
                       </button>
                     </div>
                   </div>
@@ -467,8 +309,8 @@ const EvaluationListe = ({ lecon }) => {
             <div className="modal-header border-0">
               <h4 className="modal-title text-meduim text-bold">
                 {editId !== ""
-                  ? "Modification d'une evaluation"
-                  : "Ajout d’une evaluation"}
+                  ? "Modification d’une classe"
+                  : "Ajout d’une classe"}
               </h4>
               <button
                 type="button"
@@ -483,21 +325,54 @@ const EvaluationListe = ({ lecon }) => {
                   type={"text"}
                   name="label"
                   formik={formik}
-                  placeholder="Intitulé de l'evaluation"
-                  label={"Evaluation"}
+                  placeholder="Intitulé de l'évaluation"
+                  label={"Intitulé"}
                 />
                 <InputField
-                  type={"text"}
-                  name="abreviation"
+                  type={"date"}
+                  name="date"
                   formik={formik}
-                  placeholder="Abreviation de l'intitulé"
-                  label={"Abreviation"}
+                  placeholder="Date de l'évaluation"
+                  label={"Date de l'évaluation"}
+                />
+                <div className="d-flex">
+                  <InputField
+                    type={"time"}
+                    name="heure_debut"
+                    formik={formik}
+                    placeholder="Heure de début de l'évaluation"
+                    label={"Heure de début de l'évaluation"}
+                  />
+                  <div className="mx-4"></div>
+                  <InputField
+                    type={"time"}
+                    name="heure_fin"
+                    formik={formik}
+                    placeholder="Heure de fin de l'évaluation"
+                    label={"Heure de fin de l'évaluation"}
+                  />
+                </div>
+                <InputField
+                  type={"select"}
+                  name="classe"
+                  formik={formik}
+                  placeholder="Sélectionnez la classe"
+                  label={"Classe"}
+                  options={classes}
+                />
+                <InputField
+                  type={"select"}
+                  name="matiere"
+                  formik={formik}
+                  placeholder="Sélectionnez la matière"
+                  label={"Matière"}
+                  options={matieres}
                 />
                 <InputField
                   type={"textaera"}
                   name="description"
                   formik={formik}
-                  placeholder="Description du chapitre"
+                  placeholder="Description de la classe"
                   label={"Description"}
                 />
 
@@ -538,27 +413,8 @@ const EvaluationListe = ({ lecon }) => {
 
             <div className="modal-body">
               <div>
-                <span className="fw-bold d-inline-block me-2">Chapitre : </span>
+                <span className="fw-bold d-inline-block me-2">Classe : </span>
                 <span className="d-inline-block">{viewData.label}</span>
-              </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">
-                  Abreviation :{" "}
-                </span>
-                <span className="d-inline-block">{viewData.abreviation}</span>
-              </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">Chapitre : </span>
-                <span className="d-inline-block">
-                  {viewData.chapitre?.label +
-                    " : " +
-                    viewData.chapitre?.matiere_de_la_classe?.matiere
-                      ?.abreviation +
-                    "/" +
-                    viewData.chapitre?.matiere_de_la_classe?.classe?.label +
-                    "/" +
-                    viewData.chapitre?.periode?.abreviation}
-                </span>
               </div>
               <div>
                 <span className="fw-bold d-inline-block me-2">
@@ -608,8 +464,9 @@ const EvaluationListe = ({ lecon }) => {
           </div>
         </div>
       </div>
+      <Notify showModal={showModal} />
     </>
   );
 };
 
-export default Evaluation;
+export default ListEva;

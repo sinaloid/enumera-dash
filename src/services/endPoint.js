@@ -13,6 +13,10 @@ const endPoint = {
   evaluations_lecons: "evaluations-lecons",
   questions_lecons: "questions-lecons",
   questions_lecons_import: "questions-lecons-import",
+  questions_import: "questions-import",
+  evaluations: "evaluations",
+  questions: "questions",
+
 
   cours: "cours",
   files: "files",

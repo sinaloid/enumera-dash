@@ -456,7 +456,7 @@ const Dashboard = () => {
               <Route path="/chapitres" element={<Chapitre />} />
               <Route path="/lecons/*" element={<Lecon />} />
               <Route path="/cours/*" element={<Cours />} />
-              <Route path="/evaluations" element={<Evaluation />} />
+              <Route path="/evaluations/*" element={<Evaluation />} />
               <Route path="/cours-en-ligne" element={<CoursEnLigne />} />
               <Route path="/periodes" element={<Periode />} />
               <Route path="/eleves" element={<Eleve />} />
