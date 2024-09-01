@@ -131,11 +131,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   const changeBblockStatut = (data) => {
     //setShowModal(true)
     toast.promise(
-      request.post(
-         "users/change-block-statut",
-        { email: data.email },
-        header
-      ),
+      request.post("users/change-block-statut", { email: data.email }, header),
       {
         pending: "Veuillez patienté...",
         success: {
@@ -244,7 +240,9 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                   </div>
                 </td>
                 <td>
-                  null
+                  <span className="btn-sm bg-primary text-white px-1 rounded">
+                    6 ème
+                  </span>
                 </td>
                 <td className="text-center">
                   {data.isBlocked === 1 ? (
@@ -257,7 +255,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                     </span>
                   )}
                 </td>
-                
+
                 <td className="text-center">
                   <div className="btn-group">
                     {/**

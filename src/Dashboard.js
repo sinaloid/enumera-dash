@@ -79,7 +79,7 @@ const Dashboard = () => {
           >
             <div className="position-sticky h-100 text-small">
               <div className="col-12 d-none d-md-block text-center pt-4 pb-2 m-0">
-                <img width={"80%"} src={logo} alt="" />
+                <img width={"30%"} src={logo} alt="" />
               </div>
               <div className="d-md-none py-2"></div>
               <ul className="nav flex-column">
@@ -412,7 +412,8 @@ const Dashboard = () => {
               </ul>
 
               <ul className="nav flex-column w-100 position-absolute bottom-0 mb-2">
-                <li className="nav-item my-1 px-2">
+                {/**
+                 * <li className="nav-item my-1 px-2">
                   <NavLink
                     to="/dashboard/parametre"
                     className={({ isActive }) =>
@@ -429,6 +430,7 @@ const Dashboard = () => {
                     </span>
                   </NavLink>
                 </li>
+                 */}
                 <li className="nav-item my-1 px-2">
                   <span
                     className="btn nav-link border-0 py-0 btn-danger text-start pt-1"
