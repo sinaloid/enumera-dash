@@ -1,26 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
-import edit from "../../assets/images/icons/edit.png";
-import PageHeader from "../../Components/PageHeader";
-import Table from "../../Components/Table";
-import TableContent from "../../Components/TableContent";
-import TableHeader from "../../Components/TableHeader";
-import request from "../../services/request";
-import { toast } from "react-toastify";
 import { useFormik } from "formik";
-import { AppContext } from "../../services/context";
+import React, { useContext, useEffect, useState } from "react";
+import PageHeader from "../Components/PageHeader";
+import Table from "../Components/Table";
+import TableContent from "../Components/TableContent";
+import TableHeader from "../Components/TableHeader";
 import * as Yup from "yup";
-import InputField from "../../Components/InputField";
+import InputField from "../Components/InputField";
+import request from "../services/request";
+import endPoint from "../services/endPoint";
+import { AppContext } from "../services/context";
+import Notify from "../Components/Notify";
+import { toast } from "react-toastify";
+
 const initData = {
-  nom: "",
-  prenom: "",
-  date_de_naissance: "",
-  genre: "",
-  profile: "",
-  telephone: "",
-  email: "",
-  password: "",
+  name: "",
+  display_name: "",
+  description: "",
 };
-const Utilisateur = ({ endPoint, profile, title }) => {
+const Permission = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
@@ -62,7 +59,6 @@ const Utilisateur = ({ endPoint, profile, title }) => {
     initialValues: initData,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      values.profile = profile;
       if (editId === "") {
         handleSubmit(values);
       } else {
@@ -74,10 +70,10 @@ const Utilisateur = ({ endPoint, profile, title }) => {
 
   const getAll = () => {
     request
-      .get(endPoint + "/profile/" + profile, header)
+      .get(endPoint.permissions, header)
       .then((res) => {
-        setDatas(res.data.data);
-        console.log(res.data.data);
+        setDatas(res.data);
+        console.log(res.data);
       })
       .catch((error) => {
         console.log(error);
@@ -85,7 +81,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   };
   const handleSubmit = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint, data, header), {
+    toast.promise(request.post(endPoint.permissions, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -106,38 +102,15 @@ const Utilisateur = ({ endPoint, profile, title }) => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(request.post(endPoint + "/" + editId, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setEditId("");
-          setRefresh(refresh + 1);
-          return res.data.message;
-        },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
-        },
-      },
-    });
-  };
-
-  const changeBblockStatut = (data) => {
-    //setShowModal(true)
     toast.promise(
-      request.post("users/change-block-statut", { email: data.email }, header),
+      request.post(endPoint.permissions + "/" + editId, data, header),
       {
         pending: "Veuillez patienté...",
         success: {
           render({ data }) {
             console.log(data);
             const res = data;
+            setEditId("");
             setRefresh(refresh + 1);
             return res.data.message;
           },
@@ -155,27 +128,30 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   };
 
   const onDelete = () => {
-    toast.promise(request.delete(endPoint + "/" + viewData.slug, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.delete(endPoint.permissions + "/" + viewData.slug, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            const res = data;
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
+      }
+    );
 
     request
-      .delete(endPoint + "/" + viewData.slug, header)
+      .delete(endPoint.roles + "/" + viewData.id, header)
       .then((res) => {
         console.log(res.data);
         setRefresh(refresh + 1);
@@ -190,33 +166,19 @@ const Utilisateur = ({ endPoint, profile, title }) => {
     setEditId("");
     formik.resetForm();
   };
-
-  const setEditeData = (e, data) => {
-    e.preventDefault();
-    console.log(data);
-    setEditId(data.slug);
-    formik.setFieldValue("nom", data.nom);
-    formik.setFieldValue("prenom", data.prenom);
-    formik.setFieldValue("date_de_naissance", data.date_de_naissance);
-    formik.setFieldValue("genre", data.genre);
-  };
   return (
     <>
-      <PageHeader title={title} modal="form" addModal={addModal} />
+      <PageHeader title="Liste des droits" modal="form" addModal={addModal} />
+      <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
             #
           </th>
-          <th scope="col">Nº matricule</th>
-          <th scope="col">Nom prénom</th>
-          <th scope="col">Date de naissance</th>
-          <th scope="col">Genre</th>
-          <th scope="col">Contact</th>
-          <th scope="col">Classes</th>
-          <th scope="col" className="text-center">
-            Etat du compte
-          </th>
+          <th scope="col">Droits</th>
+          <th scope="col">Nom</th>
+          <th scope="col">Description</th>
+          <th scope="col">Date de création</th>
           <th scope="col" className="text-center">
             Actions
           </th>
@@ -228,81 +190,52 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                 <td>
                   <input type="checkbox" value="selected" />
                 </td>
-                <td>{data.matricule}</td>
-                <td>{data.nom + " " + data.prenom}</td>
-                <td>{new Date(data.date_de_naissance).toLocaleDateString()}</td>
-                <td>{data.genre === "M" ? "Homme" : "Femme"}</td>
 
-                <td>
-                  <div className="d-inline-block align-middle">
-                    <span className="fs-14">Tél : {data.telephone}</span> <br />
-                    <span className="fs-14">Email : {data.email}</span>
-                  </div>
+                <td className="fw-bold1">{data.display_name}</td>
+                <td className="fw-bold1">{data.name}</td>
+                <td className="fw-bold1">{data.description}</td>
+                <td className="fw-bold1">
+                  {new Date(data.created_at).toLocaleDateString()}
                 </td>
-                <td>
-                  <span className="btn-sm bg-primary text-white px-1 rounded">
-                    6 ème
-                  </span>
-                </td>
-                <td className="text-center">
-                  {data.isBlocked === 1 ? (
-                    <span className="btn-sm bg-danger fw-bold rounded-2 text-white">
-                      Le compte est bloqué
-                    </span>
-                  ) : (
-                    <span className="btn-sm bg-success fw-bold rounded-2 text-white">
-                      Le compte est actif
-                    </span>
-                  )}
-                </td>
-
                 <td className="text-center">
                   <div className="btn-group">
-                    {/**
-                     * <div className="d-inline-block mx-1">
-                      <button className="btn btn-gray">
-                        <img src={edit} alt="" />
+                    <div className="d-inline-block mx-1">
+                      <button
+                        className="btn btn-primary-light"
+                        data-bs-toggle="modal"
+                        data-bs-target="#view"
+                        onClick={(e) => {
+                          setViewData(data);
+                        }}
+                      >
                         <span> Voir</span>
                       </button>
                     </div>
-                     */}
                     <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
                         data-bs-toggle="modal"
                         data-bs-target="#form"
-                        onClick={(e) => setEditeData(e, data)}
+                        onClick={(e) => {
+                          formik.setFieldValue("name", data.name);
+                          formik.setFieldValue("display_name", data.display_name);
+                          formik.setFieldValue("description", data.description);
+                          setEditId(data.id);
+                        }}
                       >
-                        <img src={edit} alt="" />
-                        <span> Droits d'accès</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => setEditeData(e, data)}
-                      >
-                        <img src={edit} alt="" />
                         <span> Modifier</span>
                       </button>
                     </div>
                     <div className="d-inline-block mx-1">
                       <button
-                        className={`btn ${
-                          data.isBlocked === 0 ? "btn-danger" : "btn-success"
-                        }`}
+                        className="btn btn-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#delete"
                         onClick={(e) => {
-                          e.preventDefault();
-                          changeBblockStatut(data);
+                          setViewData(data);
                         }}
                       >
-                        {data.isBlocked === 1 ? (
-                          <span>Débloquer</span>
-                        ) : (
-                          <span>Bloquer</span>
-                        )}
+                        <span> Supprimer</span>
                       </button>
                     </div>
                   </div>
@@ -312,15 +245,14 @@ const Utilisateur = ({ endPoint, profile, title }) => {
           })}
         </TableContent>
       </Table>
-
       <div className="modal fade" id="form">
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content">
             <div className="modal-header border-0">
               <h4 className="modal-title text-meduim text-bold">
                 {editId !== ""
-                  ? "Modification du compte"
-                  : "Ajout d’un nouveau compte"}
+                  ? "Modification d’une permissions"
+                  : "Ajout d’une permissions"}
               </h4>
               <button
                 type="button"
@@ -333,63 +265,25 @@ const Utilisateur = ({ endPoint, profile, title }) => {
               <form onSubmit={formik.handleSubmit}>
                 <InputField
                   type={"text"}
-                  name="nom"
+                  name="display_name"
                   formik={formik}
-                  placeholder="Nom de l'utilisateur"
-                  label={"Nom"}
+                  placeholder="Groupe"
+                  label={"Nom du groupe"}
                 />
                 <InputField
                   type={"text"}
-                  name="prenom"
+                  name="name"
                   formik={formik}
-                  placeholder="Prénom de l'utilisateur"
-                  label={"Prénom"}
+                  placeholder="Nom"
+                  label={"Nom"}
                 />
                 <InputField
-                  type={"date"}
-                  name="date_de_naissance"
+                  type={"textaera"}
+                  name="description"
                   formik={formik}
-                  placeholder=""
-                  label={"Date de naissance"}
+                  placeholder="Description"
+                  label={"Description"}
                 />
-                <InputField
-                  type={"select"}
-                  name="genre"
-                  formik={formik}
-                  placeholder="Sélectionnez le genre de l'utilisateur"
-                  label={"Genre"}
-                  options={[
-                    { slug: "M", label: "Homme" },
-                    { slug: "F", label: "Femme" },
-                  ]}
-                />
-
-                {editId ? null : (
-                  <>
-                    <InputField
-                      type={"text"}
-                      name="telephone"
-                      formik={formik}
-                      placeholder="Numéro de téléphone de l'utilisateur"
-                      label={"Téléphone"}
-                    />
-                    <InputField
-                      type={"text"}
-                      name="email"
-                      formik={formik}
-                      placeholder="Email de l'utilisateur"
-                      label={"Email"}
-                    />
-
-                    <InputField
-                      type={"password"}
-                      name="password"
-                      formik={formik}
-                      placeholder="Mot de passe de l'utilisateur"
-                      label={"Mot de passe"}
-                    />
-                  </>
-                )}
 
                 <div className="d-flex justify-content-start border-0">
                   <button
@@ -428,15 +322,10 @@ const Utilisateur = ({ endPoint, profile, title }) => {
 
             <div className="modal-body">
               <div>
-                <span className="fw-bold d-inline-block me-2">Classe : </span>
-                <span className="d-inline-block">{viewData.label}</span>
+                <span className="fw-bold d-inline-block me-2">Nom : </span>
+                <span className="d-inline-block">{viewData.name}</span>
               </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">
-                  Description :{" "}
-                </span>
-                <span className="d-inline-block">{viewData.description}</span>
-              </div>
+
               <div className="mt-4 d-flex justify-content-end">
                 <button className="btn btn-primary" data-bs-dismiss="modal">
                   Fermer
@@ -479,8 +368,9 @@ const Utilisateur = ({ endPoint, profile, title }) => {
           </div>
         </div>
       </div>
+      <Notify showModal={showModal} />
     </>
   );
 };
 
-export default Utilisateur;
+export default Permission;

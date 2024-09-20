@@ -23,6 +23,8 @@ import Cours from "./pages/Cours";
 import Evaluation from "./pages/Evaluation";
 import CoursEnLigne from "./pages/CoursEnLigne";
 import Retour from "./Components/Retour";
+import Role from "./pages/Role";
+import Permission from "./pages/Permission";
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
   const { user, onUserChange } = authCtx;
@@ -52,7 +54,7 @@ const Dashboard = () => {
   
   return (
     <>
-      <header className="container-fluid navbar navbar-dark bg-white sticky-top flex-md-nowrap px-0 py-2 shadow1 d-md-none">
+      <header className="container-fluid navbar navbar-dark bg-white sticky-top1 flex-md-nowrap px-0 py-2 shadow1 d-md-none">
         <div className="d-flex align-items-center justify-content-between w-100">
           <a className="navbar-brand1 bg-white me-auto px-3" href="#">
             <img width="64px" src={logo} alt="" />
@@ -75,7 +77,7 @@ const Dashboard = () => {
         <div className="row">
           <nav
             id="sidebarMenu"
-            className="col-md-1 col-lg-2 d-md-block bg-white sidebar collapse p-0"
+            className="col-md-1 col-lg-2 d-md-block bg-white sidebar overflow-y-scroll collapse p-0"
           >
             <div className="position-sticky h-100 text-small">
               <div className="col-12 d-none d-md-block text-center pt-4 pb-2 m-0">
@@ -411,7 +413,7 @@ const Dashboard = () => {
                 )}
               </ul>
 
-              <ul className="nav flex-column w-100 position-absolute bottom-0 mb-2">
+              <ul className="nav flex-column w-100 position-absolute1 bottom-0 mb-2">
                 {/**
                  * <li className="nav-item my-1 px-2">
                   <NavLink
@@ -465,6 +467,8 @@ const Dashboard = () => {
               <Route path="/enseignants" element={<Enseignant />} />
               <Route path="/parents" element={<Parent />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/groupes-utilisateurs/*" element={<Role />} />
+              <Route path="/droits-access" element={<Permission />} />
               <Route path="/parametre" element={<>Paramètres</>} />
             </Routes>
           </main>

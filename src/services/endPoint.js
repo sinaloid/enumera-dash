@@ -21,6 +21,8 @@ const endPoint = {
   cours: "cours",
   files: "files",
 
+  roles:"roles",
+  permissions:"permissions",
   users: "users",
   utilisateurs: "utilisateurs",
 

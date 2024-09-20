@@ -12,6 +12,7 @@ import { Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/core/style.css";
+import 'bootstrap-icons/font/bootstrap-icons.min.css'
 import "./index.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
