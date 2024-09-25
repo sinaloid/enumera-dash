@@ -10,6 +10,7 @@ import { useFormik } from "formik";
 import { AppContext } from "../../services/context";
 import * as Yup from "yup";
 import InputField from "../../Components/InputField";
+import { useNavigate } from "react-router-dom";
 const initData = {
   nom: "",
   prenom: "",
@@ -28,6 +29,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
   const [refresh, setRefresh] = useState(0);
+  const navigate = useNavigate()
   const header = {
     headers: {
       Authorization: `Bearer ${user.token}`,
@@ -269,9 +271,13 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                     <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => setEditeData(e, data)}
+                        //data-bs-toggle="modal"
+                        //data-bs-target="#form"
+                        //onClick={(e) => setEditeData(e, data)}
+                        onClick={ e => {
+                          e.preventDefault()
+                          navigate('/dashboard/groupe-droits-utilisateur/'+data.slug)
+                        }}
                       >
                         <img src={edit} alt="" />
                         <span> Droits d'accès</span>

@@ -7,7 +7,6 @@ import employe from "./assets/imgs/employe.png";
 import rendv from "./assets/imgs/rendezvous.png";
 import agenda from "./assets/imgs/agenda.png";
 import patient from "./assets/imgs/patient.png";
-import Admin from "./pages/Admin";
 import { deleteUser } from "./services/storage";
 import { AppContext, initialUser } from "./services/context";
 import Classe from "./pages/Classe";
@@ -25,6 +24,10 @@ import CoursEnLigne from "./pages/CoursEnLigne";
 import Retour from "./Components/Retour";
 import Role from "./pages/Role";
 import Permission from "./pages/Permission";
+import GroupeDroitUtilisateur from "./pages/utilisateur/GroupeDroitUtilisateur";
+import UAdmin from "./pages/UAdmin";
+import DroitAcces from "./pages/DroitAcces";
+import Parametre from "./pages/Parametre";
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
   const { user, onUserChange } = authCtx;
@@ -390,7 +393,7 @@ const Dashboard = () => {
                     </li>
                     <li className="nav-item my-1 px-2">
                       <NavLink
-                        to="/dashboard/admin"
+                        to="/dashboard/utilisateurs"
                         className={({ isActive }) =>
                           isActive
                             ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
@@ -405,7 +408,28 @@ const Dashboard = () => {
                           data-bs-toggle="collapse"
                           data-bs-target="#sidebarMenu.show"
                         >
-                          Administrateurs
+                          Utilisateurs
+                        </span>
+                      </NavLink>
+                    </li>
+                    <li className="nav-item my-1 px-2">
+                      <NavLink
+                        to="/dashboard/parametres"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                            : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                        }
+                      >
+                        <span className="d-none d-md-block d-lg-none wd-0">
+                          <img src={agenda} alt="" />
+                        </span>
+                        <span
+                          className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#sidebarMenu.show"
+                        >
+                          Paramètres
                         </span>
                       </NavLink>
                     </li>
@@ -466,7 +490,10 @@ const Dashboard = () => {
               <Route path="/eleves" element={<Eleve />} />
               <Route path="/enseignants" element={<Enseignant />} />
               <Route path="/parents" element={<Parent />} />
-              <Route path="/admin" element={<Admin />} />
+              <Route path="/u-admin" element={<UAdmin />} />
+              <Route path="/parametres" element={<Parametre />} />
+              <Route path="/utilisateurs" element={<DroitAcces />} />
+              <Route path="/groupe-droits-utilisateur/:slug" element={<GroupeDroitUtilisateur />} />
               <Route path="/groupes-utilisateurs/*" element={<Role />} />
               <Route path="/droits-access" element={<Permission />} />
               <Route path="/parametre" element={<>Paramètres</>} />

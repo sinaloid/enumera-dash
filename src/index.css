@@ -157,6 +157,10 @@ input,
   border-color: #fff;
 }
 
+.cursor{
+  cursor: pointer;
+}
+
 .degrade-content {
   background: linear-gradient(
     359.13deg,
