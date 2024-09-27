@@ -29,7 +29,6 @@ const InfosEnseignant = () => {
   const { slug } = useParams();
 
   const [utilisateur, setUtilisateur] = useState({});
- 
 
   const [refresh, setRefresh] = useState(0);
   const header = {
@@ -54,8 +53,6 @@ const InfosEnseignant = () => {
       });
   };
 
-  
-  
   return (
     <>
       <div className="card p-4 border">
@@ -127,12 +124,9 @@ const InfosEnseignant = () => {
   );
 };
 
-const initQuest = {
-  question: "",
-  choix: "",
-  reponses: "",
-  point: "",
-  evaluation_lecon: "",
+const initValue = {
+  classes: "",
+  matieres: "",
   type: "",
 };
 const UtilisateurClasse = ({ classeList, refresh }) => {
@@ -141,10 +135,12 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
   const [editId, setEditId] = useState("");
   const [viewData, setViewData] = useState({});
   const { slug } = useParams();
-  
+
   const [classeSelected, setClasseSelected] = useState([]);
+  const [matiereSelected, setMatiereSelected] = useState([]);
 
   const [classes, setClasses] = useState([]);
+  const [matieres, setMatieres] = useState([]);
 
   const header = {
     headers: {
@@ -155,14 +151,21 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
 
   useEffect(() => {
     getClasse();
+    getMatiere();
   }, []);
 
   const formik = useFormik({
-    initialValues: initQuest,
+    initialValues: initValue,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      const tab = classeSelected.map((data) => data.slug);
-      handleSubmit(tab);
+      console.log(values);
+      if (values.type !== "matieres") {
+        const tab = classeSelected.map((data) => data.slug);
+        handleSubmit(tab);
+      } else {
+        const tab = matiereSelected.map((data) => data.slug);
+        handleSubmitMatiere(tab);
+      }
     },
   });
 
@@ -184,6 +187,24 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
       });
   };
 
+  const getMatiere = () => {
+    request
+      .get(endPoint.matieres, header)
+      .then((res) => {
+        //console.log(res.data.data);
+        const tab = res.data.data.map((data) => {
+          return {
+            ...data,
+            value: data.slug,
+          };
+        });
+        setMatieres(tab);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   const handleSubmit = (values) => {
     //setShowModal(true)
     toast.promise(
@@ -198,7 +219,40 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
           render({ data }) {
             console.log(data);
             const res = data;
-            refresh()
+            refresh();
+            return res.data.message;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data?.response?.data?.errors
+              ? data.response?.data?.errors
+              : data.response?.data?.error;
+          },
+        },
+      }
+    );
+  };
+
+  const handleSubmitMatiere = (values) => {
+    //setShowModal(true)
+    toast.promise(
+      request.post(
+        endPoint.utilisateurs +
+          "/utilisateur-classe/" +
+          viewData.slug +
+          "/matieres",
+        { matieres: values },
+        header
+      ),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            refresh();
             return res.data.message;
           },
         },
@@ -216,13 +270,44 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
 
   const onDelete = () => {
     toast.promise(
-      request.delete(endPoint.utilisateurs + "/" +slug+"/classe/"+ viewData.slug, header),
+      request.delete(
+        endPoint.utilisateurs + "/" + slug + "/classe/" + viewData.slug,
+        header
+      ),
       {
         pending: "Veuillez patienté...",
         success: {
           render({ data }) {
             const res = data;
-            refresh()
+            refresh();
+            return res.data.message;
+          },
+        },
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
+        },
+      }
+    );
+  };
+
+  const onDeleteMatiere = () => {
+    console.log(viewData)
+    toast.promise(
+      request.delete(
+        endPoint.utilisateurs + "/utilisateur-classe-matiere/" + viewData.slug,
+        header
+      ),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            const res = data;
+            refresh();
             return res.data.message;
           },
         },
@@ -243,8 +328,6 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
     setEditId("");
     formik.resetForm();
   };
-
-
 
   return (
     <>
@@ -267,8 +350,8 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
           <th scope="col" className="border-raduis-left">
             #
           </th>
-          <th scope="col">Classe</th>
-          <th scope="col">Matières</th>
+          <th scope="col">Classes</th>
+          <th scope="col">Liste des Matières</th>
           <th scope="col" className="text-center">
             Actions
           </th>
@@ -280,20 +363,45 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
                 <td>
                   <input type="checkbox" value="selected" />
                 </td>
-
                 <td className="fw-bold1">{data.classe.label}</td>
 
-                <td className="fw-bold1">{"-"}</td>
+                <td className="fw-bold1">
+                  {data.user_classe_matieres.map((data) => {
+                    return (
+                      <div key={data.slug} className="d-inline-block m-1">
+                        <div
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setViewData(data);
+                            formik.setFieldValue("type","matieres")
+                          }}
+                        >
+                          <div className="d-flex">
+                            <span className="me-2">{data.matiere_label}</span>
+                            <span className="text-danger">
+                              <i className="bi bi-trash"></i>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </td>
+
                 <td className="text-center">
                   <div className="btn-group">
-                  <div className="d-inline-block mx-1">
+                    <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
                         data-bs-toggle="modal"
-                        data-bs-target="#form"
+                        data-bs-target="#formMatiere"
                         onClick={(e) => {
-                          e.preventDefault()
-                          setViewData(data.classe);
+                          e.preventDefault();
+                          setViewData(data);
+                          formik.setFieldValue("type", "matieres");
                         }}
                       >
                         matières
@@ -305,7 +413,7 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
                         data-bs-toggle="modal"
                         data-bs-target="#delete"
                         onClick={(e) => {
-                          e.preventDefault()
+                          e.preventDefault();
                           setViewData(data.classe);
                         }}
                       >
@@ -396,13 +504,12 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
           </div>
         </div>
       </div>
-
-      <div className="modal fade" id="view">
-        <div className="modal-dialog modal-dialog-centered modal-md">
+      <div className="modal fade" id="formMatiere">
+        <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content">
             <div className="modal-header border-0">
               <h4 className="modal-title text-meduim text-bold">
-                Informations
+                {"Ajout de matières"}
               </h4>
               <button
                 type="button"
@@ -412,29 +519,43 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
             </div>
 
             <div className="modal-body">
-              <div>
-                <span className="fw-bold d-inline-block me-2">Droit : </span>
-                <span className="d-inline-block">{viewData.display_name}</span>
-              </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">nom : </span>
-                <span className="d-inline-block">{viewData.name}</span>
-              </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">
-                  Description :{" "}
-                </span>
-                <span className="d-inline-block">{viewData.description}</span>
-              </div>
-              <div className="mt-4 d-flex justify-content-end">
-                <button className="btn btn-primary" data-bs-dismiss="modal">
-                  Fermer
-                </button>
-              </div>
+              <form onSubmit={formik.handleSubmit}>
+                <Select
+                  //defaultValue={[colourOptions[2], colourOptions[3]]}
+                  isMulti
+                  name="colors"
+                  options={matieres}
+                  className="basic-multi-select"
+                  classNamePrefix="select"
+                  placeholder={"Sélectionnez les matières"}
+                  onChange={(e) => {
+                    //console.log(e)
+                    setMatiereSelected(e);
+                  }}
+                />
+
+                <div className="d-flex justify-content-start border-0 mt-4">
+                  <button
+                    type="reset"
+                    className="btn btn-secondary me-2"
+                    data-bs-dismiss="modal"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    data-bs-dismiss="modal"
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
+
       <div className="modal fade" id="delete">
         <div className="modal-dialog modal-dialog-centered modal-md">
           <div className="modal-content">
@@ -459,7 +580,11 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
                 <button
                   className="btn btn-danger"
                   data-bs-dismiss="modal"
-                  onClick={onDelete}
+                  onClick={
+                    formik.values.type !== "matieres"
+                      ? onDelete
+                      : onDeleteMatiere
+                  }
                 >
                   Oui
                 </button>

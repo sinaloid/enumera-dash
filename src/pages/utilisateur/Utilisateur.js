@@ -201,6 +201,9 @@ const Utilisateur = ({ endPoint, profile, title }) => {
     formik.setFieldValue("prenom", data.prenom);
     formik.setFieldValue("date_de_naissance", data.date_de_naissance);
     formik.setFieldValue("genre", data.genre);
+    formik.setFieldValue("telephone", data.telephone);
+    formik.setFieldValue("email", data.email);
+    formik.setFieldValue("matricule", data.matricule);
   };
   return (
     <>
@@ -215,7 +218,6 @@ const Utilisateur = ({ endPoint, profile, title }) => {
           <th scope="col">Date de naissance</th>
           <th scope="col">Genre</th>
           <th scope="col">Contact</th>
-          <th scope="col">Classes</th>
           <th scope="col" className="text-center">
             Etat du compte
           </th>
@@ -241,11 +243,6 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                     <span className="fs-14">Email : {data.email}</span>
                   </div>
                 </td>
-                <td>
-                  <span className="btn-sm bg-primary text-white px-1 rounded">
-                    6 ème
-                  </span>
-                </td>
                 <td className="text-center">
                   {data.isBlocked === 1 ? (
                     <span className="btn-sm bg-danger fw-bold rounded-2 text-white">
@@ -268,7 +265,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                       </button>
                     </div>
                      */}
-                    {profile !== "ELEVE" && (
+                    {profile !== "PARENT" && (
                       <div className="d-inline-block mx-1">
                         <button
                           className="btn btn-primary-light"
@@ -289,17 +286,19 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                       </div>
                     )}
 
-                    <div className="d-inline-block mx-1">
+                    {/**
+                     * <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
                         data-bs-toggle="modal"
                         data-bs-target="#form"
-                        //onClick={(e) => setEditeData(e, data)}               
+                        //onClick={(e) => setEditeData(e, data)}
                       >
                         <img src={edit} alt="" />
-                        <span> Classe</span>
+                        <span> Voir</span>
                       </button>
                     </div>
+                     */}
                     <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
@@ -394,32 +393,28 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                   ]}
                 />
 
-                {editId ? null : (
-                  <>
-                    <InputField
-                      type={"text"}
-                      name="telephone"
-                      formik={formik}
-                      placeholder="Numéro de téléphone de l'utilisateur"
-                      label={"Téléphone"}
-                    />
-                    <InputField
-                      type={"text"}
-                      name="email"
-                      formik={formik}
-                      placeholder="Email de l'utilisateur"
-                      label={"Email"}
-                    />
+                <InputField
+                  type={"text"}
+                  name="telephone"
+                  formik={formik}
+                  placeholder="Numéro de téléphone de l'utilisateur"
+                  label={"Téléphone"}
+                />
+                <InputField
+                  type={"text"}
+                  name="email"
+                  formik={formik}
+                  placeholder="Email de l'utilisateur"
+                  label={"Email"}
+                />
 
-                    <InputField
-                      type={"password"}
-                      name="password"
-                      formik={formik}
-                      placeholder="Mot de passe de l'utilisateur"
-                      label={"Mot de passe"}
-                    />
-                  </>
-                )}
+                <InputField
+                  type={"password"}
+                  name="password"
+                  formik={formik}
+                  placeholder="Mot de passe de l'utilisateur"
+                  label={"Mot de passe"}
+                />
 
                 <div className="d-flex justify-content-start border-0">
                   <button

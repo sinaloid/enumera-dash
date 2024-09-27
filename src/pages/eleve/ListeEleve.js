@@ -16,13 +16,14 @@ const initData = {
   nom: "",
   prenom: "",
   date_de_naissance: "",
+  matricule: "",
   genre: "",
   profile: "",
   telephone: "",
   email: "",
   password: "",
 };
-const profile = "ELEVE"
+const profile = "ELEVE";
 const ListeEleve = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
@@ -110,26 +111,29 @@ const ListeEleve = () => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(request.post(endPoint.utilisateurs + "/" + editId, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setEditId("");
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.post(endPoint.utilisateurs + "/" + editId, data, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            setEditId("");
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
+      }
+    );
   };
 
   const changeBblockStatut = (data) => {
@@ -159,24 +163,27 @@ const ListeEleve = () => {
   };
 
   const onDelete = () => {
-    toast.promise(request.delete(endPoint.utilisateurs + "/" + viewData.slug, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.delete(endPoint.utilisateurs + "/" + viewData.slug, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            const res = data;
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
+      }
+    );
 
     request
       .delete(endPoint + "/" + viewData.slug, header)
@@ -203,6 +210,9 @@ const ListeEleve = () => {
     formik.setFieldValue("prenom", data.prenom);
     formik.setFieldValue("date_de_naissance", data.date_de_naissance);
     formik.setFieldValue("genre", data.genre);
+    formik.setFieldValue("telephone", data.telephone);
+    formik.setFieldValue("email", data.email);
+    formik.setFieldValue("matricule", data.matricule);
   };
   return (
     <>
@@ -215,7 +225,6 @@ const ListeEleve = () => {
           <th scope="col">Nº matricule</th>
           <th scope="col">Nom prénom</th>
           <th scope="col">Date de naissance</th>
-          <th scope="col">Genre</th>
           <th scope="col">Contact</th>
           <th scope="col">Classes</th>
           <th scope="col" className="text-center">
@@ -233,9 +242,14 @@ const ListeEleve = () => {
                   <input type="checkbox" value="selected" />
                 </td>
                 <td>{data.matricule}</td>
-                <td>{data.nom + " " + data.prenom}</td>
+                <td>
+                  <span className="fw-bold">
+                    {data.nom + " " + data.prenom}
+                  </span>{" "}
+                  <br />
+                  <span>{data.genre === "M" ? "Homme" : "Femme"}</span> <br />
+                </td>
                 <td>{new Date(data.date_de_naissance).toLocaleDateString()}</td>
-                <td>{data.genre === "M" ? "Homme" : "Femme"}</td>
 
                 <td>
                   <div className="d-inline-block align-middle">
@@ -244,9 +258,18 @@ const ListeEleve = () => {
                   </div>
                 </td>
                 <td>
-                  <span className="btn-sm bg-primary text-white px-1 rounded">
-                    6 ème
-                  </span>
+                  {data.user_classes?.map((userclasse) => {
+                    return (
+                      <div
+                        key={userclasse.slug}
+                        className="fw-bold border border-primary my-2 p-1 rounded"
+                      >
+                        <span className="text-primary px-1 rounded">
+                          {userclasse.classe.label}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </td>
                 <td className="text-center">
                   {data.isBlocked === 1 ? (
@@ -274,9 +297,9 @@ const ListeEleve = () => {
                       <button
                         className="btn btn-primary-light"
                         onClick={(e) => {
-                          e.preventDefault()
-                          navigate("/dashboard/eleves/"+data.slug)
-                        }}               
+                          e.preventDefault();
+                          navigate("/dashboard/eleves/" + data.slug);
+                        }}
                       >
                         <img src={edit} alt="" />
                         <span> Voir</span>
@@ -376,32 +399,28 @@ const ListeEleve = () => {
                   ]}
                 />
 
-                {editId ? null : (
-                  <>
-                    <InputField
-                      type={"text"}
-                      name="telephone"
-                      formik={formik}
-                      placeholder="Numéro de téléphone de l'utilisateur"
-                      label={"Téléphone"}
-                    />
-                    <InputField
-                      type={"text"}
-                      name="email"
-                      formik={formik}
-                      placeholder="Email de l'utilisateur"
-                      label={"Email"}
-                    />
+                <InputField
+                  type={"text"}
+                  name="telephone"
+                  formik={formik}
+                  placeholder="Numéro de téléphone de l'utilisateur"
+                  label={"Téléphone"}
+                />
+                <InputField
+                  type={"text"}
+                  name="email"
+                  formik={formik}
+                  placeholder="Email de l'utilisateur"
+                  label={"Email"}
+                />
 
-                    <InputField
-                      type={"password"}
-                      name="password"
-                      formik={formik}
-                      placeholder="Mot de passe de l'utilisateur"
-                      label={"Mot de passe"}
-                    />
-                  </>
-                )}
+                <InputField
+                  type={"password"}
+                  name="password"
+                  formik={formik}
+                  placeholder="Mot de passe de l'utilisateur"
+                  label={"Mot de passe"}
+                />
 
                 <div className="d-flex justify-content-start border-0">
                   <button
