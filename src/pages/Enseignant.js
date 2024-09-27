@@ -1,13 +1,15 @@
 import React from "react";
-import Utilisateur from "./utilisateur/Utilisateur";
-import endPoint from "../services/endPoint";
-
+import InfosEnseignant from "./enseignant/InfosEnseignant";
+import ListEnseignant from "./enseignant/ListeEnseignant";
+import { Route, Routes } from "react-router-dom";
 
 const Enseignant = () => {
-
   return (
     <>
-      <Utilisateur endPoint={endPoint.utilisateurs} profile={"ENSEIGNANT"} title={"Liste des enseignants"} />
+      <Routes>
+        <Route path="/" element={<ListEnseignant />} />
+        <Route path="/:slug" element={<InfosEnseignant />} />
+      </Routes>
     </>
   );
 };

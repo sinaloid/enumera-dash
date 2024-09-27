@@ -7,7 +7,7 @@ const Parent = () => {
 
   return (
     <>
-      <Utilisateur endPoint={endPoint.utilisateurs} profile={"PARENT"} title={"Liste des enseignants"} />
+      <Utilisateur endPoint={endPoint.utilisateurs} profile={"PARENT"} title={"Liste des parents"} />
     </>
   );
 };

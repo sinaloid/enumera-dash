@@ -11,6 +11,7 @@ import { AppContext } from "../../services/context";
 import * as Yup from "yup";
 import InputField from "../../Components/InputField";
 import { useNavigate } from "react-router-dom";
+import endPoint  from "../../services/endPoint";
 const initData = {
   nom: "",
   prenom: "",
@@ -21,7 +22,10 @@ const initData = {
   email: "",
   password: "",
 };
-const Utilisateur = ({ endPoint, profile, title }) => {
+
+const profile = "ENSEIGNANT"
+
+const ListEnseignant = ({ title }) => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
@@ -76,7 +80,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
 
   const getAll = () => {
     request
-      .get(endPoint + "/profile/" + profile, header)
+      .get(endPoint.utilisateurs+ "/profile/" + profile, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -157,7 +161,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   };
 
   const onDelete = () => {
-    toast.promise(request.delete(endPoint + "/" + viewData.slug, header), {
+    toast.promise(request.delete(endPoint.utilisateurs + "/" + viewData.slug, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -292,12 +296,13 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                     <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        //onClick={(e) => setEditeData(e, data)}               
+                        onClick={(e) => {
+                          e.preventDefault()
+                          navigate('/dashboard/enseignants/'+data.slug)
+                        }}               
                       >
                         <img src={edit} alt="" />
-                        <span> Classe</span>
+                        <span> Voir</span>
                       </button>
                     </div>
                     <div className="d-inline-block mx-1">
@@ -513,4 +518,4 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   );
 };
 
-export default Utilisateur;
+export default ListEnseignant;

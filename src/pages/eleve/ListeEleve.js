@@ -11,6 +11,7 @@ import { AppContext } from "../../services/context";
 import * as Yup from "yup";
 import InputField from "../../Components/InputField";
 import { useNavigate } from "react-router-dom";
+import endPoint from "../../services/endPoint";
 const initData = {
   nom: "",
   prenom: "",
@@ -21,7 +22,8 @@ const initData = {
   email: "",
   password: "",
 };
-const Utilisateur = ({ endPoint, profile, title }) => {
+const profile = "ELEVE"
+const ListeEleve = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
@@ -76,7 +78,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
 
   const getAll = () => {
     request
-      .get(endPoint + "/profile/" + profile, header)
+      .get(endPoint.utilisateurs + "/profile/" + profile, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -87,7 +89,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   };
   const handleSubmit = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint, data, header), {
+    toast.promise(request.post(endPoint.utilisateurs, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -108,7 +110,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(request.post(endPoint + "/" + editId, data, header), {
+    toast.promise(request.post(endPoint.utilisateurs + "/" + editId, data, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -157,7 +159,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   };
 
   const onDelete = () => {
-    toast.promise(request.delete(endPoint + "/" + viewData.slug, header), {
+    toast.promise(request.delete(endPoint.utilisateurs + "/" + viewData.slug, header), {
       pending: "Veuillez patienté...",
       success: {
         render({ data }) {
@@ -204,7 +206,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   };
   return (
     <>
-      <PageHeader title={title} modal="form" addModal={addModal} />
+      <PageHeader title={"Liste des élèves"} modal="form" addModal={addModal} />
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
@@ -268,36 +270,16 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                       </button>
                     </div>
                      */}
-                    {profile !== "ELEVE" && (
-                      <div className="d-inline-block mx-1">
-                        <button
-                          className="btn btn-primary-light"
-                          //data-bs-toggle="modal"
-                          //data-bs-target="#form"
-                          //onClick={(e) => setEditeData(e, data)}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            navigate(
-                              "/dashboard/groupe-droits-utilisateur/" +
-                                data.slug
-                            );
-                          }}
-                        >
-                          <img src={edit} alt="" />
-                          <span> Droits</span>
-                        </button>
-                      </div>
-                    )}
-
                     <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        //onClick={(e) => setEditeData(e, data)}               
+                        onClick={(e) => {
+                          e.preventDefault()
+                          navigate("/dashboard/eleves/"+data.slug)
+                        }}               
                       >
                         <img src={edit} alt="" />
-                        <span> Classe</span>
+                        <span> Voir</span>
                       </button>
                     </div>
                     <div className="d-inline-block mx-1">
@@ -513,4 +495,4 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   );
 };
 
-export default Utilisateur;
+export default ListeEleve;

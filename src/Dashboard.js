@@ -487,8 +487,8 @@ const Dashboard = () => {
               <Route path="/evaluations/*" element={<Evaluation />} />
               <Route path="/cours-en-ligne" element={<CoursEnLigne />} />
               <Route path="/periodes" element={<Periode />} />
-              <Route path="/eleves" element={<Eleve />} />
-              <Route path="/enseignants" element={<Enseignant />} />
+              <Route path="/eleves/*" element={<Eleve />} />
+              <Route path="/enseignants/*" element={<Enseignant />} />
               <Route path="/parents" element={<Parent />} />
               <Route path="/u-admin" element={<UAdmin />} />
               <Route path="/parametres" element={<Parametre />} />
