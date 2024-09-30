@@ -57,7 +57,7 @@ const InfosEnseignant = () => {
     <>
       <div className="card p-4 border">
         <div className="text-primary">
-          <span className=" d-inline-block me-2 fs-1">Elève : </span>
+          <span className=" d-inline-block me-2 fs-1">Enseignant : </span>
           <span className=" d-inline-block fs-1">
             {utilisateur?.nom + " " + utilisateur?.prenom}
           </span>
@@ -296,7 +296,7 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
   };
 
   const onDeleteMatiere = () => {
-    console.log(viewData)
+    console.log(viewData);
     toast.promise(
       request.delete(
         endPoint.utilisateurs + "/utilisateur-classe-matiere/" + viewData.slug,
@@ -331,7 +331,12 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
 
   return (
     <>
-      <PageHeader title="" modal="form" addModal={addModal} />
+      <PageHeader
+        title=""
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("assign classe")}
+      />
       <div className="mt-3 fw-bold fs-4 text-primary">Liste des classes</div>
       <div className="d-flex align-items-center">
         {/**
@@ -376,7 +381,7 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
                           onClick={(e) => {
                             e.preventDefault();
                             setViewData(data);
-                            formik.setFieldValue("type","matieres")
+                            formik.setFieldValue("type", "matieres");
                           }}
                         >
                           <div className="d-flex">
@@ -393,59 +398,37 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
 
                 <td className="text-center">
                   <div className="btn-group">
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#formMatiere"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setViewData(data);
-                          formik.setFieldValue("type", "matieres");
-                        }}
-                      >
-                        matières
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setViewData(data.classe);
-                        }}
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </div>
-                    {/**
-                     * <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </div>
-                     */}
+                    {user.permissions?.includes("assign matiere") && (
+                      <>
+                        <div className="d-inline-block mx-1">
+                          <button
+                            className="btn btn-primary-light"
+                            data-bs-toggle="modal"
+                            data-bs-target="#formMatiere"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setViewData(data);
+                              formik.setFieldValue("type", "matieres");
+                            }}
+                          >
+                            matières
+                          </button>
+                        </div>
+                        <div className="d-inline-block mx-1">
+                          <button
+                            className="btn btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#delete"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setViewData(data);
+                            }}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>

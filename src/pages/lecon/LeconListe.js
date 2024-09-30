@@ -357,7 +357,12 @@ const LeconListe = () => {
 
   return (
     <>
-      <PageHeader title="Liste des leçons" modal="form" addModal={addModal} />
+      <PageHeader
+        title="Liste des leçons"
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create lecon")}
+      />
       <div className="d-flex mt-3">
         <div className="me-2">
           <InputField
@@ -446,43 +451,50 @@ const LeconListe = () => {
                 </td>
                 <td className="text-center">
                   <div className="btn-group">
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        //data-bs-toggle="modal"
-                        //data-bs-target="#view"
-                        onClick={(e) => {
-                          goToDetail(e, data.slug);
-                        }}
-                      >
-                        <span> Cours</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        //data-bs-toggle="modal"
-                        //data-bs-target="#view"
-                        onClick={(e) => {
-                          goToDetail(e, data.slug + "/evaluations");
-                        }}
-                      >
-                        <span> Evaluations</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light px-2"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <i class="bi bi-pencil-square"></i>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
+                    {user.permissions?.includes("view cours") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          //data-bs-toggle="modal"
+                          //data-bs-target="#view"
+                          onClick={(e) => {
+                            goToDetail(e, data.slug);
+                          }}
+                        >
+                          <span> Cours</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("view evaluationLecon") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          //data-bs-toggle="modal"
+                          //data-bs-target="#view"
+                          onClick={(e) => {
+                            goToDetail(e, data.slug + "/evaluations");
+                          }}
+                        >
+                          <span> Evaluations</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("update lecon") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light px-2"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                      </div>
+                    )}
+                    {
+                      user.permissions?.includes("delete lecon") && <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-danger"
                         data-bs-toggle="modal"
@@ -494,6 +506,9 @@ const LeconListe = () => {
                         <i class="bi bi-trash"></i>
                       </button>
                     </div>
+                    }
+
+                    
                   </div>
                 </td>
               </tr>

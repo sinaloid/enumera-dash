@@ -4,7 +4,12 @@ import del from "../assets/images/icons/delete.png";
 import back from "../assets/images/icons/back.png";
 import sui from "../assets/images/icons/next.png";
 
-const PageHeader = ({title="", modal="", addModal = () =>{}}) => {
+const PageHeader = ({
+  title = "",
+  modal = "",
+  addModal = () => {},
+  canCreate = false,
+}) => {
   return (
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
@@ -26,17 +31,19 @@ const PageHeader = ({title="", modal="", addModal = () =>{}}) => {
                 placeholder="Rechercher..."
               />
             </div>
-            <div className="btn-toolbar ms-1">
-              <button
-                className="btn btn-primary fw-bold"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target={"#"+modal}
-                onClick={(e) => addModal(e)}
-              >
-                Ajouter
-              </button>
-            </div>
+            {canCreate && (
+              <div className="btn-toolbar ms-1">
+                <button
+                  className="btn btn-primary fw-bold"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target={"#" + modal}
+                  onClick={(e) => addModal(e)}
+                >
+                  Ajouter
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -51,10 +58,9 @@ const PageHeader = ({title="", modal="", addModal = () =>{}}) => {
           <img src={sui} alt="" />
         </div>
         <div className="d-inline-block my-1 pt-1 mx-1 fw-bold">
-            <span className="align-middle">Page 1 / 2</span>
+          <span className="align-middle">Page 1 / 2</span>
         </div>
       </div>
-      
     </>
   );
 };

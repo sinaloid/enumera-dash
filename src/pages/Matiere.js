@@ -102,26 +102,29 @@ const Matiere = () => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(request.post(endPoint.matieres + "/" + editId, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setEditId("");
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.post(endPoint.matieres + "/" + editId, data, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            setEditId("");
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
+      }
+    );
   };
 
   const onDelete = () => {
@@ -174,7 +177,12 @@ const Matiere = () => {
 
   return (
     <>
-      <PageHeader title="Liste des matières" modal="form" addModal={addModal} />
+      <PageHeader
+        title="Liste des matières"
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create matiere")}
+      />
       <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
@@ -213,30 +221,35 @@ const Matiere = () => {
                         <span> Voir</span>
                       </button>
                     </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <span> Modifier</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <span> Supprimer</span>
-                      </button>
-                    </div>
+
+                    {user.permissions?.includes("update matiere") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <span> Modifier</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete matiere") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            setViewData(data);
+                          }}
+                        >
+                          <span> Supprimer</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>

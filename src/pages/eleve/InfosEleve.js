@@ -196,7 +196,7 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
   const [editId, setEditId] = useState("");
   const [viewData, setViewData] = useState({});
   const { slug } = useParams();
-  
+
   const [classeSelected, setClasseSelected] = useState([]);
 
   const [classes, setClasses] = useState([]);
@@ -253,7 +253,7 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
           render({ data }) {
             console.log(data);
             const res = data;
-            refresh()
+            refresh();
             return res.data.message;
           },
         },
@@ -271,13 +271,16 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
 
   const onDelete = () => {
     toast.promise(
-      request.delete(endPoint.utilisateurs + "/" +slug+"/classe/"+ viewData.slug, header),
+      request.delete(
+        endPoint.utilisateurs + "/" + slug + "/classe/" + viewData.slug,
+        header
+      ),
       {
         pending: "Veuillez patienté...",
         success: {
           render({ data }) {
             const res = data;
-            refresh()
+            refresh();
             return res.data.message;
           },
         },
@@ -299,11 +302,14 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
     formik.resetForm();
   };
 
-
-
   return (
     <>
-      <PageHeader title="" modal="form" addModal={addModal} />
+      <PageHeader
+        title=""
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("assign classe")}
+      />
       <div className="mt-3 fw-bold fs-4 text-primary">Liste des classes</div>
       <div className="d-flex align-items-center">
         {/**
@@ -341,19 +347,21 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
                 <td className="fw-bold1">{data.classe.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setViewData(data.classe);
-                        }}
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </div>
+                    {user.permissions?.includes("assign classe") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setViewData(data.classe);
+                          }}
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    )}
                     {/**
                      * <div className="d-inline-block mx-1">
                       <button

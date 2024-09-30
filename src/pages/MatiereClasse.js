@@ -204,6 +204,7 @@ const MatiereClasse = () => {
         title="Liste des matières d'une classe"
         modal="form"
         addModal={addModal}
+        canCreate={user.permissions?.includes("create matiereDeLaclasse")}
       />
       <div className="d-flex">
         <InputField
@@ -257,19 +258,22 @@ const MatiereClasse = () => {
                         <span> Voir</span>
                       </button>
                     </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <span> Modifier</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
+                    {user.permissions?.includes("update matiereDeLaclasse") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <span> Modifier</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete matiereDeLaclasse") && (
+                      <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-danger"
                         data-bs-toggle="modal"
@@ -281,6 +285,9 @@ const MatiereClasse = () => {
                         <span> Supprimer</span>
                       </button>
                     </div>
+                    )}
+
+                    
                   </div>
                 </td>
               </tr>
@@ -389,9 +396,7 @@ const MatiereClasse = () => {
                 <span className="fw-bold d-inline-block me-2">
                   Coefficient :{" "}
                 </span>
-                <span className="d-inline-block">
-                  {viewData.coefficient}
-                </span>
+                <span className="d-inline-block">{viewData.coefficient}</span>
               </div>
               <div className="mt-4 d-flex justify-content-end">
                 <button className="btn btn-primary" data-bs-dismiss="modal">

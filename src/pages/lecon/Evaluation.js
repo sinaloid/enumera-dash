@@ -384,7 +384,12 @@ const EvaluationListe = ({ lecon }) => {
 
   return (
     <>
-      <PageHeader title="" modal="form" addModal={addModal} />
+      <PageHeader
+        title=""
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create evaluationLecon")}
+      />
       <div className="mt-3 fw-bold fs-4 text-primary">
         Liste des evaluations
       </div>
@@ -418,42 +423,48 @@ const EvaluationListe = ({ lecon }) => {
                 <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        //data-bs-toggle="modal"
-                        //data-bs-target="#view"
-                        onClick={(e) => {
-                          goToDetail(e, data.slug);
-                        }}
-                      >
-                        <span> Questions</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <i class="bi bi-pencil-square"></i>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
+                    {user.permissions?.includes("view questionLecon") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          //data-bs-toggle="modal"
+                          //data-bs-target="#view"
+                          onClick={(e) => {
+                            goToDetail(e, data.slug);
+                          }}
+                        >
+                          <span> Questions</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("update evaluationLecon") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete evaluationLecon") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            setViewData(data);
+                          }}
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>

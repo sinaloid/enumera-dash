@@ -207,7 +207,7 @@ const Utilisateur = ({ endPoint, profile, title }) => {
   };
   return (
     <>
-      <PageHeader title={title} modal="form" addModal={addModal} />
+      <PageHeader title={title} modal="form" addModal={addModal} canCreate={user.permissions?.includes('create utilisateur')} />
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
@@ -265,68 +265,57 @@ const Utilisateur = ({ endPoint, profile, title }) => {
                       </button>
                     </div>
                      */}
-                    {profile !== "PARENT" && (
+
+                    <div className="d-inline-block mx-1">
+                      <button
+                        className="btn btn-primary-light"
+                        //data-bs-toggle="modal"
+                        //data-bs-target="#form"
+                        //onClick={(e) => setEditeData(e, data)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate(
+                            "/dashboard/groupe-droits-utilisateur/" + data.slug
+                          );
+                        }}
+                      >
+                        <img src={edit} alt="" />
+                        <span> Droits</span>
+                      </button>
+                    </div>
+                    {user.permissions?.includes("update utilisateur") && (
                       <div className="d-inline-block mx-1">
                         <button
                           className="btn btn-primary-light"
-                          //data-bs-toggle="modal"
-                          //data-bs-target="#form"
-                          //onClick={(e) => setEditeData(e, data)}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            navigate(
-                              "/dashboard/groupe-droits-utilisateur/" +
-                                data.slug
-                            );
-                          }}
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => setEditeData(e, data)}
                         >
                           <img src={edit} alt="" />
-                          <span> Droits</span>
+                          <span> Modifier</span>
                         </button>
                       </div>
                     )}
 
-                    {/**
-                     * <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        //onClick={(e) => setEditeData(e, data)}
-                      >
-                        <img src={edit} alt="" />
-                        <span> Voir</span>
-                      </button>
-                    </div>
-                     */}
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => setEditeData(e, data)}
-                      >
-                        <img src={edit} alt="" />
-                        <span> Modifier</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className={`btn ${
-                          data.isBlocked === 0 ? "btn-danger" : "btn-success"
-                        }`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          changeBblockStatut(data);
-                        }}
-                      >
-                        {data.isBlocked === 1 ? (
-                          <span>Débloquer</span>
-                        ) : (
-                          <span>Bloquer</span>
-                        )}
-                      </button>
-                    </div>
+                    {user.permissions?.includes("delete utilisateur") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className={`btn ${
+                            data.isBlocked === 0 ? "btn-danger" : "btn-success"
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            changeBblockStatut(data);
+                          }}
+                        >
+                          {data.isBlocked === 1 ? (
+                            <span>Débloquer</span>
+                          ) : (
+                            <span>Bloquer</span>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>

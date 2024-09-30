@@ -102,26 +102,29 @@ const Periode = () => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(request.post(endPoint.periodes + "/" + editId, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setEditId("");
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.post(endPoint.periodes + "/" + editId, data, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            setEditId("");
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
+      }
+    );
   };
 
   const onDelete = () => {
@@ -164,7 +167,12 @@ const Periode = () => {
 
   return (
     <>
-      <PageHeader title="Liste des periodes" modal="form" addModal={addModal} />
+      <PageHeader
+        title="Liste des periodes"
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create periode")}
+      />
       <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
@@ -203,19 +211,22 @@ const Periode = () => {
                         <span> Voir</span>
                       </button>
                     </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <span> Modifier</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
+                    {user.permissions?.includes("update periode") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <span> Modifier</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete periode") && (
+                      <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-danger"
                         data-bs-toggle="modal"
@@ -227,6 +238,8 @@ const Periode = () => {
                         <span> Supprimer</span>
                       </button>
                     </div>
+                    )}
+                    
                   </div>
                 </td>
               </tr>

@@ -164,7 +164,12 @@ const Classe = () => {
   };
   return (
     <>
-      <PageHeader title="Liste des classes" modal="form" addModal={addModal} />
+      <PageHeader
+        title="Liste des classes"
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create classe")}
+      />
       <div className="fw-bold">{datas.length} resultats</div>
       <Table>
         <TableHeader>
@@ -201,21 +206,27 @@ const Classe = () => {
                         <span> Voir</span>
                       </button>
                     </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          formik.setFieldValue("label", data.label);
-                          formik.setFieldValue("description", data.description);
-                          setEditId(data.slug);
-                        }}
-                      >
-                        <span> Modifier</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
+                    {user.permissions?.includes("update classe") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            formik.setFieldValue("label", data.label);
+                            formik.setFieldValue(
+                              "description",
+                              data.description
+                            );
+                            setEditId(data.slug);
+                          }}
+                        >
+                          <span> Modifier</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete classe") && (
+                      <div className="d-inline-block mx-1">
                       <button
                         className="btn btn-danger"
                         data-bs-toggle="modal"
@@ -227,6 +238,8 @@ const Classe = () => {
                         <span> Supprimer</span>
                       </button>
                     </div>
+                    )}
+                    
                   </div>
                 </td>
               </tr>

@@ -32,7 +32,7 @@ const ListEva = () => {
   const [refresh, setRefresh] = useState(0);
   const [classes, setClasses] = useState([]);
   const [matieres, setMatieres] = useState([]);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const header = {
     headers: {
       Authorization: `Bearer ${user.token}`,
@@ -42,8 +42,8 @@ const ListEva = () => {
 
   useEffect(() => {
     getAll();
-    getClasse()
-    getMatiere()
+    getClasse();
+    getMatiere();
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -69,7 +69,7 @@ const ListEva = () => {
     initialValues: initData,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      values.abreviation = values.label
+      values.abreviation = values.label;
       if (editId === "") {
         handleSubmit(values);
       } else {
@@ -137,26 +137,29 @@ const ListEva = () => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(request.post(endPoint.evaluations + "/" + editId, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setEditId("");
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.post(endPoint.evaluations + "/" + editId, data, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            setEditId("");
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
+      }
+    );
   };
 
   const onDelete = () => {
@@ -213,7 +216,7 @@ const ListEva = () => {
   };
   const goToDetail = (e, data) => {
     e.preventDefault();
-    navigate("/dashboard/evaluations/"+data+"/questions");
+    navigate("/dashboard/evaluations/" + data + "/questions");
   };
   return (
     <>
@@ -221,6 +224,7 @@ const ListEva = () => {
         title="Liste des evaluations"
         modal="form"
         addModal={addModal}
+        canCreate={user.permissions?.includes("create evaluation")}
       />
       <div className="d-flex mb-1">
         <div className="fw-bold me-auto">{datas.length} resultats</div>
@@ -253,8 +257,12 @@ const ListEva = () => {
                 </td>
 
                 <td className="fw-bold1">{data.label}</td>
-                <td className="fw-bold1">{data.matiere_de_la_classe.classe.label}</td>
-                <td className="fw-bold1">{data.matiere_de_la_classe.matiere.label}</td>
+                <td className="fw-bold1">
+                  {data.matiere_de_la_classe.classe.label}
+                </td>
+                <td className="fw-bold1">
+                  {data.matiere_de_la_classe.matiere.label}
+                </td>
                 <td className="fw-bold1">{data.date}</td>
                 <td className="fw-bold1">{data.heure_debut}</td>
                 <td className="fw-bold1">{data.heure_fin}</td>
@@ -262,40 +270,46 @@ const ListEva = () => {
                 <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        onClick={(e) => {
-                          goToDetail(e, data.slug);
-                        }}
-                      >
-                        <span>Questions</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e,data)
-                        }}
-                      >
-                        <span> Modifier</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <span> Supprimer</span>
-                      </button>
-                    </div>
+                    {user.permissions?.includes("view question") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          onClick={(e) => {
+                            goToDetail(e, data.slug);
+                          }}
+                        >
+                          <span>Questions</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("update evaluation") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <span> Modifier</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete evaluation") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            setViewData(data);
+                          }}
+                        >
+                          <span> Supprimer</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>

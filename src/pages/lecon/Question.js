@@ -131,7 +131,7 @@ const QuestionListe = ({ evaluation }) => {
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
   const [editId, setEditId] = useState("");
-  const {evaluationSlug } = useParams();
+  const { evaluationSlug } = useParams();
   const [viewData, setViewData] = useState({});
   const [refresh, setRefresh] = useState(0);
 
@@ -191,7 +191,7 @@ const QuestionListe = ({ evaluation }) => {
 
   const getAll = () => {
     request
-      .get(endPoint.questions_lecons+"/evaluation/"+evaluationSlug, header)
+      .get(endPoint.questions_lecons + "/evaluation/" + evaluationSlug, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -275,25 +275,28 @@ const QuestionListe = ({ evaluation }) => {
 
   const handleSubmitFile = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.questions_lecons_import, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.post(endPoint.questions_lecons_import, data, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
+      }
+    );
   };
   const addModal = (e) => {
     e.preventDefault();
@@ -318,17 +321,24 @@ const QuestionListe = ({ evaluation }) => {
 
   return (
     <>
-      <PageHeader title="" modal="form" addModal={addModal} />
+      <PageHeader
+        title=""
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create questionLecon")}
+      />
       <div className="mt-3 fw-bold fs-4 text-primary">Liste des questions</div>
-      <div className="d-flex align-items-center">
-        <button
-          className="btn btn-primary ms-auto"
-          data-bs-toggle="modal"
-          data-bs-target="#importFile"
-        >
-          Importer une liste
-        </button>
-      </div>
+      {user.permissions?.includes("create questionLecon") && (
+        <div className="d-flex align-items-center mb-3">
+          <button
+            className="btn btn-primary ms-auto"
+            data-bs-toggle="modal"
+            data-bs-target="#importFile"
+          >
+            Importer une liste
+          </button>
+        </div>
+      )}
 
       <Table>
         <TableHeader>
@@ -368,30 +378,34 @@ const QuestionListe = ({ evaluation }) => {
                         <i class="bi bi-eye"></i>
                       </button>
                     </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <i class="bi bi-pencil-square"></i>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
+                    {user.permissions?.includes("update questionLecon") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete questionLecon") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            setViewData(data);
+                          }}
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -504,7 +518,7 @@ const QuestionListe = ({ evaluation }) => {
                   placeholder="Intitulé de la question"
                   label={"Choisissez un fichier Excel"}
                 />
-                
+
                 <div className="d-flex justify-content-start border-0">
                   <button
                     type="reset"

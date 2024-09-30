@@ -216,7 +216,12 @@ const ListeEleve = () => {
   };
   return (
     <>
-      <PageHeader title={"Liste des élèves"} modal="form" addModal={addModal} />
+      <PageHeader
+        title={"Liste des élèves"}
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create eleve")}
+      />
       <Table>
         <TableHeader>
           <th scope="col" className="border-raduis-left">
@@ -305,34 +310,38 @@ const ListeEleve = () => {
                         <span> Voir</span>
                       </button>
                     </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => setEditeData(e, data)}
-                      >
-                        <img src={edit} alt="" />
-                        <span> Modifier</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className={`btn ${
-                          data.isBlocked === 0 ? "btn-danger" : "btn-success"
-                        }`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          changeBblockStatut(data);
-                        }}
-                      >
-                        {data.isBlocked === 1 ? (
-                          <span>Débloquer</span>
-                        ) : (
-                          <span>Bloquer</span>
-                        )}
-                      </button>
-                    </div>
+                    {user.permissions?.includes("update eleve") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => setEditeData(e, data)}
+                        >
+                          <img src={edit} alt="" />
+                          <span> Modifier</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete eleve") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className={`btn ${
+                            data.isBlocked === 0 ? "btn-danger" : "btn-success"
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            changeBblockStatut(data);
+                          }}
+                        >
+                          {data.isBlocked === 1 ? (
+                            <span>Débloquer</span>
+                          ) : (
+                            <span>Bloquer</span>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>

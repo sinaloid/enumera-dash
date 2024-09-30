@@ -271,137 +271,151 @@ const LeconDetail = () => {
                   formikCoursFile={formikCoursFile}
                   setCours={setCours}
                   file={file}
+                  user={user}
                 />
               </>
             ) : (
               <>
-                <div className="d-flex">
-                  <div className="me-auto">
-                    <InputField
-                      type={"select"}
-                      name="editorType"
-                      formik={formik}
-                      placeholder="Sélectionnez un editeur"
-                      //label={"Sélectionnez une periode"}
-                      options={[
-                        { slug: "blocknotejs", label: "BlockNoteJs" },
-                        { slug: "tinymce", label: "Tinymce" },
-                      ]}
-                      //callback={editorType}
-                    />
-                  </div>
-                  <ImportCours formikCoursFile={formikCoursFile} />
-                </div>
-                {formik.values.editorType === "blocknotejs" && (
-                  <TextEditor
-                    title={"Editeur de cours"}
-                    setValue={setCours}
-                    file={file}
-                  />
+                {user.permissions?.includes("create cours") ? (
+                  <>
+                    <div className="d-flex">
+                      <div className="me-auto">
+                        <InputField
+                          type={"select"}
+                          name="editorType"
+                          formik={formik}
+                          placeholder="Sélectionnez un editeur"
+                          //label={"Sélectionnez une periode"}
+                          options={[
+                            { slug: "blocknotejs", label: "BlockNoteJs" },
+                            { slug: "tinymce", label: "Tinymce" },
+                          ]}
+                          //callback={editorType}
+                        />
+                      </div>
+                      <ImportCours formikCoursFile={formikCoursFile} />
+                    </div>
+                    {formik.values.editorType === "blocknotejs" && (
+                      <TextEditor
+                        title={"Editeur de cours"}
+                        setValue={setCours}
+                        file={file}
+                      />
+                    )}
+                    {formik.values.editorType === "tinymce" && (
+                      <Tinymce
+                        title={"Editeur de cours"}
+                        formik={formik}
+                        setValue={setCours}
+                        file={file}
+                      />
+                    )}
+                    <div className="d-flex justify-content-center mt-3">
+                      <button
+                        className="btn btn-primary w-75"
+                        onClick={formik.handleSubmit}
+                      >
+                        Enregistrer
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="fw-bold text-danger">
+                      Vous n'avez pas les droits de création de cours
+                    </span>
+                  </>
                 )}
-                {formik.values.editorType === "tinymce" && (
-                  <Tinymce
-                    title={"Editeur de cours"}
-                    formik={formik}
-                    setValue={setCours}
-                    file={file}
-                  />
-                )}
-                <div className="d-flex justify-content-center mt-3">
-                  <button
-                    className="btn btn-primary w-75"
-                    onClick={formik.handleSubmit}
-                  >
-                    Enregistrer
-                  </button>
-                </div>
               </>
             )}
           </div>
         </div>
-        <div className="col-12 col-md-4">
-          <div className="card p-4 my-2 border">
-            <div className="fs-4 text-primary text-center mb-4">
-              Liste des resources
-            </div>
+        {(user.permissions?.includes("create cours") ||
+          user.permissions?.includes("update cours")) && (
+          <div className="col-12 col-md-4">
+            <div className="card p-4 my-2 border">
+              <div className="fs-4 text-primary text-center mb-4">
+                Liste des resources
+              </div>
 
-            <div className="text-danger mb-3 fw-bold">
-              {fileSize[formikFile.values.type]}
-            </div>
+              <div className="text-danger mb-3 fw-bold">
+                {fileSize[formikFile.values.type]}
+              </div>
 
-            <InputField
-              type="select"
-              name={"type"}
-              formik={formikFile}
-              label={"Type de fichier"}
-              placeholder={"Sélectionnez le type de fichier"}
-              options={[
-                { slug: "video", label: "Vidéos" },
-                { slug: "audio", label: "Audios" },
-                { slug: "image", label: "Images" },
-                { slug: "file", label: "Fichiers" },
-              ]}
-            />
-            <InputField
-              type="files"
-              name={"files"}
-              formik={formikFile}
-              label={"Fichier"}
-            />
-            <div className="d-flex justify-content-center">
-              <button
-                onClick={formikFile.handleSubmit}
-                className="btn btn-primary w-75"
-              >
-                Enregistrer
-              </button>
-            </div>
-            <div className="mt-5 border-top pt-1">
-              <span className="fw-bold">Liste des fichiers</span>
-              {files.map((data, idx) => {
-                return (
-                  <div
-                    className="btn-secondary border border-primary rounded-2 pe-0 my-3"
-                    key={data.slug}
-                  >
-                    <span className="text-primary fw-bold py-1 rounded">
-                      {data.type}
-                    </span>
-                    <div className="d-flex justify-content-between rounded-5">
-                      <div>
-                        <span>{data.original_name}</span> <br />
-                        <span className="fw-bold">
-                          {"Taille : " + data.taille}
-                        </span>
-                      </div>
-                      <br />
-                      <div>
-                        <span
-                          className="bg-primary text-white px-2 rounded-2 fw-bold py-1 d-inline-block ms-1 mb-2"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setFile(data);
-                          }}
-                        >
-                          <i class="bi bi-plus-circle-fill"></i>
-                        </span>
-                        <span className="bg-danger text-white px-2 rounded-2 fw-bold py-1 d-inline-block ms-1 mb-2">
-                          <i class="bi bi-trash-fill"></i>
-                        </span>
+              <InputField
+                type="select"
+                name={"type"}
+                formik={formikFile}
+                label={"Type de fichier"}
+                placeholder={"Sélectionnez le type de fichier"}
+                options={[
+                  { slug: "video", label: "Vidéos" },
+                  { slug: "audio", label: "Audios" },
+                  { slug: "image", label: "Images" },
+                  { slug: "file", label: "Fichiers" },
+                ]}
+              />
+              <InputField
+                type="files"
+                name={"files"}
+                formik={formikFile}
+                label={"Fichier"}
+              />
+              <div className="d-flex justify-content-center">
+                <button
+                  onClick={formikFile.handleSubmit}
+                  className="btn btn-primary w-75"
+                >
+                  Enregistrer
+                </button>
+              </div>
+              <div className="mt-5 border-top pt-1">
+                <span className="fw-bold">Liste des fichiers</span>
+                {files.map((data, idx) => {
+                  return (
+                    <div
+                      className="btn-secondary border border-primary rounded-2 pe-0 my-3"
+                      key={data.slug}
+                    >
+                      <span className="text-primary fw-bold py-1 rounded">
+                        {data.type}
+                      </span>
+                      <div className="d-flex justify-content-between rounded-5">
+                        <div>
+                          <span>{data.original_name}</span> <br />
+                          <span className="fw-bold">
+                            {"Taille : " + data.taille}
+                          </span>
+                        </div>
+                        <br />
+                        <div>
+                          <span
+                            className="bg-primary text-white px-2 rounded-2 fw-bold py-1 d-inline-block ms-1 mb-2"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setFile(data);
+                            }}
+                          >
+                            <i class="bi bi-plus-circle-fill"></i>
+                          </span>
+                          <span className="bg-danger text-white px-2 rounded-2 fw-bold py-1 d-inline-block ms-1 mb-2">
+                            <i class="bi bi-trash-fill"></i>
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
 };
 
-const ViewCours = ({ data, formik, formikCoursFile, setCours, file }) => {
+const ViewCours = ({ data, formik, formikCoursFile, setCours, file, user }) => {
   const [view, setView] = useState("view");
   useEffect(() => {
     formik.setFieldValue("slug", data.slug);
@@ -433,7 +447,7 @@ const ViewCours = ({ data, formik, formikCoursFile, setCours, file }) => {
       image.setAttribute("class", "w-100");
     });
 
-    console.log(videos);
+    //console.log(videos);
   };
 
   return (
@@ -459,14 +473,21 @@ const ViewCours = ({ data, formik, formikCoursFile, setCours, file }) => {
         >
           Voir
         </button>
-        <button
-          className="btn btn-outline-warning me-1"
-          onClick={(e) => changeView(e, "edit")}
-        >
-          Modifier
-        </button>
-        <button className="btn btn-outline-danger me-1">De publier</button>
-        <ImportCours formikCoursFile={formikCoursFile} />
+        {user.permissions?.includes("update cours") && (
+          <button
+            className="btn btn-outline-warning me-1"
+            onClick={(e) => changeView(e, "edit")}
+          >
+            Modifier
+          </button>
+        )}
+        {user.permissions?.includes("delete cours") && (
+          <button className="btn btn-outline-danger me-1">De publier</button>
+        )}
+
+        {user.permissions?.includes("update cours") && (
+          <ImportCours formikCoursFile={formikCoursFile} />
+        )}
       </div>
       {view === "view" && (
         <>

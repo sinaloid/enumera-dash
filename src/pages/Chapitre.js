@@ -282,7 +282,12 @@ const Chapitre = () => {
 
   return (
     <>
-      <PageHeader title="Liste des sections" modal="form" addModal={addModal} />
+      <PageHeader
+        title="Liste des sections"
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create chapitre")}
+      />
       <div className="d-flex mt-3">
         <div className="me-2">
           <InputField
@@ -306,15 +311,17 @@ const Chapitre = () => {
             callback={changeMatiere}
           />
         </div>
-        <div className="mt-2 ms-auto">
-          <button
-            className="btn btn-primary mt-4"
-            data-bs-toggle="modal"
-            data-bs-target="#import"
-          >
-            Importer une liste
-          </button>
-        </div>
+        {user.permissions?.includes("create chapitre") && (
+          <div className="mt-2 ms-auto">
+            <button
+              className="btn btn-primary mt-4"
+              data-bs-toggle="modal"
+              data-bs-target="#import"
+            >
+              Importer une liste
+            </button>
+          </div>
+        )}
       </div>
       <div className="d-flex mb-1">
         <div className="fw-bold me-auto">{datas.length} resultats</div>
@@ -367,30 +374,34 @@ const Chapitre = () => {
                         <span> Voir</span>
                       </button>
                     </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <span> Modifier</span>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <span> Supprimer</span>
-                      </button>
-                    </div>
+                    {user.permissions?.includes("update chapitre") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <span> Modifier</span>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete chapitre") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            setViewData(data);
+                          }}
+                        >
+                          <span> Supprimer</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>

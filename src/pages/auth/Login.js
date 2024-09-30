@@ -51,6 +51,13 @@ const Login = () => {
         render({ data }) {
           console.log(data);
           const res = data;
+          if (res.data.user.permissions.length === 0) {
+            return "Vous n'avez pas les droits d'accès à la plateforme";
+          }
+
+          const tabPermi = res.data.user.permissions.map((data) => {
+            return data.name;
+          });
           onUserChange({
             isAuth: true,
             is_active: res.data.user.is_active,
@@ -59,6 +66,8 @@ const Login = () => {
             slug: res.data.user.slug,
             name: res.data.user.nom + " " + res.data.user.prenom,
             token: res.data.access_token,
+            roles: res.data.user.roles[0],
+            permissions: tabPermi,
             token_refresh: null,
           });
           return res.data.message;

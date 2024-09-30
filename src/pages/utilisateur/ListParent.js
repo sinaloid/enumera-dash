@@ -11,11 +11,9 @@ import { AppContext } from "../../services/context";
 import * as Yup from "yup";
 import InputField from "../../Components/InputField";
 import { useNavigate } from "react-router-dom";
-import endPoint from "../../services/endPoint";
 const initData = {
   nom: "",
   prenom: "",
-  matricule: "",
   date_de_naissance: "",
   genre: "",
   profile: "",
@@ -23,10 +21,7 @@ const initData = {
   email: "",
   password: "",
 };
-
-const profile = "ENSEIGNANT";
-
-const ListEnseignant = ({ title }) => {
+const ListParent = ({ endPoint, profile, title }) => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
@@ -81,7 +76,7 @@ const ListEnseignant = ({ title }) => {
 
   const getAll = () => {
     request
-      .get(endPoint.utilisateurs + "/profile/" + profile, header)
+      .get(endPoint + "/profile/" + profile, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -113,29 +108,26 @@ const ListEnseignant = ({ title }) => {
     });
   };
   const handleEditSubmit = (data) => {
-    toast.promise(
-      request.post(endPoint.utilisateurs + "/" + editId, data, header),
-      {
-        pending: "Veuillez patienté...",
-        success: {
-          render({ data }) {
-            console.log(data);
-            const res = data;
-            setEditId("");
-            setRefresh(refresh + 1);
-            return res.data.message;
-          },
+    toast.promise(request.post(endPoint + "/" + editId, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setEditId("");
+          setRefresh(refresh + 1);
+          return res.data.message;
         },
-        error: {
-          render({ data }) {
-            console.log(data);
-            return data.response.data.errors
-              ? data.response.data.errors
-              : data.response.data.error;
-          },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
         },
-      }
-    );
+      },
+    });
   };
 
   const changeBblockStatut = (data) => {
@@ -165,27 +157,24 @@ const ListEnseignant = ({ title }) => {
   };
 
   const onDelete = () => {
-    toast.promise(
-      request.delete(endPoint.utilisateurs + "/" + viewData.slug, header),
-      {
-        pending: "Veuillez patienté...",
-        success: {
-          render({ data }) {
-            const res = data;
-            setRefresh(refresh + 1);
-            return res.data.message;
-          },
+    toast.promise(request.delete(endPoint + "/" + viewData.slug, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          const res = data;
+          setRefresh(refresh + 1);
+          return res.data.message;
         },
-        error: {
-          render({ data }) {
-            console.log(data);
-            return data.response.data.errors
-              ? data.response.data.errors
-              : data.response.data.error;
-          },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
         },
-      }
-    );
+      },
+    });
 
     request
       .delete(endPoint + "/" + viewData.slug, header)
@@ -222,7 +211,7 @@ const ListEnseignant = ({ title }) => {
         title={title}
         modal="form"
         addModal={addModal}
-        canCreate={user.permissions?.includes("create enseignant")}
+        canCreate={user.permissions?.includes("create parent")}
       />
       <Table>
         <TableHeader>
@@ -230,9 +219,10 @@ const ListEnseignant = ({ title }) => {
             #
           </th>
           <th scope="col">Nº matricule</th>
-          <th scope="col">Enseignant</th>
+          <th scope="col">Nom prénom</th>
+          <th scope="col">Date de naissance</th>
+          <th scope="col">Genre</th>
           <th scope="col">Contact</th>
-          <th scope="col">Classes : Matières</th>
           <th scope="col" className="text-center">
             Etat du compte
           </th>
@@ -248,41 +238,15 @@ const ListEnseignant = ({ title }) => {
                   <input type="checkbox" value="selected" />
                 </td>
                 <td>{data.matricule}</td>
-                <td>
-                  <span className="fw-bold">
-                    {data.nom + " " + data.prenom}
-                  </span>{" "}
-                  <br />
-                  <span>{data.genre === "M" ? "Homme" : "Femme"}</span> <br />
-                </td>
+                <td>{data.nom + " " + data.prenom}</td>
+                <td>{new Date(data.date_de_naissance).toLocaleDateString()}</td>
+                <td>{data.genre === "M" ? "Homme" : "Femme"}</td>
 
                 <td>
                   <div className="d-inline-block align-middle">
                     <span className="fs-14">Tél : {data.telephone}</span> <br />
                     <span className="fs-14">Email : {data.email}</span>
                   </div>
-                </td>
-                <td>
-                  {data.user_classes?.map((userclasse) => {
-                    return (
-                      <div
-                        key={userclasse.slug}
-                        className="fw-bold border border-primary my-2 p-1 rounded"
-                      >
-                        <span className="text-primary px-1 rounded">
-                          {userclasse.classe.label}
-                        </span>
-                        {" : "}
-                        {userclasse.user_classe_matieres.map((matiere) => {
-                          return (
-                            <span className="text-danger me-2 my-1  px-1 rounded">
-                              {matiere.matiere_label}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
                 </td>
                 <td className="text-center">
                   {data.isBlocked === 1 ? (
@@ -298,7 +262,7 @@ const ListEnseignant = ({ title }) => {
 
                 <td className="text-center">
                   <div className="btn-group">
-                    {user.permissions?.includes('assign permission') && (
+                    {profile !== "PARENT" && (
                       <div className="d-inline-block mx-1">
                         <button
                           className="btn btn-primary-light"
@@ -315,20 +279,8 @@ const ListEnseignant = ({ title }) => {
                         </button>
                       </div>
                     )}
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/dashboard/enseignants/" + data.slug);
-                        }}
-                      >
-                        <img src={edit} alt="" />
-                        <span> Voir</span>
-                      </button>
-                    </div>
 
-                    {user.permissions?.includes("update enseignant") && (
+                    {user.permissions?.includes("update parent") && (
                       <div className="d-inline-block mx-1">
                         <button
                           className="btn btn-primary-light"
@@ -341,7 +293,8 @@ const ListEnseignant = ({ title }) => {
                         </button>
                       </div>
                     )}
-                    {user.permissions?.includes("update enseignant") && (
+
+                    {user.permissions?.includes("delete parent") && (
                       <div className="d-inline-block mx-1">
                         <button
                           className={`btn ${
@@ -541,4 +494,4 @@ const ListEnseignant = ({ title }) => {
   );
 };
 
-export default ListEnseignant;
+export default ListParent;

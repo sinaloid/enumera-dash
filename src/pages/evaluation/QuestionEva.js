@@ -112,9 +112,7 @@ const QuestionEva = () => {
             <span className="d-inline-block">{evaluation.heure_debut}</span>
           </div>
           <div className="me-3">
-            <span className="fw-bold d-inline-block me-2">
-              Heure de fin :{" "}
-            </span>
+            <span className="fw-bold d-inline-block me-2">Heure de fin : </span>
             <span className="d-inline-block">{evaluation.heure_fin}</span>
           </div>
         </div>
@@ -143,7 +141,7 @@ const QuestionListe = ({ evaluation }) => {
   const [editId, setEditId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
-  const {slug} = useParams()
+  const { slug } = useParams();
   const [refresh, setRefresh] = useState(0);
   const navigate = useNavigate();
 
@@ -203,7 +201,7 @@ const QuestionListe = ({ evaluation }) => {
 
   const getAll = () => {
     request
-      .get(endPoint.questions+"/evaluation/"+slug, header)
+      .get(endPoint.questions + "/evaluation/" + slug, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -287,28 +285,25 @@ const QuestionListe = ({ evaluation }) => {
 
   const handleSubmitFile = (data) => {
     //setShowModal(true)
-    toast.promise(
-      request.post(endPoint.questions_import, data, header),
-      {
-        pending: "Veuillez patienté...",
-        success: {
-          render({ data }) {
-            console.log(data);
-            const res = data;
-            setRefresh(refresh + 1);
-            return res.data.message;
-          },
+    toast.promise(request.post(endPoint.questions_import, data, header), {
+      pending: "Veuillez patienté...",
+      success: {
+        render({ data }) {
+          console.log(data);
+          const res = data;
+          setRefresh(refresh + 1);
+          return res.data.message;
         },
-        error: {
-          render({ data }) {
-            console.log(data);
-            return data.response.data.errors
-              ? data.response.data.errors
-              : data.response.data.error;
-          },
+      },
+      error: {
+        render({ data }) {
+          console.log(data);
+          return data.response.data.errors
+            ? data.response.data.errors
+            : data.response.data.error;
         },
-      }
-    );
+      },
+    });
   };
   const addModal = (e) => {
     e.preventDefault();
@@ -333,17 +328,24 @@ const QuestionListe = ({ evaluation }) => {
 
   return (
     <>
-      <PageHeader title="" modal="form" addModal={addModal} />
+      <PageHeader
+        title=""
+        modal="form"
+        addModal={addModal}
+        canCreate={user.permissions?.includes("create question")}
+      />
       <div className="mt-3 fw-bold fs-4 text-primary">Liste des questions</div>
-      <div className="d-flex align-items-center">
-        <button
-          className="btn btn-primary ms-auto"
-          data-bs-toggle="modal"
-          data-bs-target="#importFile"
-        >
-          Importer une liste
-        </button>
-      </div>
+      {user.permissions?.includes("create question") && (
+        <div className="d-flex align-items-center mb-3">
+          <button
+            className="btn btn-primary ms-auto"
+            data-bs-toggle="modal"
+            data-bs-target="#importFile"
+          >
+            Importer une liste
+          </button>
+        </div>
+      )}
 
       <Table>
         <TableHeader>
@@ -383,30 +385,34 @@ const QuestionListe = ({ evaluation }) => {
                         <i class="bi bi-eye"></i>
                       </button>
                     </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#form"
-                        onClick={(e) => {
-                          setEditeData(e, data);
-                        }}
-                      >
-                        <i class="bi bi-pencil-square"></i>
-                      </button>
-                    </div>
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
+                    {user.permissions?.includes("update question") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          data-bs-toggle="modal"
+                          data-bs-target="#form"
+                          onClick={(e) => {
+                            setEditeData(e, data);
+                          }}
+                        >
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                      </div>
+                    )}
+                    {user.permissions?.includes("delete question") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            setViewData(data);
+                          }}
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>

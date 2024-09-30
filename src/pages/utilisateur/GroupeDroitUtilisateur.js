@@ -57,11 +57,13 @@ const GroupeDroitUtilisateur = () => {
         //setLecon(res.data.data);
         setUtilisateur(res.data.data);
         //setSelectedPermissions(res.data.data.permissions);
-        if(res.data.data.roles.length !== 0){
-          setPermissionList(res.data.data.roles[0].permissions)
-          const tabPermi = res.data.data.permissions?.map((permission) => permission.name);
+        if (res.data.data.roles.length !== 0) {
+          setPermissionList(res.data.data.roles[0].permissions);
+          const tabPermi = res.data.data.permissions?.map(
+            (permission) => permission.name
+          );
           setUserPermissions(tabPermi);
-          console.log(tabPermi)
+          console.log(tabPermi);
         }
 
         console.log(res.data);
@@ -160,13 +162,15 @@ const GroupeDroitUtilisateur = () => {
                 </>
               )}
             </span>
-            <button
-              data-bs-toggle="modal"
-              data-bs-target="#roleForm"
-              className="ms-auto btn-sm btn-primary"
-            >
-              Modifier le groupe
-            </button>
+            {user.permissions?.includes("assign role") && (
+              <button
+                data-bs-toggle="modal"
+                data-bs-target="#roleForm"
+                className="ms-auto btn-sm btn-primary"
+              >
+                Modifier le groupe
+              </button>
+            )}
           </div>
         </div>
 
@@ -249,7 +253,8 @@ const DroitListe = ({ permissionList, userPermissions }) => {
   const [viewData, setViewData] = useState({});
   const { slug } = useParams();
   const [refresh, setRefresh] = useState(0);
-  const [selectedPermissionNames, setSelectedPermissionNames] = useState(userPermissions);
+  const [selectedPermissionNames, setSelectedPermissionNames] =
+    useState(userPermissions);
   const header = {
     headers: {
       Authorization: `Bearer ${user.token}`,
@@ -258,10 +263,10 @@ const DroitListe = ({ permissionList, userPermissions }) => {
   };
 
   useEffect(() => {
-    setSelectedPermissionNames(userPermissions)
-  },[userPermissions])
+    setSelectedPermissionNames(userPermissions);
+  }, [userPermissions]);
 
-  const formik = useFormik({ 
+  const formik = useFormik({
     initialValues: initQuest,
     //validationSchema: validateData,
     onSubmit: (values) => {
