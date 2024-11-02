@@ -227,6 +227,9 @@ const Utilisateur = ({ endPoint, profile, title }) => {
         </TableHeader>
         <TableContent>
           {datas.map((data, idx) => {
+            if(data.email.includes("super.admin")){
+              return null
+            }
             return (
               <tr key={idx}>
                 <td>

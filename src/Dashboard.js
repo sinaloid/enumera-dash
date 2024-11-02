@@ -28,6 +28,7 @@ import GroupeDroitUtilisateur from "./pages/utilisateur/GroupeDroitUtilisateur";
 import UAdmin from "./pages/UAdmin";
 import DroitAcces from "./pages/DroitAcces";
 import Parametre from "./pages/Parametre";
+import { MonCompte } from "./pages/MonCompte";
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
   const { user, onUserChange } = authCtx;
@@ -98,6 +99,11 @@ const Dashboard = () => {
       droit: "view utilisateur",
       url: "/dashboard/utilisateurs",
       display_name: "Utilisateurs",
+    },
+    {
+      droit: "view parametre",
+      url: "/dashboard/user-compte",
+      display_name: "Mon compte",
     },
     {
       droit: "view parametre",
@@ -244,6 +250,7 @@ const Dashboard = () => {
               <Route path="/enseignants/*" element={<Enseignant />} />
               <Route path="/parents" element={<Parent />} />
               <Route path="/u-admin" element={<UAdmin />} />
+              <Route path="/user-compte" element={<MonCompte />} />
               <Route path="/parametres" element={<Parametre />} />
               <Route path="/utilisateurs" element={<DroitAcces />} />
               <Route

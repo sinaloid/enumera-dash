@@ -22,7 +22,7 @@ const initData = {
   lecon: "",
   description: "",
 };
-const QuestionEva = () => {
+const ReponseLeconEleve = () => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [lecon, setLecon] = useState({});
@@ -41,7 +41,7 @@ const QuestionEva = () => {
   };
 
   useEffect(() => {
-    //get();
+    get();
     getEvaluation();
   }, [refresh]);
 
@@ -59,7 +59,7 @@ const QuestionEva = () => {
 
   const getEvaluation = () => {
     request
-      .get(endPoint.evaluations + "/" + slug, header)
+      .get(endPoint.evaluations_lecons + "/" + evaluationSlug, header)
       .then((res) => {
         setEvaluation(res.data.data);
         //console.log(res.data.data);
@@ -89,32 +89,24 @@ const QuestionEva = () => {
           <span className=" d-inline-block fs-1">{evaluation.label}</span>
         </div>
         <div>
-          <span className="fw-bold d-inline-block me-2">Classe : </span>
-          <span className="d-inline-block">
-            {evaluation?.matiere_de_la_classe?.classe?.label}
-          </span>
+          <span className="fw-bold d-inline-block me-2">leçon : </span>
+          <span className="d-inline-block">{lecon.label}</span>
         </div>
         <div>
-          <span className="fw-bold d-inline-block me-2">Matière : </span>
-          <span className="d-inline-block">
-            {evaluation?.matiere_de_la_classe?.matiere?.label}
-          </span>
+          <span className="fw-bold d-inline-block me-2">Chapitre : </span>
+          <span className="d-inline-block">{lecon.chapitre?.label}</span>
         </div>
-        <div className="d-flex">
-          <div className="me-3">
-            <span className="fw-bold d-inline-block me-2">Date : </span>
-            <span className="d-inline-block">{evaluation.date}</span>
-          </div>
-          <div className="me-3">
-            <span className="fw-bold d-inline-block me-2">
-              Heure de début :{" "}
-            </span>
-            <span className="d-inline-block">{evaluation.heure_debut}</span>
-          </div>
-          <div className="me-3">
-            <span className="fw-bold d-inline-block me-2">Heure de fin : </span>
-            <span className="d-inline-block">{evaluation.heure_fin}</span>
-          </div>
+        <div>
+          <span className="fw-bold d-inline-block me-2">
+            Matière/Classe/Periode :{" "}
+          </span>
+          <span className="d-inline-block">
+            {lecon.chapitre?.matiere_de_la_classe?.matiere?.abreviation +
+              "/" +
+              lecon.chapitre?.matiere_de_la_classe?.classe?.label +
+              "/" +
+              lecon.chapitre?.periode?.abreviation}
+          </span>
         </div>
         <div>
           <span className="fw-bold d-inline-block me-2">Type de correction : </span>
@@ -124,10 +116,10 @@ const QuestionEva = () => {
         </div>
         <div>
           <span className="fw-bold d-inline-block me-2">Description : </span>
-          <span className="d-inline-block">{evaluation.description}</span>
+          <span className="d-inline-block">{lecon.description}</span>
         </div>
       </div>
-      <QuestionListe evaluation={evaluationSlug} />
+      <ReponseListe evaluation={evaluationSlug} />
     </>
   );
 };
@@ -140,16 +132,17 @@ const initQuest = {
   evaluation_lecon: "",
   type: "",
 };
-const QuestionListe = ({ evaluation }) => {
+const ReponseListe = ({ evaluation }) => {
   const authCtx = useContext(AppContext);
   const { user } = authCtx;
   const [datas, setDatas] = useState([]);
   const [editId, setEditId] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  const { evaluationSlug } = useParams();
   const [viewData, setViewData] = useState({});
-  const { slug } = useParams();
+  const [viewQuestion, setViewQuestion] = useState({});
   const [refresh, setRefresh] = useState(0);
-  const navigate = useNavigate();
+  const [view, setView] = useState("liste");
+  const [correctionMode, setCorrectionMode] = useState(false);
 
   const header = {
     headers: {
@@ -185,14 +178,26 @@ const QuestionListe = ({ evaluation }) => {
     initialValues: initQuest,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      values.evaluation = slug;
-      console.log(values);
-      if (editId === "") {
-        handleSubmit(values);
+      //values.evaluation_lecon = evaluation;
+      const tab = viewData.user_response.map((data) => {
+        data.commentaire = values["commentaire" + data.slug] ? values["commentaire" + data.slug] : data.commentaire
+        data.user_point = values["point" + data.slug] ? values["point" + data.slug] : data.user_point
+        //const user_response = JSON.parse(data.user_response);
+        return data
+      })
+
+      handleEditSubmit({
+        _method: "put",
+        slug_res_lecons_eleves: viewData.slug,
+        user_response: tab
+      });
+
+      /*if (editId === "") {
+        //handleSubmit(values);
       } else {
         values._method = "put";
         handleEditSubmit(values);
-      }
+      }*/
     },
   });
 
@@ -200,14 +205,15 @@ const QuestionListe = ({ evaluation }) => {
     initialValues: initQuest,
     //validationSchema: validateData,
     onSubmit: (values) => {
-      values.evaluation = slug;
+      values.evaluation_lecon = evaluation;
       handleSubmitFile(values);
     },
   });
 
   const getAll = () => {
     request
-      .get(endPoint.questions + "/evaluation/" + slug, header)
+      //.get(endPoint.res_lecons_eleves + "/evaluation/" + evaluationSlug, header)
+      .get(endPoint.res_lecons_eleves, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
@@ -217,37 +223,17 @@ const QuestionListe = ({ evaluation }) => {
       });
   };
 
-  const handleSubmit = (data) => {
-    //setShowModal(true)
-    toast.promise(request.post(endPoint.questions, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
-        },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
-        },
-      },
-    });
-  };
+  
   const handleEditSubmit = (data) => {
+    console.log(data)
     toast.promise(
-      request.post(endPoint.questions + "/" + editId, data, header),
+      request.post(endPoint.res_lecons_eleves + "/" + data.slug_res_lecons_eleves, data, header),
       {
         pending: "Veuillez patienté...",
         success: {
           render({ data }) {
-            console.log(data);
             const res = data;
+            setView("liste");
             setEditId("");
             setRefresh(refresh + 1);
             return res.data.message;
@@ -267,7 +253,7 @@ const QuestionListe = ({ evaluation }) => {
 
   const onDelete = () => {
     toast.promise(
-      request.delete(endPoint.questions + "/" + viewData.slug, header),
+      request.delete(endPoint.res_lecons_eleves + "/" + viewData.slug, header),
       {
         pending: "Veuillez patienté...",
         success: {
@@ -291,141 +277,225 @@ const QuestionListe = ({ evaluation }) => {
 
   const handleSubmitFile = (data) => {
     //setShowModal(true)
-    toast.promise(request.post(endPoint.questions_import, data, header), {
-      pending: "Veuillez patienté...",
-      success: {
-        render({ data }) {
-          console.log(data);
-          const res = data;
-          setRefresh(refresh + 1);
-          return res.data.message;
+    toast.promise(
+      request.post(endPoint.questions_lecons_import, data, header),
+      {
+        pending: "Veuillez patienté...",
+        success: {
+          render({ data }) {
+            console.log(data);
+            const res = data;
+            setRefresh(refresh + 1);
+            return res.data.message;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          console.log(data);
-          return data.response.data.errors
-            ? data.response.data.errors
-            : data.response.data.error;
+        error: {
+          render({ data }) {
+            console.log(data);
+            return data.response.data.errors
+              ? data.response.data.errors
+              : data.response.data.error;
+          },
         },
-      },
-    });
-  };
-  const addModal = (e) => {
-    e.preventDefault();
-    setEditId("");
-    formik.resetForm();
-  };
-  const setEditeData = (e, data) => {
-    e.preventDefault();
-    console.log(data);
-    setEditId(data.slug);
-
-    formik.setFieldValue("question", data.question);
-    formik.setFieldValue("type", data.type);
-    formik.setFieldValue("choix", data.choix);
-    formik.setFieldValue("point", data.point);
-    formik.setFieldValue("reponses", data.reponses);
+      }
+    );
   };
 
-  const getQuestionList = (text) => {
-    return text && text.split(";");
-  };
+  const getUserDetailNote = (e,data) => {
+    e.preventDefault()
+    //console.log(data.user_response);
+    //console.log(JSON.parse(data.user_response));
+    setView("detail");
+    data.user_response = JSON.parse(
+      data.user_response
+    );
+    setViewData(data);
+    formik.resetForm()
+  }
 
   return (
     <>
-      <PageHeader
-        title=""
-        modal="form"
-        addModal={addModal}
-        canCreate={user.permissions?.includes("create question")}
-      />
-      <div className="mt-3 fw-bold fs-4 text-primary">Liste des questions</div>
-      {user.permissions?.includes("create question") && (
-        <div className="d-flex align-items-center mb-3">
-          <button
-            className="btn btn-primary ms-auto"
-            data-bs-toggle="modal"
-            data-bs-target="#importFile"
-          >
-            Importer une liste
-          </button>
-        </div>
-      )}
+      {view === "liste" ? (
+        <>
+          <PageHeader title="" />
+          <div className="my-3 fw-bold fs-4 text-primary">
+            Liste des réponses des élèves
+          </div>
 
-      <Table>
-        <TableHeader>
-          <th scope="col" className="border-raduis-left">
-            #
-          </th>
-          <th scope="col">Question</th>
-          <th scope="col">type</th>
-          <th scope="col">Description</th>
-          <th scope="col" className="text-center">
-            Actions
-          </th>
-        </TableHeader>
-        <TableContent>
-          {datas.map((data, idx) => {
-            return (
-              <tr key={idx}>
-                <td>
-                  <input type="checkbox" value="selected" />
-                </td>
+          <Table>
+            <TableHeader>
+              <th scope="col" className="border-raduis-left">
+                #
+              </th>
+              <th scope="col">Nom Prénom</th>
+              <th scope="col">Note</th>
+              <th scope="col">Date</th>
+              <th scope="col" className="text-center">
+                Actions
+              </th>
+            </TableHeader>
+            <TableContent>
+              {datas.map((data, idx) => {
+                return (
+                  <tr key={idx}>
+                    <td>
+                      <input type="checkbox" value="selected" />
+                    </td>
 
-                <td className="fw-bold1">{data.question}</td>
-                <td className="fw-bold1">{data.type}</td>
+                    <td className="fw-bold1">
+                      {data.user?.nom + " " + data.user?.prenom}
+                    </td>
+                    <td className="fw-bold1">{data.point_obtenu}</td>
 
-                <td className="fw-bold1">{data.description}</td>
-                <td className="text-center">
-                  <div className="btn-group">
-                    <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-primary-light"
-                        data-bs-toggle="modal"
-                        data-bs-target="#view"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <i class="bi bi-eye"></i>
-                      </button>
+                    <td className="fw-bold1">
+                      {new Date(data.created_at).toLocaleString()}
+                    </td>
+                    <td className="text-center">
+                      <div className="btn-group">
+                        <div className="d-inline-block mx-1">
+                          <button
+                            className="btn btn-primary-light"
+                            onClick={e => getUserDetailNote(e,data)}
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                        </div>
+
+                        {user.permissions?.includes("delete questionLecon") && (
+                          <div className="d-inline-block mx-1">
+                            <button
+                              className="btn btn-danger"
+                              data-bs-toggle="modal"
+                              data-bs-target="#delete"
+                              onClick={(e) => {
+                                setViewData(data);
+                              }}
+                            >
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </TableContent>
+          </Table>
+        </>
+      ) : (
+        <>
+          <PageHeader title="" />
+          <div className="d-flex my-3 fw-bold align-items-center">
+            <div className="fs-4">
+              <span>Réponse de : </span>{" "}
+              <span className="text-danger">
+                {viewData?.user?.nom + " " + viewData?.user?.prenom}
+              </span>{" "}
+              <br />
+              <span>Point obtenu : </span>{" "}
+              <span className="text-primary">{viewData?.point_obtenu}</span>
+            </div>
+            <div className="ms-auto">
+              <button
+                className="btn-sm btn-primary rounded"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setView("liste");
+                }}
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+          <div className="card border p-4">
+            {viewData?.user_response?.map((data, idx) => {
+              //formik.setFieldValue("point"+data.slug,data?.user_point)
+              //formik.setFieldValue("commentaire"+data.slug,data?.user_point)
+              return (
+                <div className="border-bottom mb-3 pb-3" key={data.slug}>
+
+                  <div className="d-flex">
+                    <div className="w-50">
+                      <div>
+                        <span className="fw-bold">Question : </span> <br />
+                        <div className="ps-3">{data.question}</div>
+                      </div>
+                      <div>
+                        <span className="fw-bold">Type : </span> <br />
+                        <div className="ps-3">{data.type}</div>
+                      </div>
+                      <div>
+                        <span className="fw-bold">Choix : </span> <br />
+                        <div className="ps-3">
+                          {data.choix.map((item, idx) => {
+                            const inclus = data?.user_reponse.join(";").includes(idx + 1)
+                            return (
+                              <div key={"choix" + idx} className={inclus ? "text-success" : ""}>
+                                {idx + 1} - {item}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="fw-bold">Réponses : </span> <br />
+                        <span>{data.reponses}</span>
+                      </div>
+                      <div className="text-danger fw-bold">
+                        <span className="fw-bold d-inline-block me-2">
+                          Reponse de l'élève :{" "}
+                        </span>
+                        <span className="d-inline-block">
+                          {data?.user_reponse.join(" et ")}
+                        </span>
+                      </div>
                     </div>
-                    {user.permissions?.includes("update question") && (
+                    <div className="w-50">
+                      <InputField
+                        type={"text"}
+                        name={"point" + data.slug}
+                        formik={formik}
+                        placeholder="Point obtenu par l'élève"
+                        label={"Point obtenu"}
+                      />
+                      <InputField
+                        type={"textaera"}
+                        name={"commentaire" + data.slug}
+                        formik={formik}
+                        placeholder="Commentaire"
+                        label={"Commentaire"}
+                      />
+                      <div className="fw-bold">
+                        <span>Point de l'élève :</span>
+                        <span className="text-danger"> {data?.user_point} pts</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="d-flex justify-content-end">
+                    <div className="btn-group">
                       <div className="d-inline-block mx-1">
                         <button
                           className="btn btn-primary-light"
-                          data-bs-toggle="modal"
-                          data-bs-target="#form"
-                          onClick={(e) => {
-                            setEditeData(e, data);
-                          }}
+                          onClick={formik.submitForm}
                         >
-                          <i class="bi bi-pencil-square"></i>
+                          Enregistrer
                         </button>
                       </div>
-                    )}
-                    {user.permissions?.includes("delete question") && (
-                      <div className="d-inline-block mx-1">
-                        <button
-                          className="btn btn-danger"
-                          data-bs-toggle="modal"
-                          data-bs-target="#delete"
-                          onClick={(e) => {
-                            setViewData(data);
-                          }}
-                        >
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </div>
-                    )}
+                    </div>
                   </div>
-                </td>
-              </tr>
-            );
-          })}
-        </TableContent>
-      </Table>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="d-flex mt-3">
+            <button onClick={formik.submitForm} className="btn btn-primary w-75 mx-auto">
+              Enregistrer
+            </button>
+          </div>
+        </>
+      )}
       <div className="modal fade" id="form">
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content">
@@ -570,18 +640,18 @@ const QuestionListe = ({ evaluation }) => {
             <div className="modal-body">
               <div>
                 <span className="fw-bold d-inline-block me-2">Question : </span>
-                <span className="d-inline-block">{viewData.question}</span>
+                <span className="d-inline-block">{viewQuestion.question}</span>
               </div>
               <div>
                 <span className="fw-bold d-inline-block me-2">Type : </span>
-                <span className="d-inline-block">{viewData.type}</span>
+                <span className="d-inline-block">{viewQuestion.type}</span>
               </div>
               <div>
                 <div>
                   <span className="fw-bold d-inline-block me-2">Choix : </span>
                 </div>
                 <div className="d-inline-block ps-4">
-                  {getQuestionList(viewData.choix)?.map((data, idx) => {
+                  {viewQuestion?.choix?.map((data, idx) => {
                     return (
                       <div key={idx}>
                         {idx + 1} - {data}
@@ -590,14 +660,66 @@ const QuestionListe = ({ evaluation }) => {
                   })}
                 </div>
               </div>
-              <div>
-                <span className="fw-bold d-inline-block me-2">Reponses : </span>
-                <span className="d-inline-block">{viewData.reponses}</span>
+              <div className="text-success">
+                <span className="fw-bold d-inline-block me-2">
+                  Reponse de la question :{" "}
+                </span>
+                <span className="d-inline-block  fw-bold">
+                  {viewQuestion.reponses}
+                </span>
               </div>
+              <div className="text-danger fw-bold">
+                <span className="fw-bold d-inline-block me-2">
+                  Reponse de l'élève :{" "}
+                </span>
+                <span className="d-inline-block">
+                  {viewQuestion?.user_reponse?.join(";")}
+                </span>
+              </div>
+              {correctionMode && (
+                <>
+                  <hr />
+
+                  <InputField
+                    type={"text"}
+                    name="point"
+                    formik={formik}
+                    placeholder="Point obtenu par l'élève"
+                    label={"Point obtenu"}
+                  />
+                  <InputField
+                    type={"textaera"}
+                    name="commentaire"
+                    formik={formik}
+                    placeholder="Commentaire"
+                    label={"Commentaire"}
+                  />
+                </>
+              )}
+
               <div className="mt-4 d-flex justify-content-end">
-                <button className="btn btn-primary" data-bs-dismiss="modal">
-                  Fermer
-                </button>
+                {correctionMode ? (
+                  <>
+                    <button
+                      className="btn btn-primary-light me-2"
+                      data-bs-dismiss="modal"
+                    >
+                      Fermer
+                    </button>
+                    <button className="btn btn-primary" data-bs-dismiss="modal">
+                      Enregistrer
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="btn btn-primary me-2"
+                      data-bs-dismiss="modal"
+                    >
+                      Fermer
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -640,4 +762,4 @@ const QuestionListe = ({ evaluation }) => {
   );
 };
 
-export default QuestionEva;
+export default ReponseLeconEleve;

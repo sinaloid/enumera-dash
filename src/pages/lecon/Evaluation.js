@@ -19,6 +19,7 @@ import Retour from "../../Components/Retour";
 const initData = {
   label: "",
   abreviation: "",
+  type_de_correction:"",
   type: "pdf",
   lecon: "",
   description: "",
@@ -404,6 +405,7 @@ const EvaluationListe = ({ lecon }) => {
           </th>
           <th scope="col">Evaluation</th>
           <th scope="col">Abreviation</th>
+          <th scope="col">Type de correction</th>
           <th scope="col">Description</th>
           <th scope="col" className="text-center">
             Actions
@@ -419,10 +421,25 @@ const EvaluationListe = ({ lecon }) => {
 
                 <td className="fw-bold1">{data.label}</td>
                 <td className="fw-bold1">{data.abreviation}</td>
+                <td className="fw-bold text-danger">{data.type_de_correction}</td>
 
                 <td className="fw-bold1">{data.description}</td>
                 <td className="text-center">
                   <div className="btn-group">
+                  {user.permissions?.includes("view questionLecon") && (
+                      <div className="d-inline-block mx-1">
+                        <button
+                          className="btn btn-primary-light"
+                          //data-bs-toggle="modal"
+                          //data-bs-target="#view"
+                          onClick={(e) => {
+                            goToDetail(e, data.slug+"/reponses");
+                          }}
+                        >
+                          <span>Réponses</span>
+                        </button>
+                      </div>
+                    )}
                     {user.permissions?.includes("view questionLecon") && (
                       <div className="d-inline-block mx-1">
                         <button
@@ -503,6 +520,23 @@ const EvaluationListe = ({ lecon }) => {
                   formik={formik}
                   placeholder="Abreviation de l'intitulé"
                   label={"Abreviation"}
+                />
+                <InputField
+                  type={"select"}
+                  name="type_de_correction"
+                  formik={formik}
+                  placeholder="Sélectionnez le type correction"
+                  label={"Type de correction"}
+                  options={[
+                    {
+                      label:"Correction automatique", value:"Correction automatique",
+                      
+                    },
+                    {
+                      label:"Correction manuelle", value:"Correction manuelle",
+                      
+                    },
+                  ]}
                 />
                 <InputField
                   type={"textaera"}

@@ -164,7 +164,6 @@ const DroitListe = ({ evaluation, permissions }) => {
     },
   });
 
-
   const getAll = () => {
     request
       .get(endPoint.permissions, header)
@@ -253,10 +252,24 @@ const DroitListe = ({ evaluation, permissions }) => {
     }
   };
 
+  const setAllPermission = (e) => {
+    if (selectedPermissionNames.length === datas.length) {
+      setSelectedPermissionNames([]);
+    } else {
+      const tabPermi = datas?.map((permission) => permission.name);
+      setSelectedPermissionNames(tabPermi);
+    }
+  };
+
   return (
     <>
       <PageHeader title="Liste des droits" modal="form" addModal={addModal} />
       <div className="mt-3 fw-bold fs-4 text-primary">Liste des droits</div>
+      <div className="mb-2">
+        <button className="btn-sm btn-primary" onClick={setAllPermission}>
+          Tout sélectionné
+        </button>
+      </div>
       <div className="d-flex align-items-center">
         {/**
          * <button

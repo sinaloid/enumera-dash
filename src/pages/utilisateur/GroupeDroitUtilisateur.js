@@ -77,16 +77,14 @@ const GroupeDroitUtilisateur = () => {
     request
       .get(endPoint.roles, header)
       .then((res) => {
-        //setLecon(res.data.data);
-        const tab = res.data.map((data) => {
-          return {
-            ...data,
-            label: data.display_name,
-          };
+        const tab = res.data.filter((data) => {
+          data.label = data.display_name
+          if(data.name === "super-admin"){
+            return null
+          }
+          return data
         });
         setRoles(tab);
-        //setSelectedPermissions(res.data.data.permissions);
-        console.log(tab);
       })
       .catch((error) => {
         console.log(error);
@@ -339,10 +337,24 @@ const DroitListe = ({ permissionList, userPermissions }) => {
     }
   };
 
+  const setAllPermission = (e) => {
+    if (selectedPermissionNames.length === permissionList.length) {
+      setSelectedPermissionNames([]);
+    } else {
+      const tabPermi = permissionList?.map((permission) => permission.name);
+      setSelectedPermissionNames(tabPermi);
+    }
+  };
+
   return (
     <>
       <PageHeader title="" modal="form" addModal={addModal} />
       <div className="mt-3 fw-bold fs-4 text-primary">Liste des droits</div>
+      <div className="mb-2">
+        <button className="btn-sm btn-primary" onClick={setAllPermission}>
+          Tout sélectionné
+        </button>
+      </div>
       <div className="d-flex align-items-center">
         {/**
          * <button

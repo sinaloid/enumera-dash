@@ -109,6 +109,12 @@ const Question = () => {
           </span>
         </div>
         <div>
+          <span className="fw-bold d-inline-block me-2">Type de correction : </span>
+          <span className="d-inline-block fw-bold text-danger">
+            {evaluation?.type_de_correction}
+          </span>
+        </div>
+        <div>
           <span className="fw-bold d-inline-block me-2">Description : </span>
           <span className="d-inline-block">{lecon.description}</span>
         </div>

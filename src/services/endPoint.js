@@ -11,6 +11,7 @@ const endPoint = {
 
   lecons: "lecons",
   evaluations_lecons: "evaluations-lecons",
+  res_lecons_eleves:"res-lecons-eleves",
   questions_lecons: "questions-lecons",
   questions_lecons_import: "questions-lecons-import",
   questions_import: "questions-import",

@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 const initData = {
   label: "",
   abreviation: "",
+  type_de_correction:"",
   date: "",
   heure_debut: "",
   heure_fin: "",
@@ -207,6 +208,7 @@ const ListEva = () => {
     setEditId(data.slug);
     formik.setFieldValue("label", data.label);
     formik.setFieldValue("abreviation", data.abreviation);
+    formik.setFieldValue("type_de_correction", data.type_de_correction);
     formik.setFieldValue("description", data.description);
     formik.setFieldValue("date", data.date);
     formik.setFieldValue("heure_debut", data.heure_debut);
@@ -243,7 +245,7 @@ const ListEva = () => {
           <th scope="col">Heure de début</th>
           <th scope="col">Heure de fin</th>
           <th scope="col">Etat</th>
-          <th scope="col">Description</th>
+          <th scope="col">Type de correction</th>
           <th scope="col" className="text-center">
             Actions
           </th>
@@ -267,7 +269,7 @@ const ListEva = () => {
                 <td className="fw-bold1">{data.heure_debut}</td>
                 <td className="fw-bold1">{data.heure_fin}</td>
                 <td className="fw-bold1">{data.etat}</td>
-                <td className="fw-bold1">{data.description}</td>
+                <td className="fw-bold text-danger">{data.type_de_correction}</td>
                 <td className="text-center">
                   <div className="btn-group">
                     {user.permissions?.includes("view question") && (
@@ -341,6 +343,23 @@ const ListEva = () => {
                   formik={formik}
                   placeholder="Intitulé de l'évaluation"
                   label={"Intitulé"}
+                />
+                <InputField
+                  type={"select"}
+                  name="type_de_correction"
+                  formik={formik}
+                  placeholder="Sélectionnez le type correction"
+                  label={"Type de correction"}
+                  options={[
+                    {
+                      label:"Correction automatique", value:"Correction automatique",
+                      
+                    },
+                    {
+                      label:"Correction manuelle", value:"Correction manuelle",
+                      
+                    },
+                  ]}
                 />
                 <InputField
                   type={"date"}
