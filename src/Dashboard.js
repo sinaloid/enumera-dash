@@ -102,11 +102,6 @@ const Dashboard = () => {
     },
     {
       droit: "view parametre",
-      url: "/dashboard/user-compte",
-      display_name: "Mon compte",
-    },
-    {
-      droit: "view parametre",
       url: "/dashboard/parametres",
       display_name: "Paremètres",
     },
@@ -215,7 +210,29 @@ const Dashboard = () => {
                   );
                 })}
               </ul>
+
               <ul className="nav flex-column w-100 position-absolute1 bottom-0 mb-2">
+                <li className="nav-item my-1 px-2">
+                  <NavLink
+                    to={"/dashboard/user-compte"}
+                    className={({ isActive }) =>
+                      isActive
+                        ? "nav-link active btn btn-primary border rounded-2 mx-auto py-0 text-start pt-1"
+                        : "btn nav-link border-0 py-0 btn-secondary text-start pt-1"
+                    }
+                  >
+                    <span className="d-none d-md-block d-lg-none wd-0">
+                      <img src={agenda} alt="" />
+                    </span>
+                    <span
+                      className="d-block d-md-none d-lg-block wd-80 p-0 m-0"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#sidebarMenu.show"
+                    >
+                      {"Mon compte"}
+                    </span>
+                  </NavLink>
+                </li>
                 <li className="nav-item my-1 px-2">
                   <span
                     className="btn nav-link border-0 py-0 btn-danger text-start pt-1"
