@@ -21,7 +21,7 @@ const DroitAcces = () => {
       display_name: "Droits d'accès",
     },
     {
-      name: "view role",
+      name: "assign role",
       url: "/dashboard/groupes-utilisateurs",
       display_name: "Groupes d'utilisateurs",
     },

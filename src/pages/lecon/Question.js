@@ -452,7 +452,10 @@ const QuestionListe = ({ evaluation }) => {
                   label={"Type de question"}
                   options={[
                     { slug: "CHOIX_MULTIPLE", label: "Choix multiple" },
-                    { slug: "VRAI_OU_FAUX", label: "Vrais ou faux" },
+                    { slug: "CHOIX_SIMPLE", label: "Choix simple" },
+                    /*{ slug: "CHOIX_MULTIPLE_IMAGE", label: "Choix multiple image" },
+                    { slug: "CHOIX_SIMPLE_IMAGE", label: "Choix simple image" },*/
+                    { slug: "REPONSE_SAISIE", label: "Réponse saisie" },
                   ]}
                 />
                 <InputField

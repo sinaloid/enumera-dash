@@ -79,9 +79,7 @@ const GroupeDroitUtilisateur = () => {
       .then((res) => {
         const tab = res.data.filter((data) => {
           data.label = data.display_name
-          if(data.name === "super-admin"){
-            return null
-          }
+          
           return data
         });
         setRoles(tab);
