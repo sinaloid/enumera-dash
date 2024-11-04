@@ -212,8 +212,8 @@ const ReponseListe = ({ evaluation }) => {
 
   const getAll = () => {
     request
-      //.get(endPoint.res_lecons_eleves + "/evaluation/" + evaluationSlug, header)
-      .get(endPoint.res_lecons_eleves, header)
+      .get(endPoint.res_lecons_eleves + "/evaluation/" + evaluationSlug, header)
+      //.get(endPoint.res_lecons_eleves, header)
       .then((res) => {
         setDatas(res.data.data);
         console.log(res.data.data);
