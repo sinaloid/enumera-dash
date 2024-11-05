@@ -13,11 +13,12 @@ import Notify from "../../Components/Notify";
 import { toast } from "react-toastify";
 import Retour from "../../Components/Retour";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 
 const initData = {
   label: "",
   abreviation: "",
-  type_de_correction:"",
+  type_de_correction: "",
   date: "",
   heure_debut: "",
   heure_fin: "",
@@ -33,6 +34,7 @@ const ListEva = () => {
   const [refresh, setRefresh] = useState(0);
   const [classes, setClasses] = useState([]);
   const [matieres, setMatieres] = useState([]);
+  const [matiereSelected, setMatiereSelected] = useState([])
   const navigate = useNavigate();
   const header = {
     headers: {
@@ -71,6 +73,10 @@ const ListEva = () => {
     //validationSchema: validateData,
     onSubmit: (values) => {
       values.abreviation = values.label;
+      const matieres = matiereSelected.map((data) => data.slug)
+      values.matieres = matieres
+      //values.matiereSelected = matiereSelected
+      console.log(values)
       if (editId === "") {
         handleSubmit(values);
       } else {
@@ -96,8 +102,13 @@ const ListEva = () => {
     request
       .get(endPoint.matieres, header)
       .then((res) => {
-        setMatieres(res.data.data);
-        console.log(res.data.data);
+        const tab = res.data.data.map((data) => {
+          return {
+            ...data,
+            value: data.slug
+          }
+        })
+        setMatieres(tab);
       })
       .catch((error) => {
         console.log(error);
@@ -260,10 +271,15 @@ const ListEva = () => {
 
                 <td className="fw-bold1">{data.label}</td>
                 <td className="fw-bold1">
-                  {data.matiere_de_la_classe.classe.label}
+                  {data.evaluation_matiere_de_la_classes[0]?.matiere_de_la_classe?.classe?.label}
                 </td>
                 <td className="fw-bold1">
-                  {data.matiere_de_la_classe.matiere.label}
+                  {data.evaluation_matiere_de_la_classes?.map((item) => {
+
+                    return <span className="px-1 border">
+                      {item.matiere_de_la_classe?.matiere?.abreviation}
+                    </span>
+                  })}
                 </td>
                 <td className="fw-bold1">{data.date}</td>
                 <td className="fw-bold1">{data.heure_debut}</td>
@@ -352,12 +368,12 @@ const ListEva = () => {
                   label={"Type de correction"}
                   options={[
                     {
-                      label:"Correction automatique", value:"Correction automatique",
-                      
+                      label: "Correction automatique", value: "Correction automatique",
+
                     },
                     {
-                      label:"Correction manuelle", value:"Correction manuelle",
-                      
+                      label: "Correction manuelle", value: "Correction manuelle",
+
                     },
                   ]}
                 />
@@ -393,7 +409,24 @@ const ListEva = () => {
                   label={"Classe"}
                   options={classes}
                 />
-                <InputField
+                <div>
+                  Matières
+                </div>
+                <Select
+                  //defaultValue={[colourOptions[2], colourOptions[3]]}
+                  isMulti
+                  name="colors"
+                  options={matieres}
+                  className="basic-multi-select"
+                  classNamePrefix="select"
+                  placeholder={"Sélectionnez les matières"}
+                  onChange={(e) => {
+                    //console.log(e)
+                    setMatiereSelected(e);
+                  }}
+                />
+                {/**
+                 * <InputField
                   type={"select"}
                   name="matiere"
                   formik={formik}
@@ -401,6 +434,7 @@ const ListEva = () => {
                   label={"Matière"}
                   options={matieres}
                 />
+                 */}
                 <InputField
                   type={"textaera"}
                   name="description"

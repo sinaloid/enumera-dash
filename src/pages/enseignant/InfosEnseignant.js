@@ -376,6 +376,7 @@ const UtilisateurClasse = ({ classeList, refresh }) => {
                       <div key={data.slug} className="d-inline-block m-1">
                         <div
                           className="btn btn-primary-light"
+                          role="presentation"
                           data-bs-toggle="modal"
                           data-bs-target="#delete"
                           onClick={(e) => {
