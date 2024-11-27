@@ -21,6 +21,7 @@ const endPoint = {
 
   cours: "cours",
   files: "files",
+  files_evaluation_lecon: "files-evaluation-lecon",
 
   roles:"roles",
   permissions:"permissions",
