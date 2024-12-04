@@ -29,6 +29,8 @@ import UAdmin from "./pages/UAdmin";
 import DroitAcces from "./pages/DroitAcces";
 import Parametre from "./pages/Parametre";
 import { MonCompte } from "./pages/MonCompte";
+import ParametreApp from "./pages/ParametreApp";
+import MessageDefilant from "./pages/MessageDefilant";
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
   const { user, onUserChange } = authCtx;
@@ -269,6 +271,8 @@ const Dashboard = () => {
               <Route path="/u-admin" element={<UAdmin />} />
               <Route path="/user-compte" element={<MonCompte />} />
               <Route path="/parametres" element={<Parametre />} />
+              <Route path="/variables-application" element={<ParametreApp />} />
+              <Route path="/messages-defilants" element={<MessageDefilant />} />
               <Route path="/utilisateurs" element={<DroitAcces />} />
               <Route
                 path="/groupe-droits-utilisateur/:slug"

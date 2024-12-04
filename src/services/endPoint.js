@@ -17,6 +17,8 @@ const endPoint = {
   questions_import: "questions-import",
   evaluations: "evaluations",
   questions: "questions",
+  parametres:"parametres",
+  messagesDefilants:"messages-defilants",
 
 
   cours: "cours",
