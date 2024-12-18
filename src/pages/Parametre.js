@@ -58,7 +58,7 @@ const Parametre = () => {
             </span>
           </div>
           <div className="d-flex bg-white border p-2 cursor" onClick={ e => goTo(e,'/dashboard/messages-defilants')}>
-            <span>Messages défilantes</span>
+            <span>Messages défilants</span>
             <span className="ms-auto">
               <i className="bi bi-chevron-right"></i>
             </span>

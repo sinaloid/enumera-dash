@@ -171,7 +171,7 @@ const ParametreApp = () => {
         title="Liste des variables"
         modal="form"
         addModal={addModal}
-        canCreate={user.permissions?.includes("create periode")}
+        //canCreate={user.permissions?.includes("create periode")}
       />
       <div className="fw-bold">{datas.length} resultats</div>
       <Table>
@@ -227,19 +227,19 @@ const ParametreApp = () => {
                     )}
                     {user.permissions?.includes("delete periode") && (
                       <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <span> Supprimer</span>
-                      </button>
-                    </div>
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            setViewData(data);
+                          }}
+                        >
+                          <span> Supprimer</span>
+                        </button>
+                      </div>
                     )}
-                    
+
                   </div>
                 </td>
               </tr>
@@ -265,13 +265,16 @@ const ParametreApp = () => {
 
             <div className="modal-body">
               <form onSubmit={formik.handleSubmit}>
-                <InputField
-                  type={"text"}
-                  name="key"
-                  formik={formik}
-                  placeholder="Intitulé de la periode"
-                  label={"Key"}
-                />
+                {
+                  editId === "" && <InputField
+                    type={"text"}
+                    name="key"
+                    formik={formik}
+                    placeholder="Intitulé de la periode"
+                    label={"Key"}
+                  />
+                }
+
                 <InputField
                   type={"text"}
                   name="value"
@@ -279,13 +282,16 @@ const ParametreApp = () => {
                   placeholder="Abreviation de la periode"
                   label={"Valeur"}
                 />
-                <InputField
-                  type={"textaera"}
-                  name="description"
-                  formik={formik}
-                  placeholder="Description de la periode"
-                  label={"Description"}
-                />
+
+                {
+                  editId === "" && <InputField
+                    type={"textaera"}
+                    name="description"
+                    formik={formik}
+                    placeholder="Description de la periode"
+                    label={"Description"}
+                  />
+                }
 
                 <div className="d-flex justify-content-start border-0">
                   <button

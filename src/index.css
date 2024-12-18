@@ -195,3 +195,7 @@ footer {
   background-color: var(--black-color);
   color: #fff;
 }
+
+.p-img > img {
+  width: 100%;
+}

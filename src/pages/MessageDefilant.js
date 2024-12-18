@@ -11,6 +11,7 @@ import endPoint from "../services/endPoint";
 import { AppContext } from "../services/context";
 import Notify from "../Components/Notify";
 import { toast } from "react-toastify";
+import Tinymce from "../Components/Tinymce";
 
 const initData = {
   titre: "",
@@ -27,6 +28,7 @@ const MessageDefilant = () => {
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState({});
   const [refresh, setRefresh] = useState(0);
+  const [contenu, setContenu] = useState("")
   const header = {
     headers: {
       Authorization: `Bearer ${user.token}`,
@@ -36,6 +38,10 @@ const MessageDefilant = () => {
 
   useEffect(() => {
     getAll();
+    const images = document.querySelectorAll("p");
+    images.forEach((image) => {
+      image.setAttribute("class", "p-img");
+    });
   }, [refresh]);
   const validateData = Yup.object({
     label: Yup.string()
@@ -61,6 +67,7 @@ const MessageDefilant = () => {
     initialValues: initData,
     //validationSchema: validateData,
     onSubmit: (values) => {
+      values.contenu = contenu
       if (editId === "") {
         handleSubmit(values);
       } else {
@@ -198,8 +205,9 @@ const MessageDefilant = () => {
                 </td>
 
                 <td className="fw-bold1 text-wrap"><span className="bg-primary-light p-1">
-                  {data.titre}</span> <br/>{data.contenu}
-                  <br/> {data.date_debut} - {data.date_fin}
+                  {data.titre}</span> <br />
+                  
+                  <br /> {data.date_debut} - {data.date_fin}
                 </td>
                 <td className="fw-bold1">{data.type}</td>
                 <td className="text-center">
@@ -232,19 +240,19 @@ const MessageDefilant = () => {
                     )}
                     {user.permissions?.includes("delete periode") && (
                       <div className="d-inline-block mx-1">
-                      <button
-                        className="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#delete"
-                        onClick={(e) => {
-                          setViewData(data);
-                        }}
-                      >
-                        <span> Supprimer</span>
-                      </button>
-                    </div>
+                        <button
+                          className="btn btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#delete"
+                          onClick={(e) => {
+                            setViewData(data);
+                          }}
+                        >
+                          <span> Supprimer</span>
+                        </button>
+                      </div>
                     )}
-                    
+
                   </div>
                 </td>
               </tr>
@@ -284,9 +292,9 @@ const MessageDefilant = () => {
                   placeholder="Sélectionnez le type de message"
                   label={"Type"}
                   options={[
-                    {slug:"Infos", label:"Info"},
-                    {slug:"Actualité", label:"Actualité"},
-                    {slug:"Evènement", label:"Evènement"},
+                    { slug: "Infos", label: "Info" },
+                    { slug: "Actualité", label: "Actualité" },
+                    { slug: "Evènement", label: "Evènement" },
 
                   ]}
                 />
@@ -302,12 +310,12 @@ const MessageDefilant = () => {
                   formik={formik}
                   label={"Date de fin"}
                 />
-                <InputField
-                  type={"textaera"}
-                  name="contenu"
-                  formik={formik}
-                  placeholder="Description du contenu"
-                  label={"Contenu"}
+                <div className="mb-2">Contenu</div>
+                <Tinymce
+                  title={"Modification du cours"}
+                  replaceData={formik?.values?.contenu}
+                  setValue={setContenu}
+                  file={"file"}
                 />
 
                 <div className="d-flex justify-content-start border-0">
@@ -356,17 +364,18 @@ const MessageDefilant = () => {
                 </span>
                 <span className="d-inline-block">{viewData.type}</span>
               </div>
-              <div>
+              <div className="row">
                 <span className="fw-bold d-inline-block me-2">
                   Contenu :{" "}
                 </span>
-                <span className="d-inline-block">{viewData.contenu}</span>
+                <span className="d-inline-block">{}</span>
+                <div className="col-12 w-100" dangerouslySetInnerHTML={{__html:viewData.contenu}} />
               </div>
               <div>
                 <span className="fw-bold d-inline-block me-2">
                   Date de passage :{" "}
                 </span>
-                <span className="d-inline-block">{viewData.date_debut +" - " + viewData.date_fin}</span>
+                <span className="d-inline-block">{viewData.date_debut + " - " + viewData.date_fin}</span>
               </div>
               <div className="mt-4 d-flex justify-content-end">
                 <button className="btn btn-primary" data-bs-dismiss="modal">
