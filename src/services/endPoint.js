@@ -19,6 +19,7 @@ const endPoint = {
   questions: "questions",
   parametres:"parametres",
   messagesDefilants:"messages-defilants",
+  meets:"meets",
 
 
   cours: "cours",

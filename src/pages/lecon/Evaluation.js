@@ -547,6 +547,20 @@ const EvaluationListe = ({ lecon }) => {
                   >
                     Enregistrer
                   </button>
+                  {user.permissions?.includes("view questionLecon") && (
+                          <div className="d-inline-block mx-1">
+                            <button
+                              className="btn btn-primary-light"
+                              //data-bs-toggle="modal"
+                              //data-bs-target="#view"
+                              onClick={(e) => {
+                                goToDetail(e, data.slug);
+                              }}
+                            >
+                              <span> Ajouter des Questions</span>
+                            </button>
+                          </div>
+                        )}
                 </div>
               </form>
             </div>

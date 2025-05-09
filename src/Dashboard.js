@@ -31,6 +31,7 @@ import Parametre from "./pages/Parametre";
 import { MonCompte } from "./pages/MonCompte";
 import ParametreApp from "./pages/ParametreApp";
 import MessageDefilant from "./pages/MessageDefilant";
+import Chatbot from "./pages/Chatbot";
 const Dashboard = () => {
   const authCtx = useContext(AppContext);
   const { user, onUserChange } = authCtx;
@@ -81,6 +82,11 @@ const Dashboard = () => {
       droit: "view classeVirtuelle",
       url: "/dashboard/cours-en-ligne",
       display_name: "Classes Virtuelles",
+    },
+    {
+      droit: "view classeVirtuelle", // a revoir
+      url: "/dashboard/chatbot",
+      display_name: "Chatbot",
     },
     {
       droit: "view eleve",
@@ -263,7 +269,8 @@ const Dashboard = () => {
               <Route path="/lecons/*" element={<Lecon />} />
               <Route path="/cours/*" element={<Cours />} />
               <Route path="/evaluations/*" element={<Evaluation />} />
-              <Route path="/cours-en-ligne" element={<CoursEnLigne />} />
+              <Route path="/cours-en-ligne/*" element={<CoursEnLigne />} />
+              <Route path="/chatbot" element={<Chatbot />} />
               <Route path="/periodes" element={<Periode />} />
               <Route path="/eleves/*" element={<Eleve />} />
               <Route path="/enseignants/*" element={<Enseignant />} />
@@ -285,7 +292,7 @@ const Dashboard = () => {
           </main>
           <div className="col-md-9 ms-sm-auto col-lg-10 px-md-4 bg-body-tertiary">
             <div className="text-small d-inline-block my-4 me-4">
-              Copyright © 2024 ENUMERA
+              Copyright © 2025 ENUMERA
             </div>
           </div>
         </div>
