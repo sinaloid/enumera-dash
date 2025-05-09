@@ -199,7 +199,8 @@ const MeetParticipant = () => {
 
   const copyToClipboard = (e, data) => {
     e.preventDefault()
-    const url = meet.jitsi_meeting_link + "/" + meet.jitsi_room_name + "?jwt=" + data.meet_token
+    const url = meet.jitsi_meeting_link + "/" + "?jwt=" + data.meet_token
+    console.log(url)
     navigator.clipboard.writeText(url).then(() => {
       alert("Lien copié !");
     }).catch(err => {
