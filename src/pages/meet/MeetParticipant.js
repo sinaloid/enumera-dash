@@ -706,7 +706,7 @@ const CreateSessionModal = ({ usersList, onSubmit }) => {
                                   }}
                                 />
                               </td>
-                              <td>{user.nom}</td>
+                              <td>{user.nom + " "+user.prenom}</td>
                               <td>{user.email}</td>
                               <td>{user.classe}</td>
                               <td>
