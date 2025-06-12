@@ -151,7 +151,7 @@ const Dashboard = () => {
             aria-expanded="false"
             aria-label="Toggle navigation"
           >
-            <i class="bi bi-list text-primary icon-size"></i>
+            <i className="bi bi-list text-primary icon-size"></i>
           </button>
         </div>
       </header>

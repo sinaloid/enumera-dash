@@ -21,7 +21,7 @@ const initData = {
   type: "pdf",
   lecon: "",
   description: "",
-  editorType: "blocknotejs",
+  editorType: "tinymce",
 };
 const LeconDetail = () => {
   const authCtx = useContext(AppContext);
@@ -308,7 +308,7 @@ const LeconDetail = () => {
                         title={"Editeur de cours"}
                         formik={formik}
                         setValue={setCours}
-                        file={file}
+                        onInsertFile={file}
                       />
                     )}
                     <div className="d-flex justify-content-center mt-3">
@@ -353,6 +353,7 @@ const LeconDetail = () => {
                   { slug: "video", label: "Vidéos" },
                   { slug: "audio", label: "Audios" },
                   { slug: "image", label: "Images" },
+                  { slug: "pdf", label: "Pdf" },
                   { slug: "file", label: "Fichiers" },
                 ]}
               />
@@ -394,13 +395,14 @@ const LeconDetail = () => {
                             className="bg-primary text-white px-2 rounded-2 fw-bold py-1 d-inline-block ms-1 mb-2"
                             onClick={(e) => {
                               e.preventDefault();
+                              console.log(data);
                               setFile(data);
                             }}
                           >
-                            <i class="bi bi-plus-circle-fill"></i>
+                            <i className="bi bi-plus-circle-fill"></i>
                           </span>
                           <span className="bg-danger text-white px-2 rounded-2 fw-bold py-1 d-inline-block ms-1 mb-2">
-                            <i class="bi bi-trash-fill"></i>
+                            <i className="bi bi-trash-fill"></i>
                           </span>
                         </div>
                       </div>
@@ -516,6 +518,7 @@ const ViewCours = ({ data, formik, formikCoursFile, setCours, file, user }) => {
               replaceData={data?.description}
               setValue={setCours}
               file={file}
+              onInsertFile={file}
             />
           )}
 

@@ -298,10 +298,12 @@ const LeconListe = () => {
     onSelectChange(
       classe,
       formik.values.periodeSelected,
-      formik.values.matiereSelected,
-      formik.values.chapitreSelected
     );
     localStorage.setItem("classeSelected", classe);
+    localStorage.removeItem("matiereSelected");
+    localStorage.removeItem("chapitreSelected");
+    formik.setFieldValue('matiereSelected','')
+    formik.setFieldValue('chapitreSelected','')
     getMatiere(classe);
   };
 
@@ -310,9 +312,9 @@ const LeconListe = () => {
       formik.values.classeSelected,
       periode,
       formik.values.matiereSelected,
-      formik.values.chapitreSelected
     );
     localStorage.setItem("periodeSelected", periode);
+    formik.setFieldValue('chapitreSelected','') 
   };
 
   const changeMatiere = (matiere) => {
@@ -323,6 +325,7 @@ const LeconListe = () => {
       ""
     );
     localStorage.setItem("matiereSelected", matiere);
+    localStorage.removeItem("chapitreSelected");
 
     getChapitre(formik.values.classeSelected, matiere);
   };
@@ -489,7 +492,7 @@ const LeconListe = () => {
                             setEditeData(e, data);
                           }}
                         >
-                          <i class="bi bi-pencil-square"></i>
+                          <i className="bi bi-pencil-square"></i>
                         </button>
                       </div>
                     )}
@@ -503,7 +506,7 @@ const LeconListe = () => {
                           setViewData(data);
                         }}
                       >
-                        <i class="bi bi-trash"></i>
+                        <i className="bi bi-trash"></i>
                       </button>
                     </div>
                     }

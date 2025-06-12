@@ -199,3 +199,10 @@ footer {
 .p-img > img {
   width: 100%;
 }
+
+
+/** tinymce ***/
+figure > video, p > video, span > video {
+  width: 100%;
+  height: auto;
+}
